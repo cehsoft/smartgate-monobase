@@ -4,6 +4,7 @@
         "SPITC",
         "aler",
         "gortsplib",
+        "muxer",
         "nalu",
         "nalus",
         "rtph",
