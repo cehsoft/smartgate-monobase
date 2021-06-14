@@ -131,6 +131,8 @@ func stream(channelMP4f chan []byte) (int, error) {
 					continue
 				}
 
+				fmt.Println(codec.Height(), codec.Width())
+
 				mp4muxer = &mp4f.Muxer{}
 				err = mp4muxer.WriteHeader([]av.CodecData{
 					codec,

@@ -5,7 +5,7 @@ var ws;
 
 window.onload = function () {
   function pushPacket(data) {
-    console.log(data);
+    console.log(videoElement.error);
     queue.push(new Uint8Array(data));
     loadPacket();
   }
@@ -46,7 +46,7 @@ window.onload = function () {
     };
   }
 
-  let videoElement = document.querySelector("video");
+  var videoElement = document.querySelector("video");
   mediaSource.addEventListener("sourceopen", handleSourceOpen, false);
   videoElement.src = window.URL.createObjectURL(mediaSource);
 };
