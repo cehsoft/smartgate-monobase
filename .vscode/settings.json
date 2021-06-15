@@ -3,11 +3,13 @@
         "Protocal",
         "SPITC",
         "aler",
+        "fmuxer",
         "gortsplib",
         "muxer",
         "nalu",
         "nalus",
         "rtph",
-        "rtsp"
+        "rtsp",
+        "rtspv"
     ]
 }

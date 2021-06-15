@@ -71,7 +71,7 @@ func stream(channelMP4f chan []byte) (int, error) {
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 	}
-	conn, err := c.DialRead("rtsp://admin:tg12346789g@14.161.28.68:50240/Streaming/channels/101")
+	conn, err := c.DialRead("rtsp://admin:tg12346789g@14.161.28.68:50239/Streaming/channels/101")
 	if err != nil {
 		return 1, err
 	}
@@ -82,6 +82,15 @@ func stream(channelMP4f chan []byte) (int, error) {
 	for _, track := range conn.Tracks() {
 		if track.IsH264() {
 			h264TrackID = track.ID
+			sps, pps, err := track.ExtractDataH264()
+			if err != nil {
+				return 1, err
+			}
+			codec, err := h264parser.NewCodecDataFromSPSAndPPS(sps, pps)
+			if err != nil {
+				return 1, err
+			}
+			log.Println(codec.Width(), codec.Height())
 		}
 	}
 
