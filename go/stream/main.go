@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"sync/atomic"
 	"time"
 
 	"github.com/deepch/vdk/av"
 	"github.com/deepch/vdk/codec/h264parser"
 	"github.com/deepch/vdk/format/rtspv2"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
 )
@@ -23,19 +24,20 @@ var (
 
 // HTTP Handler that accepts an Offer and returns an Answer
 // adds outboundVideoTrack to PeerConnection
-func doSignaling(resp http.ResponseWriter, req *http.Request) {
+func doSignaling(ctx echo.Context) error {
 	var clientReq = &struct {
 		CamID string                    `json:"camId"`
 		Offer webrtc.SessionDescription `json:"offer"`
 	}{}
 	// var offer webrtc.SessionDescription
-	if err := json.NewDecoder(req.Body).Decode(&clientReq); err != nil {
-		panic(err)
+
+	if err := json.NewDecoder(ctx.Request().Body).Decode(&clientReq); err != nil {
+		return err
 	}
 
 	peerConnection, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
@@ -50,33 +52,34 @@ func doSignaling(resp http.ResponseWriter, req *http.Request) {
 	})
 
 	if _, err = peerConnection.AddTrack(outboundVideoTracks[clientReq.CamID]); err != nil {
-		panic(err)
+		return err
 	}
 
 	if err = peerConnection.SetRemoteDescription(clientReq.Offer); err != nil {
-		panic(err)
+		return err
 	}
 
 	gatherCompletePromise := webrtc.GatheringCompletePromise(peerConnection)
 
 	answer, err := peerConnection.CreateAnswer(nil)
 	if err != nil {
-		panic(err)
+		return err
 	} else if err = peerConnection.SetLocalDescription(answer); err != nil {
-		panic(err)
+		return err
 	}
 
 	<-gatherCompletePromise
 
 	response, err := json.Marshal(*peerConnection.LocalDescription())
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	resp.Header().Set("Content-Type", "application/json")
-	if _, err := resp.Write(response); err != nil {
-		panic(err)
+	if _, err := ctx.Response().Write(response); err != nil {
+		return err
 	}
+
+	return nil
 }
 
 var rtspURLs map[string]string = map[string]string{
@@ -101,11 +104,16 @@ func main() {
 
 	go rtspConsumer()
 
-	http.Handle("/", http.FileServer(http.Dir("./static")))
-	http.HandleFunc("/doSignaling", doSignaling)
+	sv := echo.New()
+	sv.Use(middleware.Logger())
+	sv.Use(middleware.Recover())
+	sv.Use(middleware.CORS())
+
+	sv.Static("/", "./static")
+	sv.POST("/signaling", doSignaling)
 
 	fmt.Println("Open http://localhost:8080 to access this demo")
-	log.Fatalln(http.ListenAndServe(":8080", nil))
+	log.Fatalln(sv.Start(":8080"))
 }
 
 // Convert H264 to Annex-B, then write to outboundVideoTrack which sends to all PeerConnections
