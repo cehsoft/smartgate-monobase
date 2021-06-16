@@ -3,17 +3,24 @@ package main;
 option go_package="./;mygrpc";
 
 
-message RPCResStatus {
+message ResStatus {
     int32 statusCode = 1;
     string errCode = 2;
     string errMessage = 3;
+}
+
+message ResEmpty {
+    ResStatus status = 1;
+}
+
+message ReqEmpty {
 }
 
 message ReqMLResult {
 }
 
 message ResMLResult {
-    RPCResStatus status = 1;
+    ResStatus status = 1;
     string ContainerID = 2;
 }
 
@@ -22,10 +29,11 @@ message ReqConfirmContainerID {
 }
 
 message ResConfirmContainerID {
-    RPCResStatus status = 1;
+    ResStatus status = 1;
 }
 
-service RPCSvc {
-    rpc streamMLResult(ReqMLResult) returns (stream ResMLResult);
+service MyGRPC {
+    rpc newMLResult(stream ReqMLResult) returns (ResEmpty);
+    rpc pullMLResult(ReqEmpty) returns (stream ResMLResult);
     rpc confirmContainerID(ReqConfirmContainerID) returns (ResConfirmContainerID);
 }

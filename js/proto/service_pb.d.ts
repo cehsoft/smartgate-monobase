@@ -1,9 +1,9 @@
 // package: main
-// file: service.proto
+// file: proto/service.proto
 
 import * as jspb from "google-protobuf";
 
-export class RPCResStatus extends jspb.Message {
+export class ResStatus extends jspb.Message {
   getStatuscode(): number;
   setStatuscode(value: number): void;
 
@@ -14,20 +14,58 @@ export class RPCResStatus extends jspb.Message {
   setErrmessage(value: string): void;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): RPCResStatus.AsObject;
-  static toObject(includeInstance: boolean, msg: RPCResStatus): RPCResStatus.AsObject;
+  toObject(includeInstance?: boolean): ResStatus.AsObject;
+  static toObject(includeInstance: boolean, msg: ResStatus): ResStatus.AsObject;
   static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: RPCResStatus, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): RPCResStatus;
-  static deserializeBinaryFromReader(message: RPCResStatus, reader: jspb.BinaryReader): RPCResStatus;
+  static serializeBinaryToWriter(message: ResStatus, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ResStatus;
+  static deserializeBinaryFromReader(message: ResStatus, reader: jspb.BinaryReader): ResStatus;
 }
 
-export namespace RPCResStatus {
+export namespace ResStatus {
   export type AsObject = {
     statuscode: number,
     errcode: string,
     errmessage: string,
+  }
+}
+
+export class ResEmpty extends jspb.Message {
+  hasStatus(): boolean;
+  clearStatus(): void;
+  getStatus(): ResStatus | undefined;
+  setStatus(value?: ResStatus): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ResEmpty.AsObject;
+  static toObject(includeInstance: boolean, msg: ResEmpty): ResEmpty.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ResEmpty, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ResEmpty;
+  static deserializeBinaryFromReader(message: ResEmpty, reader: jspb.BinaryReader): ResEmpty;
+}
+
+export namespace ResEmpty {
+  export type AsObject = {
+    status?: ResStatus.AsObject,
+  }
+}
+
+export class ReqEmpty extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ReqEmpty.AsObject;
+  static toObject(includeInstance: boolean, msg: ReqEmpty): ReqEmpty.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ReqEmpty, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ReqEmpty;
+  static deserializeBinaryFromReader(message: ReqEmpty, reader: jspb.BinaryReader): ReqEmpty;
+}
+
+export namespace ReqEmpty {
+  export type AsObject = {
   }
 }
 
@@ -50,8 +88,8 @@ export namespace ReqMLResult {
 export class ResMLResult extends jspb.Message {
   hasStatus(): boolean;
   clearStatus(): void;
-  getStatus(): RPCResStatus | undefined;
-  setStatus(value?: RPCResStatus): void;
+  getStatus(): ResStatus | undefined;
+  setStatus(value?: ResStatus): void;
 
   getContainerid(): string;
   setContainerid(value: string): void;
@@ -68,7 +106,7 @@ export class ResMLResult extends jspb.Message {
 
 export namespace ResMLResult {
   export type AsObject = {
-    status?: RPCResStatus.AsObject,
+    status?: ResStatus.AsObject,
     containerid: string,
   }
 }
@@ -96,8 +134,8 @@ export namespace ReqConfirmContainerID {
 export class ResConfirmContainerID extends jspb.Message {
   hasStatus(): boolean;
   clearStatus(): void;
-  getStatus(): RPCResStatus | undefined;
-  setStatus(value?: RPCResStatus): void;
+  getStatus(): ResStatus | undefined;
+  setStatus(value?: ResStatus): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ResConfirmContainerID.AsObject;
@@ -111,7 +149,7 @@ export class ResConfirmContainerID extends jspb.Message {
 
 export namespace ResConfirmContainerID {
   export type AsObject = {
-    status?: RPCResStatus.AsObject,
+    status?: ResStatus.AsObject,
   }
 }
 

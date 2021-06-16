@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"sync/atomic"
@@ -112,7 +111,6 @@ func main() {
 	sv.Static("/", "./static")
 	sv.POST("/signaling", doSignaling)
 
-	fmt.Println("Open http://localhost:8080 to access this demo")
 	log.Fatalln(sv.Start(":8080"))
 }
 

@@ -1,31 +1,41 @@
 // package: main
-// file: service.proto
+// file: proto/service.proto
 
-import * as service_pb from "./service_pb";
+import * as proto_service_pb from "../proto/service_pb";
 import {grpc} from "@improbable-eng/grpc-web";
 
-type RPCSvcstreamMLResult = {
+type MyGRPCnewMLResult = {
   readonly methodName: string;
-  readonly service: typeof RPCSvc;
+  readonly service: typeof MyGRPC;
+  readonly requestStream: true;
+  readonly responseStream: false;
+  readonly requestType: typeof proto_service_pb.ReqMLResult;
+  readonly responseType: typeof proto_service_pb.ResEmpty;
+};
+
+type MyGRPCpullMLResult = {
+  readonly methodName: string;
+  readonly service: typeof MyGRPC;
   readonly requestStream: false;
   readonly responseStream: true;
-  readonly requestType: typeof service_pb.ReqMLResult;
-  readonly responseType: typeof service_pb.ResMLResult;
+  readonly requestType: typeof proto_service_pb.ReqEmpty;
+  readonly responseType: typeof proto_service_pb.ResMLResult;
 };
 
-type RPCSvcconfirmContainerID = {
+type MyGRPCconfirmContainerID = {
   readonly methodName: string;
-  readonly service: typeof RPCSvc;
+  readonly service: typeof MyGRPC;
   readonly requestStream: false;
   readonly responseStream: false;
-  readonly requestType: typeof service_pb.ReqConfirmContainerID;
-  readonly responseType: typeof service_pb.ResConfirmContainerID;
+  readonly requestType: typeof proto_service_pb.ReqConfirmContainerID;
+  readonly responseType: typeof proto_service_pb.ResConfirmContainerID;
 };
 
-export class RPCSvc {
+export class MyGRPC {
   static readonly serviceName: string;
-  static readonly streamMLResult: RPCSvcstreamMLResult;
-  static readonly confirmContainerID: RPCSvcconfirmContainerID;
+  static readonly newMLResult: MyGRPCnewMLResult;
+  static readonly pullMLResult: MyGRPCpullMLResult;
+  static readonly confirmContainerID: MyGRPCconfirmContainerID;
 }
 
 export type ServiceError = { message: string, code: number; metadata: grpc.Metadata }
@@ -56,19 +66,20 @@ interface BidirectionalStream<ReqT, ResT> {
   on(type: 'status', handler: (status: Status) => void): BidirectionalStream<ReqT, ResT>;
 }
 
-export class RPCSvcClient {
+export class MyGRPCClient {
   readonly serviceHost: string;
 
   constructor(serviceHost: string, options?: grpc.RpcOptions);
-  streamMLResult(requestMessage: service_pb.ReqMLResult, metadata?: grpc.Metadata): ResponseStream<service_pb.ResMLResult>;
+  newMLResult(metadata?: grpc.Metadata): RequestStream<proto_service_pb.ReqMLResult>;
+  pullMLResult(requestMessage: proto_service_pb.ReqEmpty, metadata?: grpc.Metadata): ResponseStream<proto_service_pb.ResMLResult>;
   confirmContainerID(
-    requestMessage: service_pb.ReqConfirmContainerID,
+    requestMessage: proto_service_pb.ReqConfirmContainerID,
     metadata: grpc.Metadata,
-    callback: (error: ServiceError|null, responseMessage: service_pb.ResConfirmContainerID|null) => void
+    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResConfirmContainerID|null) => void
   ): UnaryResponse;
   confirmContainerID(
-    requestMessage: service_pb.ReqConfirmContainerID,
-    callback: (error: ServiceError|null, responseMessage: service_pb.ResConfirmContainerID|null) => void
+    requestMessage: proto_service_pb.ReqConfirmContainerID,
+    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResConfirmContainerID|null) => void
   ): UnaryResponse;
 }
 
