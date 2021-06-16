@@ -7,5 +7,5 @@ protoc proto/service.proto \
     --plugin="protoc-gen-ts=`which protoc-gen-ts`" \
     --js_out="import_style=commonjs,binary:./js/" \
     --ts_out="service=grpc-web:./js/" \
-    --go-grpc_out="./go/manager/mygrpc/" \
-    --go_out="./go/manager/mygrpc/"
+    --go-grpc_out="./services/manager/mygrpc/" \
+    --go_out="./services/manager/mygrpc/"
