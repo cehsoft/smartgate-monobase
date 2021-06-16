@@ -1,15 +1,19 @@
 {
-    "cSpell.words": [
-        "Protocal",
-        "SPITC",
-        "aler",
-        "fmuxer",
-        "gortsplib",
-        "muxer",
-        "nalu",
-        "nalus",
-        "rtph",
-        "rtsp",
-        "rtspv"
-    ]
+  "cSpell.words": [
+    "Protocal",
+    "RPCRes",
+    "SPITC",
+    "aler",
+    "annexb",
+    "fmuxer",
+    "gortsplib",
+    "muxer",
+    "mygrpc",
+    "nalu",
+    "nalus",
+    "proto",
+    "rtph",
+    "rtsp",
+    "rtspv"
+  ]
 }

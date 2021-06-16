@@ -11,19 +11,28 @@ import (
 
 	"github.com/deepch/vdk/av"
 	"github.com/deepch/vdk/codec/h264parser"
-	"github.com/deepch/vdk/format/rtsp"
+	"github.com/deepch/vdk/format/rtspv2"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
 )
 
 var (
-	outboundVideoTrack  *webrtc.TrackLocalStaticSample
+	outboundVideoTracks map[string]*webrtc.TrackLocalStaticSample = map[string]*webrtc.TrackLocalStaticSample{}
 	peerConnectionCount int64
 )
 
 // HTTP Handler that accepts an Offer and returns an Answer
 // adds outboundVideoTrack to PeerConnection
-func doSignaling(w http.ResponseWriter, r *http.Request) {
+func doSignaling(resp http.ResponseWriter, req *http.Request) {
+	var clientReq = &struct {
+		CamID string                    `json:"camId"`
+		Offer webrtc.SessionDescription `json:"offer"`
+	}{}
+	// var offer webrtc.SessionDescription
+	if err := json.NewDecoder(req.Body).Decode(&clientReq); err != nil {
+		panic(err)
+	}
+
 	peerConnection, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		panic(err)
@@ -40,16 +49,11 @@ func doSignaling(w http.ResponseWriter, r *http.Request) {
 		}
 	})
 
-	if _, err = peerConnection.AddTrack(outboundVideoTrack); err != nil {
+	if _, err = peerConnection.AddTrack(outboundVideoTracks[clientReq.CamID]); err != nil {
 		panic(err)
 	}
 
-	var offer webrtc.SessionDescription
-	if err = json.NewDecoder(r.Body).Decode(&offer); err != nil {
-		panic(err)
-	}
-
-	if err = peerConnection.SetRemoteDescription(offer); err != nil {
+	if err = peerConnection.SetRemoteDescription(clientReq.Offer); err != nil {
 		panic(err)
 	}
 
@@ -69,19 +73,30 @@ func doSignaling(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(response); err != nil {
+	resp.Header().Set("Content-Type", "application/json")
+	if _, err := resp.Write(response); err != nil {
 		panic(err)
 	}
 }
 
+var rtspURLs map[string]string = map[string]string{
+	"c238": "rtsp://admin:tg12346789g@14.161.28.68:50238/Streaming/channels/101",
+	"c239": "rtsp://admin:tg12346789g@14.161.28.68:50239/Streaming/channels/101",
+	"c240": "rtsp://admin:tg12346789g@14.161.28.68:50240/Streaming/channels/101",
+	"c241": "rtsp://admin:tg12346789g@14.161.28.68:50241/Streaming/channels/101",
+	"c242": "rtsp://admin:tg12346789g@14.161.28.68:50242/Streaming/channels/101",
+}
+
 func main() {
 	var err error
-	outboundVideoTrack, err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{
-		MimeType: "video/h264",
-	}, "pion-rtsp", "pion-rtsp")
-	if err != nil {
-		panic(err)
+
+	for cam := range rtspURLs {
+		outboundVideoTracks[cam], err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{
+			MimeType: "video/h264",
+		}, "pion-rtsp", "pion-rtsp")
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	go rtspConsumer()
@@ -90,70 +105,72 @@ func main() {
 	http.HandleFunc("/doSignaling", doSignaling)
 
 	fmt.Println("Open http://localhost:8080 to access this demo")
-	panic(http.ListenAndServe(":8080", nil))
+	log.Fatalln(http.ListenAndServe(":8080", nil))
 }
-
-const rtspURL = "rtsp://admin:tg12346789g@14.161.28.68:50238/Streaming/channels/101"
 
 // Convert H264 to Annex-B, then write to outboundVideoTrack which sends to all PeerConnections
 func rtspConsumer() {
 	annexbNALUStartCode := func() []byte { return []byte{0x00, 0x00, 0x00, 0x01} }
 
-	for {
-		session, err := rtsp.Dial(rtspURL)
-		if err != nil {
-			panic(err)
-		}
-		session.RtpKeepAliveTimeout = 10 * time.Second
+	for cam, rtspURL := range rtspURLs {
+		go func(cam, rtspURL string) {
+			for {
+				rtspClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{
+					URL:              rtspURL,
+					DialTimeout:      5 * time.Second,
+					ReadWriteTimeout: 5 * time.Second,
+					DisableAudio:     true,
+				})
+				if err != nil {
+					panic(err)
+				}
 
-		codecs, err := session.Streams()
-		if err != nil {
-			panic(err)
-		}
-		for i, t := range codecs {
-			log.Println("Stream", i, "is of type", t.Type().String())
-		}
-		if codecs[0].Type() != av.H264 {
-			panic("RTSP feed must begin with a H264 codec")
-		}
-		if len(codecs) != 1 {
-			log.Println("Ignoring all but the first stream.")
-		}
+				codecs := rtspClient.CodecData
+				for i, t := range codecs {
+					log.Println(cam, "- track", i, "-", t.Type().String())
+				}
+				if codecs[0].Type() != av.H264 {
+					panic("RTSP feed must begin with a H264 codec")
+				}
+				if len(codecs) != 1 {
+					log.Println("Ignoring all but the first stream.")
+				}
 
-		var previousTime time.Duration
-		for {
-			pkt, err := session.ReadPacket()
-			if err != nil {
-				break
+				var previousTime time.Duration
+
+				for {
+					select {
+					case pkg := <-rtspClient.OutgoingPacketQueue:
+						if pkg.Idx != 0 {
+							continue
+						}
+
+						pkg.Data = pkg.Data[4:]
+						if pkg.IsKeyFrame {
+							pkg.Data = append(annexbNALUStartCode(), pkg.Data...)
+							pkg.Data = append(codecs[0].(h264parser.CodecData).PPS(), pkg.Data...)
+							pkg.Data = append(annexbNALUStartCode(), pkg.Data...)
+							pkg.Data = append(codecs[0].(h264parser.CodecData).SPS(), pkg.Data...)
+							pkg.Data = append(annexbNALUStartCode(), pkg.Data...)
+						}
+						bufferDuration := pkg.Time - previousTime
+						previousTime = pkg.Time
+
+						if err = outboundVideoTracks[cam].WriteSample(media.Sample{Data: pkg.Data, Duration: bufferDuration}); err != nil && err != io.ErrClosedPipe {
+							panic(err)
+						}
+					case sig := <-rtspClient.Signals:
+						if sig == rtspv2.SignalStreamRTPStop {
+							goto exit
+						}
+					}
+				}
+
+			exit:
+				rtspClient.Close()
+				time.Sleep(5 * time.Second)
+				log.Println(cam, "timeout")
 			}
-
-			if pkt.Idx != 0 {
-				//audio or other stream, skip it
-				continue
-			}
-
-			pkt.Data = pkt.Data[4:]
-
-			// For every key-frame pre-pend the SPS and PPS
-			if pkt.IsKeyFrame {
-				pkt.Data = append(annexbNALUStartCode(), pkt.Data...)
-				pkt.Data = append(codecs[0].(h264parser.CodecData).PPS(), pkt.Data...)
-				pkt.Data = append(annexbNALUStartCode(), pkt.Data...)
-				pkt.Data = append(codecs[0].(h264parser.CodecData).SPS(), pkt.Data...)
-				pkt.Data = append(annexbNALUStartCode(), pkt.Data...)
-			}
-
-			bufferDuration := pkt.Time - previousTime
-			previousTime = pkt.Time
-			if err = outboundVideoTrack.WriteSample(media.Sample{Data: pkt.Data, Duration: bufferDuration}); err != nil && err != io.ErrClosedPipe {
-				panic(err)
-			}
-		}
-
-		if err = session.Close(); err != nil {
-			log.Println("session Close error", err)
-		}
-
-		time.Sleep(5 * time.Second)
+		}(cam, rtspURL)
 	}
 }
