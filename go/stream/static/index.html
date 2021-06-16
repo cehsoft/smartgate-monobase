@@ -1,0 +1,56 @@
+<html lang="en">
+<head>
+    <title>WebRTC Browser</title>
+</head>
+<body>
+<div style="max-width: 460px;" id="remoteVideos"></div>
+<br/>
+<div>
+    <button onclick="window.doSignaling(true)">ICE Reconnect</button>
+</div>
+<br>
+<div id="logs"></div>
+</body>
+
+<script>
+    let pc = new RTCPeerConnection()
+    pc.addTransceiver('video')
+
+    let log = msg => {
+        document.getElementById('logs').innerHTML += msg + '<br>'
+    }
+    pc.oniceconnectionstatechange = () => log(pc.iceConnectionState)
+    pc.ontrack = function (event) {
+        console.log(event.track.kind)
+        let el = document.createElement(event.track.kind)
+        el.srcObject = event.streams[0]
+        el.autoplay = true
+        el.controls = true
+        el.muted = true
+        el.style = "width: 100%;"
+
+        document.getElementById('remoteVideos').appendChild(el)
+    }
+
+    window.doSignaling = iceRestart => {
+        pc.createOffer({iceRestart})
+            .then(offer => {
+                pc.setLocalDescription(offer)
+
+                return fetch(`/doSignaling`, {
+                    method: 'post',
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(offer)
+                })
+            })
+            .then(res => res.json())
+            .then(res => pc.setRemoteDescription(res))
+            .catch(alert)
+    }
+
+    window.doSignaling(false)
+</script>
+</html>
