@@ -5,28 +5,17 @@ import (
 	"net"
 	"net/http"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/server"
 )
-
-// GenerateTLSApi will load TLS certificates and key and create a grpc server with those.
-func GenerateTLSApi(pemPath, keyPath string) (*grpc.Server, error) {
-	cred, err := credentials.NewServerTLSFromFile(pemPath, keyPath)
-	if err != nil {
-		return nil, err
-	}
-
-	s := grpc.NewServer(
-		grpc.Creds(cred),
-	)
-	return s, nil
-}
 
 type grpcMultiplexer struct {
 	*grpcweb.WrappedGrpcServer
@@ -34,7 +23,6 @@ type grpcMultiplexer struct {
 
 // Handler is used to route requests to either grpc or to regular http
 func (m *grpcMultiplexer) Handler(next http.Handler) http.Handler {
-	log.Println(">>>> here")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if m.IsGrpcWebRequest(r) {
 			m.ServeHTTP(w, r)
@@ -51,11 +39,18 @@ func (m *grpcMultiplexer) Handler(next http.Handler) http.Handler {
 }
 
 func main() {
-	apiserver, err := GenerateTLSApi("cert/server.crt", "cert/server.key")
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Start listening on a TCP Port
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+
+	apiserver := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_zap.StreamServerInterceptor(logger),
+		)),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_zap.UnaryServerInterceptor(logger),
+		)),
+	)
+
 	lis, err := net.Listen("tcp", "127.0.0.1:9990")
 	if err != nil {
 		log.Fatal(err)
@@ -89,8 +84,8 @@ func main() {
 	})
 
 	sv.GET("*", func(c echo.Context) error {
-		return nil
+		return c.JSON(200, map[string]string{"status": "ok"})
 	})
 
-	sv.StartTLS(":3002", "cert/server.crt", "cert/server.key")
+	sv.Start(":3000")
 }

@@ -643,7 +643,7 @@ proto.main.ReqMLResult.prototype.toObject = function(opt_includeInstance) {
  */
 proto.main.ReqMLResult.toObject = function(includeInstance, msg) {
   var f, obj = {
-
+    containerid: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -680,6 +680,10 @@ proto.main.ReqMLResult.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setContainerid(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -709,6 +713,31 @@ proto.main.ReqMLResult.prototype.serializeBinary = function() {
  */
 proto.main.ReqMLResult.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
+  f = message.getContainerid();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional string ContainerID = 1;
+ * @return {string}
+ */
+proto.main.ReqMLResult.prototype.getContainerid = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.main.ReqMLResult} returns this
+ */
+proto.main.ReqMLResult.prototype.setContainerid = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 

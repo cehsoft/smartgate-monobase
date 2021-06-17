@@ -17,6 +17,7 @@ message ReqEmpty {
 }
 
 message ReqMLResult {
+    string ContainerID = 1;
 }
 
 message ResMLResult {
@@ -33,7 +34,7 @@ message ResConfirmContainerID {
 }
 
 service MyGRPC {
-    rpc newMLResult(stream ReqMLResult) returns (ResEmpty);
+    rpc newMLResult(ReqMLResult) returns (ResEmpty);
     rpc pullMLResult(ReqEmpty) returns (stream ResMLResult);
     rpc confirmContainerID(ReqConfirmContainerID) returns (ResConfirmContainerID);
 }

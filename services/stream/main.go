@@ -28,13 +28,20 @@ func doSignaling(ctx echo.Context) error {
 		CamID string                    `json:"camId"`
 		Offer webrtc.SessionDescription `json:"offer"`
 	}{}
-	// var offer webrtc.SessionDescription
 
 	if err := json.NewDecoder(ctx.Request().Body).Decode(&clientReq); err != nil {
 		return err
 	}
 
-	peerConnection, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	peerConnection, err := webrtc.NewPeerConnection(webrtc.Configuration{
+		ICEServers: []webrtc.ICEServer{
+			{
+				URLs: []string{
+					"stun:stun.l.google.com:19302",
+				},
+			},
+		},
+	})
 	if err != nil {
 		return err
 	}
@@ -82,11 +89,21 @@ func doSignaling(ctx echo.Context) error {
 }
 
 var rtspURLs map[string]string = map[string]string{
-	"c238": "rtsp://admin:tg12346789g@14.161.28.68:50238/Streaming/channels/101",
-	"c239": "rtsp://admin:tg12346789g@14.161.28.68:50239/Streaming/channels/101",
-	"c240": "rtsp://admin:tg12346789g@14.161.28.68:50240/Streaming/channels/101",
-	"c241": "rtsp://admin:tg12346789g@14.161.28.68:50241/Streaming/channels/101",
-	"c242": "rtsp://admin:tg12346789g@14.161.28.68:50242/Streaming/channels/101",
+	// "c238": "rtsp://admin:tg12346789g@14.161.28.68:50238/Streaming/channels/101",
+	// "c239": "rtsp://admin:tg12346789g@14.161.28.68:50239/Streaming/channels/101",
+	// "c240": "rtsp://admin:tg12346789g@14.161.28.68:50240/Streaming/channels/101",
+	// "c241": "rtsp://admin:tg12346789g@14.161.28.68:50241/Streaming/channels/101",
+	// "c242": "rtsp://admin:tg12346789g@14.161.28.68:50242/Streaming/channels/101",
+	// "c238": "rtsp://admin:tg12346789g@10.10.13.238:554/Streaming/channels/101",
+	// "c239": "rtsp://admin:tg12346789g@10.10.13.239:554/Streaming/channels/101",
+	// "c240": "rtsp://admin:tg12346789g@10.10.13.240:554/Streaming/channels/101",
+	// "c241": "rtsp://admin:tg12346789g@10.10.13.241:554/Streaming/channels/101",
+	// "c242": "rtsp://admin:tg12346789g@10.10.13.242:554/Streaming/channels/101",
+	"c238": "rtsp://10.10.14.60:8554/c238",
+	"c239": "rtsp://10.10.14.60:8554/c239",
+	"c240": "rtsp://10.10.14.60:8554/c240",
+	"c241": "rtsp://10.10.14.60:8554/c241",
+	"c242": "rtsp://10.10.14.60:8554/c242",
 }
 
 func main() {
@@ -111,7 +128,7 @@ func main() {
 	sv.Static("/", "./static")
 	sv.POST("/signaling", doSignaling)
 
-	log.Fatalln(sv.Start(":8080"))
+	log.Fatalln(sv.Start(":3030"))
 }
 
 // Convert H264 to Annex-B, then write to outboundVideoTrack which sends to all PeerConnections

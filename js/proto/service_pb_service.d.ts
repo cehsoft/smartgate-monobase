@@ -7,7 +7,7 @@ import {grpc} from "@improbable-eng/grpc-web";
 type MyGRPCnewMLResult = {
   readonly methodName: string;
   readonly service: typeof MyGRPC;
-  readonly requestStream: true;
+  readonly requestStream: false;
   readonly responseStream: false;
   readonly requestType: typeof proto_service_pb.ReqMLResult;
   readonly responseType: typeof proto_service_pb.ResEmpty;
@@ -70,7 +70,15 @@ export class MyGRPCClient {
   readonly serviceHost: string;
 
   constructor(serviceHost: string, options?: grpc.RpcOptions);
-  newMLResult(metadata?: grpc.Metadata): RequestStream<proto_service_pb.ReqMLResult>;
+  newMLResult(
+    requestMessage: proto_service_pb.ReqMLResult,
+    metadata: grpc.Metadata,
+    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResEmpty|null) => void
+  ): UnaryResponse;
+  newMLResult(
+    requestMessage: proto_service_pb.ReqMLResult,
+    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResEmpty|null) => void
+  ): UnaryResponse;
   pullMLResult(requestMessage: proto_service_pb.ReqEmpty, metadata?: grpc.Metadata): ResponseStream<proto_service_pb.ResMLResult>;
   confirmContainerID(
     requestMessage: proto_service_pb.ReqConfirmContainerID,

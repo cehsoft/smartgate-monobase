@@ -18,7 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MyGRPCClient interface {
-	NewMLResult(ctx context.Context, opts ...grpc.CallOption) (MyGRPC_NewMLResultClient, error)
+	NewMLResult(ctx context.Context, in *ReqMLResult, opts ...grpc.CallOption) (*ResEmpty, error)
 	PullMLResult(ctx context.Context, in *ReqEmpty, opts ...grpc.CallOption) (MyGRPC_PullMLResultClient, error)
 	ConfirmContainerID(ctx context.Context, in *ReqConfirmContainerID, opts ...grpc.CallOption) (*ResConfirmContainerID, error)
 }
@@ -31,42 +31,17 @@ func NewMyGRPCClient(cc grpc.ClientConnInterface) MyGRPCClient {
 	return &myGRPCClient{cc}
 }
 
-func (c *myGRPCClient) NewMLResult(ctx context.Context, opts ...grpc.CallOption) (MyGRPC_NewMLResultClient, error) {
-	stream, err := c.cc.NewStream(ctx, &MyGRPC_ServiceDesc.Streams[0], "/main.MyGRPC/newMLResult", opts...)
+func (c *myGRPCClient) NewMLResult(ctx context.Context, in *ReqMLResult, opts ...grpc.CallOption) (*ResEmpty, error) {
+	out := new(ResEmpty)
+	err := c.cc.Invoke(ctx, "/main.MyGRPC/newMLResult", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &myGRPCNewMLResultClient{stream}
-	return x, nil
-}
-
-type MyGRPC_NewMLResultClient interface {
-	Send(*ReqMLResult) error
-	CloseAndRecv() (*ResEmpty, error)
-	grpc.ClientStream
-}
-
-type myGRPCNewMLResultClient struct {
-	grpc.ClientStream
-}
-
-func (x *myGRPCNewMLResultClient) Send(m *ReqMLResult) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *myGRPCNewMLResultClient) CloseAndRecv() (*ResEmpty, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	m := new(ResEmpty)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 func (c *myGRPCClient) PullMLResult(ctx context.Context, in *ReqEmpty, opts ...grpc.CallOption) (MyGRPC_PullMLResultClient, error) {
-	stream, err := c.cc.NewStream(ctx, &MyGRPC_ServiceDesc.Streams[1], "/main.MyGRPC/pullMLResult", opts...)
+	stream, err := c.cc.NewStream(ctx, &MyGRPC_ServiceDesc.Streams[0], "/main.MyGRPC/pullMLResult", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +85,7 @@ func (c *myGRPCClient) ConfirmContainerID(ctx context.Context, in *ReqConfirmCon
 // All implementations must embed UnimplementedMyGRPCServer
 // for forward compatibility
 type MyGRPCServer interface {
-	NewMLResult(MyGRPC_NewMLResultServer) error
+	NewMLResult(context.Context, *ReqMLResult) (*ResEmpty, error)
 	PullMLResult(*ReqEmpty, MyGRPC_PullMLResultServer) error
 	ConfirmContainerID(context.Context, *ReqConfirmContainerID) (*ResConfirmContainerID, error)
 	mustEmbedUnimplementedMyGRPCServer()
@@ -120,8 +95,8 @@ type MyGRPCServer interface {
 type UnimplementedMyGRPCServer struct {
 }
 
-func (UnimplementedMyGRPCServer) NewMLResult(MyGRPC_NewMLResultServer) error {
-	return status.Errorf(codes.Unimplemented, "method NewMLResult not implemented")
+func (UnimplementedMyGRPCServer) NewMLResult(context.Context, *ReqMLResult) (*ResEmpty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NewMLResult not implemented")
 }
 func (UnimplementedMyGRPCServer) PullMLResult(*ReqEmpty, MyGRPC_PullMLResultServer) error {
 	return status.Errorf(codes.Unimplemented, "method PullMLResult not implemented")
@@ -142,30 +117,22 @@ func RegisterMyGRPCServer(s grpc.ServiceRegistrar, srv MyGRPCServer) {
 	s.RegisterService(&MyGRPC_ServiceDesc, srv)
 }
 
-func _MyGRPC_NewMLResult_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(MyGRPCServer).NewMLResult(&myGRPCNewMLResultServer{stream})
-}
-
-type MyGRPC_NewMLResultServer interface {
-	SendAndClose(*ResEmpty) error
-	Recv() (*ReqMLResult, error)
-	grpc.ServerStream
-}
-
-type myGRPCNewMLResultServer struct {
-	grpc.ServerStream
-}
-
-func (x *myGRPCNewMLResultServer) SendAndClose(m *ResEmpty) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *myGRPCNewMLResultServer) Recv() (*ReqMLResult, error) {
-	m := new(ReqMLResult)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _MyGRPC_NewMLResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReqMLResult)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(MyGRPCServer).NewMLResult(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/main.MyGRPC/newMLResult",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyGRPCServer).NewMLResult(ctx, req.(*ReqMLResult))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _MyGRPC_PullMLResult_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -215,16 +182,15 @@ var MyGRPC_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MyGRPCServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "newMLResult",
+			Handler:    _MyGRPC_NewMLResult_Handler,
+		},
+		{
 			MethodName: "confirmContainerID",
 			Handler:    _MyGRPC_ConfirmContainerID_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "newMLResult",
-			Handler:       _MyGRPC_NewMLResult_Handler,
-			ClientStreams: true,
-		},
 		{
 			StreamName:    "pullMLResult",
 			Handler:       _MyGRPC_PullMLResult_Handler,

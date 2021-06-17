@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -18,8 +19,9 @@ type Server struct {
 	mygrpc.UnimplementedMyGRPCServer
 }
 
-func (svc *Server) NewMLResult(req mygrpc.MyGRPC_NewMLResultServer) error {
-	return status.Errorf(codes.Unimplemented, "method NewMLResult not implemented")
+func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*mygrpc.ResEmpty, error) {
+	log.Println("ML result received", req.ContainerID)
+	return &mygrpc.ResEmpty{}, nil
 }
 
 func (svc *Server) PullMLResult(req *mygrpc.ReqEmpty, resp mygrpc.MyGRPC_PullMLResultServer) error {

@@ -70,6 +70,9 @@ export namespace ReqEmpty {
 }
 
 export class ReqMLResult extends jspb.Message {
+  getContainerid(): string;
+  setContainerid(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReqMLResult.AsObject;
   static toObject(includeInstance: boolean, msg: ReqMLResult): ReqMLResult.AsObject;
@@ -82,6 +85,7 @@ export class ReqMLResult extends jspb.Message {
 
 export namespace ReqMLResult {
   export type AsObject = {
+    containerid: string,
   }
 }
 
