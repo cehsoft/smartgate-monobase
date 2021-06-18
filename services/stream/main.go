@@ -138,6 +138,10 @@ func rtspConsumer() {
 	for cam, rtspURL := range rtspURLs {
 		go func(cam, rtspURL string) {
 			for {
+				connected := false
+				var previousTime time.Duration
+				var codecs []av.CodecData
+
 				rtspClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{
 					URL:              rtspURL,
 					DialTimeout:      5 * time.Second,
@@ -145,21 +149,23 @@ func rtspConsumer() {
 					DisableAudio:     true,
 				})
 				if err != nil {
-					panic(err)
+					log.Println(err)
+					goto exit
 				}
 
-				codecs := rtspClient.CodecData
+				connected = true
+
+				codecs = rtspClient.CodecData
 				for i, t := range codecs {
 					log.Println(cam, "- track", i, "-", t.Type().String())
 				}
 				if codecs[0].Type() != av.H264 {
-					panic("RTSP feed must begin with a H264 codec")
+					log.Println("RTSP feed must begin with a H264 codec")
+					goto exit
 				}
 				if len(codecs) != 1 {
 					log.Println("Ignoring all but the first stream.")
 				}
-
-				var previousTime time.Duration
 
 				for {
 					select {
@@ -190,7 +196,9 @@ func rtspConsumer() {
 				}
 
 			exit:
-				rtspClient.Close()
+				if connected {
+					rtspClient.Close()
+				}
 				time.Sleep(5 * time.Second)
 				log.Println(cam, "timeout")
 			}
