@@ -27,7 +27,7 @@ class MyGRPCStub(object):
         self.confirmContainerID = channel.unary_unary(
                 '/main.MyGRPC/confirmContainerID',
                 request_serializer=proto_dot_service__pb2.ReqConfirmContainerID.SerializeToString,
-                response_deserializer=proto_dot_service__pb2.ResConfirmContainerID.FromString,
+                response_deserializer=proto_dot_service__pb2.ResEmpty.FromString,
                 )
 
 
@@ -68,7 +68,7 @@ def add_MyGRPCServicer_to_server(servicer, server):
             'confirmContainerID': grpc.unary_unary_rpc_method_handler(
                     servicer.confirmContainerID,
                     request_deserializer=proto_dot_service__pb2.ReqConfirmContainerID.FromString,
-                    response_serializer=proto_dot_service__pb2.ResConfirmContainerID.SerializeToString,
+                    response_serializer=proto_dot_service__pb2.ResEmpty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -127,6 +127,6 @@ class MyGRPC(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/main.MyGRPC/confirmContainerID',
             proto_dot_service__pb2.ReqConfirmContainerID.SerializeToString,
-            proto_dot_service__pb2.ResConfirmContainerID.FromString,
+            proto_dot_service__pb2.ResEmpty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

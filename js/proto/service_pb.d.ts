@@ -73,6 +73,12 @@ export class ReqMLResult extends jspb.Message {
   getContainerid(): string;
   setContainerid(value: string): void;
 
+  getImageurl(): string;
+  setImageurl(value: string): void;
+
+  getScore(): number;
+  setScore(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReqMLResult.AsObject;
   static toObject(includeInstance: boolean, msg: ReqMLResult): ReqMLResult.AsObject;
@@ -86,6 +92,8 @@ export class ReqMLResult extends jspb.Message {
 export namespace ReqMLResult {
   export type AsObject = {
     containerid: string,
+    imageurl: string,
+    score: number,
   }
 }
 
@@ -95,8 +103,17 @@ export class ResMLResult extends jspb.Message {
   getStatus(): ResStatus | undefined;
   setStatus(value?: ResStatus): void;
 
+  getCachedid(): number;
+  setCachedid(value: number): void;
+
   getContainerid(): string;
   setContainerid(value: string): void;
+
+  getImageurl(): string;
+  setImageurl(value: string): void;
+
+  getScore(): number;
+  setScore(value: number): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ResMLResult.AsObject;
@@ -111,13 +128,16 @@ export class ResMLResult extends jspb.Message {
 export namespace ResMLResult {
   export type AsObject = {
     status?: ResStatus.AsObject,
+    cachedid: number,
     containerid: string,
+    imageurl: string,
+    score: number,
   }
 }
 
 export class ReqConfirmContainerID extends jspb.Message {
-  getContainerid(): string;
-  setContainerid(value: string): void;
+  getCachedid(): string;
+  setCachedid(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReqConfirmContainerID.AsObject;
@@ -131,7 +151,7 @@ export class ReqConfirmContainerID extends jspb.Message {
 
 export namespace ReqConfirmContainerID {
   export type AsObject = {
-    containerid: string,
+    cachedid: string,
   }
 }
 

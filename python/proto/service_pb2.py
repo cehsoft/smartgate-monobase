@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z\t./;mygrpc',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x13proto/service.proto\x12\x04main\"D\n\tResStatus\x12\x12\n\nstatusCode\x18\x01 \x01(\x05\x12\x0f\n\x07\x65rrCode\x18\x02 \x01(\t\x12\x12\n\nerrMessage\x18\x03 \x01(\t\"+\n\x08ResEmpty\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\"\n\n\x08ReqEmpty\"\"\n\x0bReqMLResult\x12\x13\n\x0b\x43ontainerID\x18\x01 \x01(\t\"C\n\x0bResMLResult\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\",\n\x15ReqConfirmContainerID\x12\x13\n\x0b\x43ontainerID\x18\x01 \x01(\t\"8\n\x15ResConfirmContainerID\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus2\xbf\x01\n\x06MyGRPC\x12\x30\n\x0bnewMLResult\x12\x11.main.ReqMLResult\x1a\x0e.main.ResEmpty\x12\x33\n\x0cpullMLResult\x12\x0e.main.ReqEmpty\x1a\x11.main.ResMLResult0\x01\x12N\n\x12\x63onfirmContainerID\x12\x1b.main.ReqConfirmContainerID\x1a\x1b.main.ResConfirmContainerIDB\x0bZ\t./;mygrpcb\x06proto3'
+  serialized_pb=b'\n\x13proto/service.proto\x12\x04main\"D\n\tResStatus\x12\x12\n\nstatusCode\x18\x01 \x01(\x05\x12\x0f\n\x07\x65rrCode\x18\x02 \x01(\t\x12\x12\n\nerrMessage\x18\x03 \x01(\t\"+\n\x08ResEmpty\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\"\n\n\x08ReqEmpty\"C\n\x0bReqMLResult\x12\x13\n\x0b\x43ontainerID\x18\x01 \x01(\t\x12\x10\n\x08ImageURL\x18\x02 \x01(\t\x12\r\n\x05Score\x18\x03 \x01(\x02\"v\n\x0bResMLResult\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\x10\n\x08\x43\x61\x63hedID\x18\x05 \x01(\x05\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\r\n\x05Score\x18\x04 \x01(\x02\")\n\x15ReqConfirmContainerID\x12\x10\n\x08\x43\x61\x63hedID\x18\x01 \x01(\t\"8\n\x15ResConfirmContainerID\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus2\xb2\x01\n\x06MyGRPC\x12\x30\n\x0bnewMLResult\x12\x11.main.ReqMLResult\x1a\x0e.main.ResEmpty\x12\x33\n\x0cpullMLResult\x12\x0e.main.ReqEmpty\x1a\x11.main.ResMLResult0\x01\x12\x41\n\x12\x63onfirmContainerID\x12\x1b.main.ReqConfirmContainerID\x1a\x0e.main.ResEmptyB\x0bZ\t./;mygrpcb\x06proto3'
 )
 
 
@@ -143,6 +143,20 @@ _REQMLRESULT = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ImageURL', full_name='main.ReqMLResult.ImageURL', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='Score', full_name='main.ReqMLResult.Score', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -156,7 +170,7 @@ _REQMLRESULT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=156,
-  serialized_end=190,
+  serialized_end=223,
 )
 
 
@@ -176,9 +190,30 @@ _RESMLRESULT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ContainerID', full_name='main.ResMLResult.ContainerID', index=1,
+      name='CachedID', full_name='main.ResMLResult.CachedID', index=1,
+      number=5, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ContainerID', full_name='main.ResMLResult.ContainerID', index=2,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ImageURL', full_name='main.ResMLResult.ImageURL', index=3,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='Score', full_name='main.ResMLResult.Score', index=4,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -194,8 +229,8 @@ _RESMLRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=192,
-  serialized_end=259,
+  serialized_start=225,
+  serialized_end=343,
 )
 
 
@@ -208,7 +243,7 @@ _REQCONFIRMCONTAINERID = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='ContainerID', full_name='main.ReqConfirmContainerID.ContainerID', index=0,
+      name='CachedID', full_name='main.ReqConfirmContainerID.CachedID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -226,8 +261,8 @@ _REQCONFIRMCONTAINERID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=261,
-  serialized_end=305,
+  serialized_start=345,
+  serialized_end=386,
 )
 
 
@@ -258,8 +293,8 @@ _RESCONFIRMCONTAINERID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=307,
-  serialized_end=363,
+  serialized_start=388,
+  serialized_end=444,
 )
 
 _RESEMPTY.fields_by_name['status'].message_type = _RESSTATUS
@@ -333,8 +368,8 @@ _MYGRPC = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=366,
-  serialized_end=557,
+  serialized_start=447,
+  serialized_end=625,
   methods=[
   _descriptor.MethodDescriptor(
     name='newMLResult',
@@ -362,7 +397,7 @@ _MYGRPC = _descriptor.ServiceDescriptor(
     index=2,
     containing_service=None,
     input_type=_REQCONFIRMCONTAINERID,
-    output_type=_RESCONFIRMCONTAINERID,
+    output_type=_RESEMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

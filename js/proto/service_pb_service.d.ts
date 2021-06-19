@@ -28,7 +28,7 @@ type MyGRPCconfirmContainerID = {
   readonly requestStream: false;
   readonly responseStream: false;
   readonly requestType: typeof proto_service_pb.ReqConfirmContainerID;
-  readonly responseType: typeof proto_service_pb.ResConfirmContainerID;
+  readonly responseType: typeof proto_service_pb.ResEmpty;
 };
 
 export class MyGRPC {
@@ -83,11 +83,11 @@ export class MyGRPCClient {
   confirmContainerID(
     requestMessage: proto_service_pb.ReqConfirmContainerID,
     metadata: grpc.Metadata,
-    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResConfirmContainerID|null) => void
+    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResEmpty|null) => void
   ): UnaryResponse;
   confirmContainerID(
     requestMessage: proto_service_pb.ReqConfirmContainerID,
-    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResConfirmContainerID|null) => void
+    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResEmpty|null) => void
   ): UnaryResponse;
 }
 

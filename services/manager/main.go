@@ -56,7 +56,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := &server.Server{}
+	server := server.CreateServer()
 	mygrpc.RegisterMyGRPCServer(apiserver, server)
 
 	go func() {

@@ -9,6 +9,7 @@ require (
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.3.0
+	github.com/leandro-lugaresi/hub v1.1.1 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/pion/webrtc/v3 v3.0.29
 	github.com/rs/cors v1.7.0 // indirect

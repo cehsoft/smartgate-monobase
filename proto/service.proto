@@ -18,15 +18,21 @@ message ReqEmpty {
 
 message ReqMLResult {
     string ContainerID = 1;
+    string ImageURL = 2;
+    float Score = 3;
 }
 
 message ResMLResult {
     ResStatus status = 1;
+
+    int32 CachedID = 5;
     string ContainerID = 2;
+    string ImageURL = 3;
+    float Score = 4;
 }
 
 message ReqConfirmContainerID {
-    string ContainerID = 1;
+    string CachedID = 1;    
 }
 
 message ResConfirmContainerID {
@@ -36,5 +42,5 @@ message ResConfirmContainerID {
 service MyGRPC {
     rpc newMLResult(ReqMLResult) returns (ResEmpty);
     rpc pullMLResult(ReqEmpty) returns (stream ResMLResult);
-    rpc confirmContainerID(ReqConfirmContainerID) returns (ResConfirmContainerID);
+    rpc confirmContainerID(ReqConfirmContainerID) returns (ResEmpty);
 }

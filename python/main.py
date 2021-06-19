@@ -11,7 +11,7 @@ def run():
             stub = service_pb2_grpc.MyGRPCStub(channel)
 
             stub.newMLResult(service_pb2.ReqMLResult(
-                ContainerID="abcabc"
+                ContainerID="FROM-PYTHON"
             ))
         except grpc.RpcError as err:
             print(err)

@@ -34,7 +34,7 @@ MyGRPC.confirmContainerID = {
   requestStream: false,
   responseStream: false,
   requestType: proto_service_pb.ReqConfirmContainerID,
-  responseType: proto_service_pb.ResConfirmContainerID
+  responseType: proto_service_pb.ResEmpty
 };
 
 exports.MyGRPC = MyGRPC;

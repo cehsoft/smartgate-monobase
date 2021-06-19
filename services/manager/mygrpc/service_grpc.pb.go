@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 type MyGRPCClient interface {
 	NewMLResult(ctx context.Context, in *ReqMLResult, opts ...grpc.CallOption) (*ResEmpty, error)
 	PullMLResult(ctx context.Context, in *ReqEmpty, opts ...grpc.CallOption) (MyGRPC_PullMLResultClient, error)
-	ConfirmContainerID(ctx context.Context, in *ReqConfirmContainerID, opts ...grpc.CallOption) (*ResConfirmContainerID, error)
+	ConfirmContainerID(ctx context.Context, in *ReqConfirmContainerID, opts ...grpc.CallOption) (*ResEmpty, error)
 }
 
 type myGRPCClient struct {
@@ -72,8 +72,8 @@ func (x *myGRPCPullMLResultClient) Recv() (*ResMLResult, error) {
 	return m, nil
 }
 
-func (c *myGRPCClient) ConfirmContainerID(ctx context.Context, in *ReqConfirmContainerID, opts ...grpc.CallOption) (*ResConfirmContainerID, error) {
-	out := new(ResConfirmContainerID)
+func (c *myGRPCClient) ConfirmContainerID(ctx context.Context, in *ReqConfirmContainerID, opts ...grpc.CallOption) (*ResEmpty, error) {
+	out := new(ResEmpty)
 	err := c.cc.Invoke(ctx, "/main.MyGRPC/confirmContainerID", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -87,7 +87,7 @@ func (c *myGRPCClient) ConfirmContainerID(ctx context.Context, in *ReqConfirmCon
 type MyGRPCServer interface {
 	NewMLResult(context.Context, *ReqMLResult) (*ResEmpty, error)
 	PullMLResult(*ReqEmpty, MyGRPC_PullMLResultServer) error
-	ConfirmContainerID(context.Context, *ReqConfirmContainerID) (*ResConfirmContainerID, error)
+	ConfirmContainerID(context.Context, *ReqConfirmContainerID) (*ResEmpty, error)
 	mustEmbedUnimplementedMyGRPCServer()
 }
 
@@ -101,7 +101,7 @@ func (UnimplementedMyGRPCServer) NewMLResult(context.Context, *ReqMLResult) (*Re
 func (UnimplementedMyGRPCServer) PullMLResult(*ReqEmpty, MyGRPC_PullMLResultServer) error {
 	return status.Errorf(codes.Unimplemented, "method PullMLResult not implemented")
 }
-func (UnimplementedMyGRPCServer) ConfirmContainerID(context.Context, *ReqConfirmContainerID) (*ResConfirmContainerID, error) {
+func (UnimplementedMyGRPCServer) ConfirmContainerID(context.Context, *ReqConfirmContainerID) (*ResEmpty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConfirmContainerID not implemented")
 }
 func (UnimplementedMyGRPCServer) mustEmbedUnimplementedMyGRPCServer() {}

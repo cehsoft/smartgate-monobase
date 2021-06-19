@@ -643,7 +643,9 @@ proto.main.ReqMLResult.prototype.toObject = function(opt_includeInstance) {
  */
 proto.main.ReqMLResult.toObject = function(includeInstance, msg) {
   var f, obj = {
-    containerid: jspb.Message.getFieldWithDefault(msg, 1, "")
+    containerid: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    imageurl: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    score: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0)
   };
 
   if (includeInstance) {
@@ -684,6 +686,14 @@ proto.main.ReqMLResult.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setContainerid(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setImageurl(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setScore(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -720,6 +730,20 @@ proto.main.ReqMLResult.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getImageurl();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getScore();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -738,6 +762,42 @@ proto.main.ReqMLResult.prototype.getContainerid = function() {
  */
 proto.main.ReqMLResult.prototype.setContainerid = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string ImageURL = 2;
+ * @return {string}
+ */
+proto.main.ReqMLResult.prototype.getImageurl = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.main.ReqMLResult} returns this
+ */
+proto.main.ReqMLResult.prototype.setImageurl = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional float Score = 3;
+ * @return {number}
+ */
+proto.main.ReqMLResult.prototype.getScore = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 3, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.main.ReqMLResult} returns this
+ */
+proto.main.ReqMLResult.prototype.setScore = function(value) {
+  return jspb.Message.setProto3FloatField(this, 3, value);
 };
 
 
@@ -774,7 +834,10 @@ proto.main.ResMLResult.prototype.toObject = function(opt_includeInstance) {
 proto.main.ResMLResult.toObject = function(includeInstance, msg) {
   var f, obj = {
     status: (f = msg.getStatus()) && proto.main.ResStatus.toObject(includeInstance, f),
-    containerid: jspb.Message.getFieldWithDefault(msg, 2, "")
+    cachedid: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    containerid: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    imageurl: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    score: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0)
   };
 
   if (includeInstance) {
@@ -816,9 +879,21 @@ proto.main.ResMLResult.deserializeBinaryFromReader = function(msg, reader) {
       reader.readMessage(value,proto.main.ResStatus.deserializeBinaryFromReader);
       msg.setStatus(value);
       break;
+    case 5:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setCachedid(value);
+      break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
       msg.setContainerid(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setImageurl(value);
+      break;
+    case 4:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setScore(value);
       break;
     default:
       reader.skipField();
@@ -857,10 +932,31 @@ proto.main.ResMLResult.serializeBinaryToWriter = function(message, writer) {
       proto.main.ResStatus.serializeBinaryToWriter
     );
   }
+  f = message.getCachedid();
+  if (f !== 0) {
+    writer.writeInt32(
+      5,
+      f
+    );
+  }
   f = message.getContainerid();
   if (f.length > 0) {
     writer.writeString(
       2,
+      f
+    );
+  }
+  f = message.getImageurl();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getScore();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      4,
       f
     );
   }
@@ -905,6 +1001,24 @@ proto.main.ResMLResult.prototype.hasStatus = function() {
 
 
 /**
+ * optional int32 CachedID = 5;
+ * @return {number}
+ */
+proto.main.ResMLResult.prototype.getCachedid = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.main.ResMLResult} returns this
+ */
+proto.main.ResMLResult.prototype.setCachedid = function(value) {
+  return jspb.Message.setProto3IntField(this, 5, value);
+};
+
+
+/**
  * optional string ContainerID = 2;
  * @return {string}
  */
@@ -919,6 +1033,42 @@ proto.main.ResMLResult.prototype.getContainerid = function() {
  */
 proto.main.ResMLResult.prototype.setContainerid = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string ImageURL = 3;
+ * @return {string}
+ */
+proto.main.ResMLResult.prototype.getImageurl = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.main.ResMLResult} returns this
+ */
+proto.main.ResMLResult.prototype.setImageurl = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional float Score = 4;
+ * @return {number}
+ */
+proto.main.ResMLResult.prototype.getScore = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 4, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.main.ResMLResult} returns this
+ */
+proto.main.ResMLResult.prototype.setScore = function(value) {
+  return jspb.Message.setProto3FloatField(this, 4, value);
 };
 
 
@@ -954,7 +1104,7 @@ proto.main.ReqConfirmContainerID.prototype.toObject = function(opt_includeInstan
  */
 proto.main.ReqConfirmContainerID.toObject = function(includeInstance, msg) {
   var f, obj = {
-    containerid: jspb.Message.getFieldWithDefault(msg, 1, "")
+    cachedid: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -993,7 +1143,7 @@ proto.main.ReqConfirmContainerID.deserializeBinaryFromReader = function(msg, rea
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setContainerid(value);
+      msg.setCachedid(value);
       break;
     default:
       reader.skipField();
@@ -1024,7 +1174,7 @@ proto.main.ReqConfirmContainerID.prototype.serializeBinary = function() {
  */
 proto.main.ReqConfirmContainerID.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getContainerid();
+  f = message.getCachedid();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -1035,10 +1185,10 @@ proto.main.ReqConfirmContainerID.serializeBinaryToWriter = function(message, wri
 
 
 /**
- * optional string ContainerID = 1;
+ * optional string CachedID = 1;
  * @return {string}
  */
-proto.main.ReqConfirmContainerID.prototype.getContainerid = function() {
+proto.main.ReqConfirmContainerID.prototype.getCachedid = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
@@ -1047,7 +1197,7 @@ proto.main.ReqConfirmContainerID.prototype.getContainerid = function() {
  * @param {string} value
  * @return {!proto.main.ReqConfirmContainerID} returns this
  */
-proto.main.ReqConfirmContainerID.prototype.setContainerid = function(value) {
+proto.main.ReqConfirmContainerID.prototype.setCachedid = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
 };
 
