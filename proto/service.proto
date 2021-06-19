@@ -32,11 +32,8 @@ message ResMLResult {
 }
 
 message ReqConfirmContainerID {
-    string CachedID = 1;    
-}
-
-message ResConfirmContainerID {
-    ResStatus status = 1;
+    optional int32 CachedID = 1;
+    string ContainerID = 2;
 }
 
 service MyGRPC {

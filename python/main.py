@@ -1,5 +1,6 @@
 import grpc
 from time import sleep
+import random
 
 import proto.service_pb2 as service_pb2
 import proto.service_pb2_grpc as service_pb2_grpc
@@ -16,7 +17,7 @@ def run():
             stub.newMLResult(service_pb2.ReqMLResult(
                 ContainerID=f"DỮ-LIỆU-GIẢ-XXYY-1994-{count}",
                 ImageURL="http://localhost:5000/image.jpeg",
-                Score=0.9
+                Score=random.uniform(0, 1)
             ))
             print(">>> sent: ", count)
             count = count + 1

@@ -5,6 +5,13 @@ import (
 	"net"
 	"net/http"
 
+	"context"
+	"database/sql"
+
+	_ "github.com/jackc/pgx/v4/stdlib"
+
+	"entgo.io/ent/dialect"
+	entsql "entgo.io/ent/dialect/sql"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
@@ -13,6 +20,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/server"
 )
@@ -56,7 +64,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := server.CreateServer()
+	db, err := sql.Open("pgx", "dbname=spitc-manager user=danhtran94 sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := ent.NewClient(ent.Driver(entsql.OpenDB(dialect.Postgres, db)))
+	if err != nil {
+		log.Fatal("opening ent client", err)
+	}
+
+	if err := client.Schema.Create(
+		context.Background(),
+		// migrate.WithGlobalUniqueID(true),
+	); err != nil {
+		log.Fatal("opening ent client", err)
+	}
+
+	server := server.CreateServer(client)
 	mygrpc.RegisterMyGRPCServer(apiserver, server)
 
 	go func() {
@@ -76,6 +101,11 @@ func main() {
 		return func(c echo.Context) error {
 			if multiplex.IsGrpcWebSocketRequest(c.Request()) {
 				multiplex.HandleGrpcWebsocketRequest(c.Response(), c.Request())
+				return nil
+			}
+
+			if multiplex.IsGrpcWebRequest(c.Request()) {
+				multiplex.HandleGrpcWebRequest(c.Response(), c.Request())
 				return nil
 			}
 

@@ -136,8 +136,13 @@ export namespace ResMLResult {
 }
 
 export class ReqConfirmContainerID extends jspb.Message {
-  getCachedid(): string;
-  setCachedid(value: string): void;
+  hasCachedid(): boolean;
+  clearCachedid(): void;
+  getCachedid(): number;
+  setCachedid(value: number): void;
+
+  getContainerid(): string;
+  setContainerid(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReqConfirmContainerID.AsObject;
@@ -151,29 +156,8 @@ export class ReqConfirmContainerID extends jspb.Message {
 
 export namespace ReqConfirmContainerID {
   export type AsObject = {
-    cachedid: string,
-  }
-}
-
-export class ResConfirmContainerID extends jspb.Message {
-  hasStatus(): boolean;
-  clearStatus(): void;
-  getStatus(): ResStatus | undefined;
-  setStatus(value?: ResStatus): void;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ResConfirmContainerID.AsObject;
-  static toObject(includeInstance: boolean, msg: ResConfirmContainerID): ResConfirmContainerID.AsObject;
-  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: ResConfirmContainerID, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ResConfirmContainerID;
-  static deserializeBinaryFromReader(message: ResConfirmContainerID, reader: jspb.BinaryReader): ResConfirmContainerID;
-}
-
-export namespace ResConfirmContainerID {
-  export type AsObject = {
-    status?: ResStatus.AsObject,
+    cachedid: number,
+    containerid: string,
   }
 }
 

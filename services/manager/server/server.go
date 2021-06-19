@@ -5,31 +5,32 @@ import (
 	"log"
 
 	"github.com/leandro-lugaresi/hub"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/model"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 )
 
 type Server struct {
 	hub             *hub.Hub
+	db              *ent.Client
 	cachedTrackings []*model.ContainerTracking
 
 	mygrpc.UnimplementedMyGRPCServer
 }
 
-func CreateServer() *Server {
+func CreateServer(db *ent.Client) *Server {
 	hub := hub.New()
 
 	return &Server{
 		hub:             hub,
+		db:              db,
 		cachedTrackings: []*model.ContainerTracking{},
 	}
 }
 
 func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*mygrpc.ResEmpty, error) {
-	log.Println("ML result received", req.ContainerID)
+	log.Println("ML result received", req)
 
 	svc.hub.Publish(hub.Message{
 		Name: "ml.new.result",
@@ -89,8 +90,29 @@ func (svc *Server) PullMLResult(req *mygrpc.ReqEmpty, resp mygrpc.MyGRPC_PullMLR
 	return nil
 }
 
-func (svc *Server) ConfirmContainerID(context.Context, *mygrpc.ReqConfirmContainerID) (*mygrpc.ResEmpty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConfirmContainerID not implemented")
+func (svc *Server) ConfirmContainerID(ctx context.Context, req *mygrpc.ReqConfirmContainerID) (*mygrpc.ResEmpty, error) {
+	builder := svc.db.ContainerTracking.Create().
+		SetContainerID(req.ContainerID)
+
+	if req.CachedID != nil && len(svc.cachedTrackings) > int(*req.CachedID) {
+		cached := svc.cachedTrackings[*req.CachedID]
+		builder = builder.
+			SetImageURL(cached.ImageURL)
+		if cached.ContainerID != req.ContainerID {
+			builder = builder.
+				SetManual(true).
+				SetImageURL(cached.ImageURL)
+		}
+	}
+
+	_, err := builder.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	svc.cachedTrackings = []*model.ContainerTracking{}
+
+	return &mygrpc.ResEmpty{}, nil
 }
 
 var _ mygrpc.MyGRPCServer = &Server{}
