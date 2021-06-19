@@ -50,6 +50,28 @@ func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*m
 	return &mygrpc.ResEmpty{}, nil
 }
 
+func (svc *Server) ListContainerTrackings(ctx context.Context, req *mygrpc.ReqEmpty) (*mygrpc.ResListContainerTrackings, error) {
+	tracks, err := svc.db.ContainerTracking.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resTrackings := []*mygrpc.ContainerTracking{}
+
+	for _, t := range tracks {
+		resTrackings = append(resTrackings, &mygrpc.ContainerTracking{
+			ID:          int32(t.ID),
+			ContainerID: t.ContainerID,
+			ImageURL:    t.ImageURL,
+			CreatedAt:   int32(t.CreatedAt.Unix()),
+		})
+	}
+
+	return &mygrpc.ResListContainerTrackings{
+		Trackings: resTrackings,
+	}, nil
+}
+
 func (svc *Server) PullMLResult(req *mygrpc.ReqEmpty, resp mygrpc.MyGRPC_PullMLResultServer) error {
 	sub := svc.hub.Subscribe(100, "ml.new.result")
 
@@ -100,8 +122,7 @@ func (svc *Server) ConfirmContainerID(ctx context.Context, req *mygrpc.ReqConfir
 			SetImageURL(cached.ImageURL)
 		if cached.ContainerID != req.ContainerID {
 			builder = builder.
-				SetManual(true).
-				SetImageURL(cached.ImageURL)
+				SetManual(true)
 		}
 	}
 
