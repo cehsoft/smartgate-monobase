@@ -163,6 +163,7 @@ func rtspConsumer() {
 					log.Println("RTSP feed must begin with a H264 codec")
 					goto exit
 				}
+
 				if len(codecs) != 1 {
 					log.Println("Ignoring all but the first stream.")
 				}
@@ -186,7 +187,8 @@ func rtspConsumer() {
 						previousTime = pkg.Time
 
 						if err = outboundVideoTracks[cam].WriteSample(media.Sample{Data: pkg.Data, Duration: bufferDuration}); err != nil && err != io.ErrClosedPipe {
-							panic(err)
+							log.Println(err)
+							goto exit
 						}
 					case sig := <-rtspClient.Signals:
 						if sig == rtspv2.SignalStreamRTPStop {
@@ -200,7 +202,7 @@ func rtspConsumer() {
 					rtspClient.Close()
 				}
 				time.Sleep(5 * time.Second)
-				log.Println(cam, "timeout")
+				log.Println(cam, "restarting")
 			}
 		}(cam, rtspURL)
 	}

@@ -50,7 +50,7 @@ func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*m
 }
 
 func (svc *Server) PullMLResult(req *mygrpc.ReqEmpty, resp mygrpc.MyGRPC_PullMLResultServer) error {
-	sub := svc.hub.Subscribe(10, "ml.new.result")
+	sub := svc.hub.Subscribe(100, "ml.new.result")
 
 	for msg := range sub.Receiver {
 		var ContainerID, ImageURL string

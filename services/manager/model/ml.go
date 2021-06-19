@@ -8,7 +8,3 @@ type ContainerTracking struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
-
-type ContainerTrackingTemp struct {
-	ContainerTracking
-}
