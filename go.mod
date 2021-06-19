@@ -3,6 +3,7 @@ module github.com/init-tech-solution/service-spitc-stream
 go 1.16
 
 require (
+	entgo.io/ent v0.8.0 // indirect
 	github.com/deepch/vdk v0.0.0-20210523103705-5b25bda1a000
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect

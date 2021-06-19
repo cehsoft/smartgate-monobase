@@ -74,12 +74,16 @@ func (svc *Server) PullMLResult(req *mygrpc.ReqEmpty, resp mygrpc.MyGRPC_PullMLR
 			continue
 		}
 
-		resp.Send(&mygrpc.ResMLResult{
+		err := resp.Send(&mygrpc.ResMLResult{
 			CachedID:    int32(CachedID),
 			ContainerID: ContainerID,
 			ImageURL:    ImageURL,
 			Score:       Score,
 		})
+
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
