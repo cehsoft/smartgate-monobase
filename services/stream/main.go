@@ -24,9 +24,18 @@ var (
 	peerConnectionCount int64
 )
 
+type Config struct {
+	TLS          bool   `env:"TLS,default=false"`
+	HTTP         string `env:"HTTP_PORT,default=:3030"`
+	CertPath     string `env:"CERT_PATH,default=cert/"`
+	TurnURL      string `env:"TURN_URL"`
+	TurnPassword string `env:"TURN_PASSWORD"`
+	TurnUsername string `env:"TURN_USERNAME"`
+}
+
 // HTTP Handler that accepts an Offer and returns an Answer
 // adds outboundVideoTrack to PeerConnection
-func doSignaling(ctx echo.Context) error {
+func doSignaling(ctx echo.Context, config Config) error {
 	var clientReq = &struct {
 		CamID string                    `json:"camId"`
 		Offer webrtc.SessionDescription `json:"offer"`
@@ -40,8 +49,11 @@ func doSignaling(ctx echo.Context) error {
 		ICEServers: []webrtc.ICEServer{
 			{
 				URLs: []string{
-					"stun:stun.l.google.com:19302",
+					config.TurnURL,
 				},
+				Username:       config.TurnUsername,
+				Credential:     config.TurnPassword,
+				CredentialType: webrtc.ICECredentialTypePassword,
 			},
 		},
 	})
@@ -109,12 +121,6 @@ var rtspURLs map[string]string = map[string]string{
 	"c242": "rtsp://10.10.14.60:8554/c242",
 }
 
-type Config struct {
-	TLS      bool   `env:"TLS,default=false"`
-	HTTP     string `env:"HTTP_PORT,default=:3030"`
-	CertPath string `env:"CERT_PATH,default=cert/"`
-}
-
 func main() {
 	ctx := context.Background()
 
@@ -144,7 +150,9 @@ func main() {
 	sv.Use(middleware.Recover())
 	sv.Use(middleware.CORS())
 
-	sv.POST("/signaling", doSignaling)
+	sv.POST("/signaling", func(c echo.Context) error {
+		return doSignaling(c, config)
+	})
 	sv.GET("*", func(c echo.Context) error {
 		return c.JSON(200, map[string]string{"status": "ok"})
 	})
