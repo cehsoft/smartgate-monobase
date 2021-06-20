@@ -11,6 +11,7 @@ import (
 	"github.com/deepch/vdk/av"
 	"github.com/deepch/vdk/codec/h264parser"
 	"github.com/deepch/vdk/format/rtspv2"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/pion/webrtc/v3"
