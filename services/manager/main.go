@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 	"database/sql"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
+	_ "github.com/joho/godotenv/autoload"
+	"github.com/sethvargo/go-envconfig"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -29,6 +32,14 @@ type grpcMultiplexer struct {
 	*grpcweb.WrappedGrpcServer
 }
 
+type Config struct {
+	DB       string `env:"DB,required"`
+	TLS      bool   `env:"TLS,default=false"`
+	HTTP     string `env:"HTTP_PORT,default=:3000"`
+	GRPC     string `env:"GRPC_PORT,default=:9990"`
+	CertPath string `env:"CERT_PATH,default=cert/"`
+}
+
 // Handler is used to route requests to either grpc or to regular http
 func (m *grpcMultiplexer) Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -47,6 +58,16 @@ func (m *grpcMultiplexer) Handler(next http.Handler) http.Handler {
 }
 
 func main() {
+	ctx := context.Background()
+
+	var config Config
+	l := envconfig.PrefixLookuper("SPITC_MANAGER_", envconfig.OsLookuper())
+	if err := envconfig.ProcessWith(ctx, &config, l); err != nil {
+		log.Fatalln(err)
+	}
+	cf, _ := json.Marshal(config)
+	log.Println("Loaded config:", string(cf))
+
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 
@@ -59,12 +80,12 @@ func main() {
 		)),
 	)
 
-	lis, err := net.Listen("tcp", "127.0.0.1:9990")
+	lis, err := net.Listen("tcp", config.GRPC)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	db, err := sql.Open("pgx", "dbname=spitc-manager user=danhtran94 sslmode=disable")
+	db, err := sql.Open("pgx", config.DB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -117,5 +138,15 @@ func main() {
 		return c.JSON(200, map[string]string{"status": "ok"})
 	})
 
-	sv.Start(":3000")
+	if config.TLS {
+		err = sv.StartTLS(config.HTTP, config.CertPath+"server.crt", config.CertPath+"server.key")
+		if err != nil {
+			log.Fatalln(err)
+		}
+	} else {
+		err = sv.Start(config.HTTP)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
 }
