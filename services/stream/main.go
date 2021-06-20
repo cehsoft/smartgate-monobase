@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"log"
@@ -14,6 +15,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
+	"github.com/sethvargo/go-envconfig"
 )
 
 var (
@@ -106,7 +108,23 @@ var rtspURLs map[string]string = map[string]string{
 	"c242": "rtsp://10.10.14.60:8554/c242",
 }
 
+type Config struct {
+	TLS      bool   `env:"TLS,default=false"`
+	HTTP     string `env:"HTTP_PORT,default=:3030"`
+	CertPath string `env:"CERT_PATH,default=cert/"`
+}
+
 func main() {
+	ctx := context.Background()
+
+	var config Config
+	l := envconfig.PrefixLookuper("STREAM_WEBRTC_", envconfig.OsLookuper())
+	if err := envconfig.ProcessWith(ctx, &config, l); err != nil {
+		log.Fatalln(err)
+	}
+	cf, _ := json.Marshal(config)
+	log.Println("Loaded config:", string(cf))
+
 	var err error
 
 	for cam := range rtspURLs {
@@ -125,10 +143,22 @@ func main() {
 	sv.Use(middleware.Recover())
 	sv.Use(middleware.CORS())
 
-	sv.Static("/", "./static")
 	sv.POST("/signaling", doSignaling)
+	sv.GET("*", func(c echo.Context) error {
+		return c.JSON(200, map[string]string{"status": "ok"})
+	})
 
-	log.Fatalln(sv.Start(":3030"))
+	if config.TLS {
+		err = sv.StartTLS(config.HTTP, config.CertPath+"server.crt", config.CertPath+"server.key")
+		if err != nil {
+			log.Fatalln(err)
+		}
+	} else {
+		err = sv.Start(config.HTTP)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
 }
 
 // Convert H264 to Annex-B, then write to outboundVideoTrack which sends to all PeerConnections
