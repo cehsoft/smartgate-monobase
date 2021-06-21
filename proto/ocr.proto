@@ -1,0 +1,13 @@
+syntax = "proto3";
+package main;
+
+message ReqNewDetectedImage {    
+    string ImageURL = 1;
+}
+
+message ResEmpty {
+}
+
+service OCR {
+    rpc newDetectedImage(stream ReqNewDetectedImage) returns (ResEmpty);    
+}
