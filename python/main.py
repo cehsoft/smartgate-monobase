@@ -3,25 +3,10 @@ from time import sleep
 import random
 
 from proto import service_pb2, service_pb2_grpc
-from minio import Minio
-from minio.error import S3Error
 
 
 def run():
     channel = grpc.insecure_channel('127.0.0.1:9990')
-
-    client = Minio(
-        "127.0.0.1:9000",
-        access_key="minioadmin",
-        secret_key="minioadmin",
-        secure=False
-    )
-
-    found = client.bucket_exists("ocr-images")
-    if not found:
-        client.make_bucket("ocr-images")
-    else:
-        print("bucket 'ocr-images' already exists")
 
     try:
         stub = service_pb2_grpc.MyGRPCStub(channel)

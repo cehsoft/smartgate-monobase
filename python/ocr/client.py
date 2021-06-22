@@ -12,12 +12,12 @@ def request_generator(minio_client):
         # Implement Filter/Detector logic here
 
         # Upload image to minio
-        # result =  minio_client.put_object(
-        #     "ocr-images", "image_name.png", io.BytesIO(b"Bytes Data Here"), length=-1, part_size=10*1024*1024) # BYTES DATA
-        result = minio_client.fput_object(
-            "ocr-images", "image_name.jpeg", "ocr/images/example.jpeg",
-            content_type="image/jpeg",
-        )
+        result = minio_client.put_object(
+            "ocr-images", "image_name_2.png", io.BytesIO(b"Bytes Data Here"), length=-1, part_size=10*1024*1024)  # BYTES DATA
+        # result = minio_client.fput_object(
+        #     "ocr-images", "image_name.jpeg", "ocr/images/example.jpeg",
+        #     content_type="image/jpeg",
+        # )
         print(
             f"created {result.object_name} object; etag: {result.etag}, version-id: {result.version_id}")
 

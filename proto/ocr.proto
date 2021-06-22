@@ -3,6 +3,9 @@ package main;
 
 message ReqNewDetectedImage {    
     string ImageURL = 1;
+    string CamID = 2;
+    string CaptureTime = 3;
+    string Score = 4;
 }
 
 message ResEmpty {
