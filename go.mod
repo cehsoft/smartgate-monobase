@@ -6,6 +6,7 @@ require (
 	entgo.io/ent v0.8.0
 	github.com/deepch/vdk v0.0.0-20210523103705-5b25bda1a000
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
+	github.com/google/uuid v1.2.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/jackc/pgx/v4 v4.11.0

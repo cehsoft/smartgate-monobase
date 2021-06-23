@@ -3,8 +3,10 @@ package server
 import (
 	"context"
 	"log"
+	"strings"
+	"time"
 
-	"github.com/leandro-lugaresi/hub"
+	"github.com/google/uuid"
 
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/model"
@@ -12,74 +14,77 @@ import (
 )
 
 type Server struct {
-	hub             *hub.Hub
-	db              *ent.Client
-	cachedTrackings []*model.ContainerTracking
+	db *ent.Client
+
+	cachedTrackings []*CachedContainerTracking
+	clients         map[string]chan *CachedContainerTracking
 
 	mygrpc.UnimplementedMyGRPCServer
 }
 
-func CreateServer(db *ent.Client) *Server {
-	hub := hub.New()
+type CachedContainerTracking struct {
+	CacheID int
+	model.ContainerTracking
+}
 
+func CreateServer(db *ent.Client) *Server {
 	return &Server{
-		hub:             hub,
 		db:              db,
-		cachedTrackings: []*model.ContainerTracking{},
+		clients:         map[string]chan *CachedContainerTracking{},
+		cachedTrackings: []*CachedContainerTracking{},
 	}
 }
 
 func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*mygrpc.ResEmpty, error) {
 	log.Println("ML result received", req)
 
-	svc.hub.Publish(hub.Message{
-		Name: "ml.new.result",
-		Fields: hub.Fields{
-			"CachedID":    len(svc.cachedTrackings),
-			"ContainerID": req.ContainerID,
-			"ImageURL":    req.ImageURL,
-			"Score":       req.Score,
+	cached := CachedContainerTracking{
+		CacheID: len(svc.cachedTrackings),
+		ContainerTracking: model.ContainerTracking{
+			ContainerID: req.ContainerID,
+			ImageURL:    req.ImageURL,
+			Score:       req.Score,
 		},
-	})
+	}
 
-	svc.cachedTrackings = append(svc.cachedTrackings, &model.ContainerTracking{
-		ContainerID: req.ContainerID,
-		ImageURL:    req.ImageURL,
-	})
+	// Append to cached
+	svc.cachedTrackings = append(svc.cachedTrackings, &cached)
+
+	// Send to subscribed clients
+	for uuid, trackingC := range svc.clients {
+		go func(uuid string, trackingC chan *CachedContainerTracking) {
+			timeout := time.NewTimer(10 * time.Second)
+
+			select {
+			case trackingC <- &cached:
+				log.Println(">>>> sent:", uuid)
+			case <-timeout.C:
+				log.Println("!!! timeout:", uuid)
+			}
+		}(uuid, trackingC)
+	}
 
 	return &mygrpc.ResEmpty{}, nil
 }
 
 func (svc *Server) PullMLResult(req *mygrpc.ReqEmpty, resp mygrpc.MyGRPC_PullMLResultServer) error {
-	sub := svc.hub.Subscribe(100, "ml.new.result")
+	// Create client UUID
+	uuidWithHyphen := uuid.New()
+	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
 
-	for msg := range sub.Receiver {
-		var ContainerID, ImageURL string
-		var Score float32
-		var CachedID int
-		var ok bool
+	// Create client's data channel
+	svc.clients[uuid] = make(chan *CachedContainerTracking, 10)
+	defer func() {
+		delete(svc.clients, uuid)
+	}()
 
-		if ContainerID, ok = msg.Fields["ContainerID"].(string); !ok {
-			continue
-		}
-
-		if ImageURL, ok = msg.Fields["ImageURL"].(string); !ok {
-			continue
-		}
-
-		if Score, ok = msg.Fields["Score"].(float32); !ok {
-			continue
-		}
-
-		if CachedID, ok = msg.Fields["CachedID"].(int); !ok {
-			continue
-		}
-
+	// Send to browser
+	for ocr := range svc.clients[uuid] {
 		err := resp.Send(&mygrpc.ResMLResult{
-			CachedID:    int32(CachedID),
-			ContainerID: ContainerID,
-			ImageURL:    ImageURL,
-			Score:       Score,
+			CachedID:    int32(ocr.CacheID),
+			ContainerID: ocr.ContainerID,
+			ImageURL:    ocr.ImageURL,
+			Score:       ocr.Score,
 		})
 
 		if err != nil {
@@ -100,8 +105,7 @@ func (svc *Server) ConfirmContainerID(ctx context.Context, req *mygrpc.ReqConfir
 			SetImageURL(cached.ImageURL)
 		if cached.ContainerID != req.ContainerID {
 			builder = builder.
-				SetManual(true).
-				SetImageURL(cached.ImageURL)
+				SetManual(true)
 		}
 	}
 
@@ -110,7 +114,8 @@ func (svc *Server) ConfirmContainerID(ctx context.Context, req *mygrpc.ReqConfir
 		return nil, err
 	}
 
-	svc.cachedTrackings = []*model.ContainerTracking{}
+	// TODO better clear cache logics
+	svc.cachedTrackings = []*CachedContainerTracking{}
 
 	return &mygrpc.ResEmpty{}, nil
 }
