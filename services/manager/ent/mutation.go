@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
 
 	"entgo.io/ent"
@@ -23,24 +24,26 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeContainerTracking = "ContainerTracking"
-	TypeUser              = "User"
+	TypeContainerTracking           = "ContainerTracking"
+	TypeContainerTrackingSuggestion = "ContainerTrackingSuggestion"
+	TypeUser                        = "User"
 )
 
 // ContainerTrackingMutation represents an operation that mutates the ContainerTracking nodes in the graph.
 type ContainerTrackingMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	container_id  *string
-	image_url     *string
-	manual        *bool
-	created_at    *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*ContainerTracking, error)
-	predicates    []predicate.ContainerTracking
+	op                 Op
+	typ                string
+	id                 *int
+	container_id       *string
+	created_at         *time.Time
+	clearedFields      map[string]struct{}
+	suggestions        map[int]struct{}
+	removedsuggestions map[int]struct{}
+	clearedsuggestions bool
+	done               bool
+	oldValue           func(context.Context) (*ContainerTracking, error)
+	predicates         []predicate.ContainerTracking
 }
 
 var _ ent.Mutation = (*ContainerTrackingMutation)(nil)
@@ -158,91 +161,6 @@ func (m *ContainerTrackingMutation) ResetContainerID() {
 	m.container_id = nil
 }
 
-// SetImageURL sets the "image_url" field.
-func (m *ContainerTrackingMutation) SetImageURL(s string) {
-	m.image_url = &s
-}
-
-// ImageURL returns the value of the "image_url" field in the mutation.
-func (m *ContainerTrackingMutation) ImageURL() (r string, exists bool) {
-	v := m.image_url
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldImageURL returns the old "image_url" field's value of the ContainerTracking entity.
-// If the ContainerTracking object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ContainerTrackingMutation) OldImageURL(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldImageURL is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldImageURL requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldImageURL: %w", err)
-	}
-	return oldValue.ImageURL, nil
-}
-
-// ClearImageURL clears the value of the "image_url" field.
-func (m *ContainerTrackingMutation) ClearImageURL() {
-	m.image_url = nil
-	m.clearedFields[containertracking.FieldImageURL] = struct{}{}
-}
-
-// ImageURLCleared returns if the "image_url" field was cleared in this mutation.
-func (m *ContainerTrackingMutation) ImageURLCleared() bool {
-	_, ok := m.clearedFields[containertracking.FieldImageURL]
-	return ok
-}
-
-// ResetImageURL resets all changes to the "image_url" field.
-func (m *ContainerTrackingMutation) ResetImageURL() {
-	m.image_url = nil
-	delete(m.clearedFields, containertracking.FieldImageURL)
-}
-
-// SetManual sets the "manual" field.
-func (m *ContainerTrackingMutation) SetManual(b bool) {
-	m.manual = &b
-}
-
-// Manual returns the value of the "manual" field in the mutation.
-func (m *ContainerTrackingMutation) Manual() (r bool, exists bool) {
-	v := m.manual
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldManual returns the old "manual" field's value of the ContainerTracking entity.
-// If the ContainerTracking object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ContainerTrackingMutation) OldManual(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldManual is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldManual requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldManual: %w", err)
-	}
-	return oldValue.Manual, nil
-}
-
-// ResetManual resets all changes to the "manual" field.
-func (m *ContainerTrackingMutation) ResetManual() {
-	m.manual = nil
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (m *ContainerTrackingMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -279,6 +197,59 @@ func (m *ContainerTrackingMutation) ResetCreatedAt() {
 	m.created_at = nil
 }
 
+// AddSuggestionIDs adds the "suggestions" edge to the ContainerTrackingSuggestion entity by ids.
+func (m *ContainerTrackingMutation) AddSuggestionIDs(ids ...int) {
+	if m.suggestions == nil {
+		m.suggestions = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.suggestions[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSuggestions clears the "suggestions" edge to the ContainerTrackingSuggestion entity.
+func (m *ContainerTrackingMutation) ClearSuggestions() {
+	m.clearedsuggestions = true
+}
+
+// SuggestionsCleared reports if the "suggestions" edge to the ContainerTrackingSuggestion entity was cleared.
+func (m *ContainerTrackingMutation) SuggestionsCleared() bool {
+	return m.clearedsuggestions
+}
+
+// RemoveSuggestionIDs removes the "suggestions" edge to the ContainerTrackingSuggestion entity by IDs.
+func (m *ContainerTrackingMutation) RemoveSuggestionIDs(ids ...int) {
+	if m.removedsuggestions == nil {
+		m.removedsuggestions = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedsuggestions[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSuggestions returns the removed IDs of the "suggestions" edge to the ContainerTrackingSuggestion entity.
+func (m *ContainerTrackingMutation) RemovedSuggestionsIDs() (ids []int) {
+	for id := range m.removedsuggestions {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SuggestionsIDs returns the "suggestions" edge IDs in the mutation.
+func (m *ContainerTrackingMutation) SuggestionsIDs() (ids []int) {
+	for id := range m.suggestions {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSuggestions resets all changes to the "suggestions" edge.
+func (m *ContainerTrackingMutation) ResetSuggestions() {
+	m.suggestions = nil
+	m.clearedsuggestions = false
+	m.removedsuggestions = nil
+}
+
 // Op returns the operation name.
 func (m *ContainerTrackingMutation) Op() Op {
 	return m.op
@@ -293,15 +264,9 @@ func (m *ContainerTrackingMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ContainerTrackingMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 2)
 	if m.container_id != nil {
 		fields = append(fields, containertracking.FieldContainerID)
-	}
-	if m.image_url != nil {
-		fields = append(fields, containertracking.FieldImageURL)
-	}
-	if m.manual != nil {
-		fields = append(fields, containertracking.FieldManual)
 	}
 	if m.created_at != nil {
 		fields = append(fields, containertracking.FieldCreatedAt)
@@ -316,10 +281,6 @@ func (m *ContainerTrackingMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case containertracking.FieldContainerID:
 		return m.ContainerID()
-	case containertracking.FieldImageURL:
-		return m.ImageURL()
-	case containertracking.FieldManual:
-		return m.Manual()
 	case containertracking.FieldCreatedAt:
 		return m.CreatedAt()
 	}
@@ -333,10 +294,6 @@ func (m *ContainerTrackingMutation) OldField(ctx context.Context, name string) (
 	switch name {
 	case containertracking.FieldContainerID:
 		return m.OldContainerID(ctx)
-	case containertracking.FieldImageURL:
-		return m.OldImageURL(ctx)
-	case containertracking.FieldManual:
-		return m.OldManual(ctx)
 	case containertracking.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	}
@@ -354,20 +311,6 @@ func (m *ContainerTrackingMutation) SetField(name string, value ent.Value) error
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetContainerID(v)
-		return nil
-	case containertracking.FieldImageURL:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetImageURL(v)
-		return nil
-	case containertracking.FieldManual:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetManual(v)
 		return nil
 	case containertracking.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -405,11 +348,7 @@ func (m *ContainerTrackingMutation) AddField(name string, value ent.Value) error
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ContainerTrackingMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(containertracking.FieldImageURL) {
-		fields = append(fields, containertracking.FieldImageURL)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -422,11 +361,6 @@ func (m *ContainerTrackingMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ContainerTrackingMutation) ClearField(name string) error {
-	switch name {
-	case containertracking.FieldImageURL:
-		m.ClearImageURL()
-		return nil
-	}
 	return fmt.Errorf("unknown ContainerTracking nullable field %s", name)
 }
 
@@ -437,12 +371,6 @@ func (m *ContainerTrackingMutation) ResetField(name string) error {
 	case containertracking.FieldContainerID:
 		m.ResetContainerID()
 		return nil
-	case containertracking.FieldImageURL:
-		m.ResetImageURL()
-		return nil
-	case containertracking.FieldManual:
-		m.ResetManual()
-		return nil
 	case containertracking.FieldCreatedAt:
 		m.ResetCreatedAt()
 		return nil
@@ -452,50 +380,721 @@ func (m *ContainerTrackingMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ContainerTrackingMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.suggestions != nil {
+		edges = append(edges, containertracking.EdgeSuggestions)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *ContainerTrackingMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case containertracking.EdgeSuggestions:
+		ids := make([]ent.Value, 0, len(m.suggestions))
+		for id := range m.suggestions {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ContainerTrackingMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedsuggestions != nil {
+		edges = append(edges, containertracking.EdgeSuggestions)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *ContainerTrackingMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case containertracking.EdgeSuggestions:
+		ids := make([]ent.Value, 0, len(m.removedsuggestions))
+		for id := range m.removedsuggestions {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ContainerTrackingMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedsuggestions {
+		edges = append(edges, containertracking.EdgeSuggestions)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *ContainerTrackingMutation) EdgeCleared(name string) bool {
+	switch name {
+	case containertracking.EdgeSuggestions:
+		return m.clearedsuggestions
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *ContainerTrackingMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown ContainerTracking unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *ContainerTrackingMutation) ResetEdge(name string) error {
+	switch name {
+	case containertracking.EdgeSuggestions:
+		m.ResetSuggestions()
+		return nil
+	}
 	return fmt.Errorf("unknown ContainerTracking edge %s", name)
+}
+
+// ContainerTrackingSuggestionMutation represents an operation that mutates the ContainerTrackingSuggestion nodes in the graph.
+type ContainerTrackingSuggestionMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *int
+	container_id    *string
+	image_url       *string
+	score           *float32
+	addscore        *float32
+	created_at      *time.Time
+	clearedFields   map[string]struct{}
+	tracking        *int
+	clearedtracking bool
+	done            bool
+	oldValue        func(context.Context) (*ContainerTrackingSuggestion, error)
+	predicates      []predicate.ContainerTrackingSuggestion
+}
+
+var _ ent.Mutation = (*ContainerTrackingSuggestionMutation)(nil)
+
+// containertrackingsuggestionOption allows management of the mutation configuration using functional options.
+type containertrackingsuggestionOption func(*ContainerTrackingSuggestionMutation)
+
+// newContainerTrackingSuggestionMutation creates new mutation for the ContainerTrackingSuggestion entity.
+func newContainerTrackingSuggestionMutation(c config, op Op, opts ...containertrackingsuggestionOption) *ContainerTrackingSuggestionMutation {
+	m := &ContainerTrackingSuggestionMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeContainerTrackingSuggestion,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withContainerTrackingSuggestionID sets the ID field of the mutation.
+func withContainerTrackingSuggestionID(id int) containertrackingsuggestionOption {
+	return func(m *ContainerTrackingSuggestionMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ContainerTrackingSuggestion
+		)
+		m.oldValue = func(ctx context.Context) (*ContainerTrackingSuggestion, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ContainerTrackingSuggestion.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withContainerTrackingSuggestion sets the old ContainerTrackingSuggestion of the mutation.
+func withContainerTrackingSuggestion(node *ContainerTrackingSuggestion) containertrackingsuggestionOption {
+	return func(m *ContainerTrackingSuggestionMutation) {
+		m.oldValue = func(context.Context) (*ContainerTrackingSuggestion, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ContainerTrackingSuggestionMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ContainerTrackingSuggestionMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *ContainerTrackingSuggestionMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetTrackingID sets the "tracking_id" field.
+func (m *ContainerTrackingSuggestionMutation) SetTrackingID(i int) {
+	m.tracking = &i
+}
+
+// TrackingID returns the value of the "tracking_id" field in the mutation.
+func (m *ContainerTrackingSuggestionMutation) TrackingID() (r int, exists bool) {
+	v := m.tracking
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTrackingID returns the old "tracking_id" field's value of the ContainerTrackingSuggestion entity.
+// If the ContainerTrackingSuggestion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContainerTrackingSuggestionMutation) OldTrackingID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldTrackingID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldTrackingID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTrackingID: %w", err)
+	}
+	return oldValue.TrackingID, nil
+}
+
+// ClearTrackingID clears the value of the "tracking_id" field.
+func (m *ContainerTrackingSuggestionMutation) ClearTrackingID() {
+	m.tracking = nil
+	m.clearedFields[containertrackingsuggestion.FieldTrackingID] = struct{}{}
+}
+
+// TrackingIDCleared returns if the "tracking_id" field was cleared in this mutation.
+func (m *ContainerTrackingSuggestionMutation) TrackingIDCleared() bool {
+	_, ok := m.clearedFields[containertrackingsuggestion.FieldTrackingID]
+	return ok
+}
+
+// ResetTrackingID resets all changes to the "tracking_id" field.
+func (m *ContainerTrackingSuggestionMutation) ResetTrackingID() {
+	m.tracking = nil
+	delete(m.clearedFields, containertrackingsuggestion.FieldTrackingID)
+}
+
+// SetContainerID sets the "container_id" field.
+func (m *ContainerTrackingSuggestionMutation) SetContainerID(s string) {
+	m.container_id = &s
+}
+
+// ContainerID returns the value of the "container_id" field in the mutation.
+func (m *ContainerTrackingSuggestionMutation) ContainerID() (r string, exists bool) {
+	v := m.container_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContainerID returns the old "container_id" field's value of the ContainerTrackingSuggestion entity.
+// If the ContainerTrackingSuggestion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContainerTrackingSuggestionMutation) OldContainerID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldContainerID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldContainerID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContainerID: %w", err)
+	}
+	return oldValue.ContainerID, nil
+}
+
+// ResetContainerID resets all changes to the "container_id" field.
+func (m *ContainerTrackingSuggestionMutation) ResetContainerID() {
+	m.container_id = nil
+}
+
+// SetImageURL sets the "image_url" field.
+func (m *ContainerTrackingSuggestionMutation) SetImageURL(s string) {
+	m.image_url = &s
+}
+
+// ImageURL returns the value of the "image_url" field in the mutation.
+func (m *ContainerTrackingSuggestionMutation) ImageURL() (r string, exists bool) {
+	v := m.image_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldImageURL returns the old "image_url" field's value of the ContainerTrackingSuggestion entity.
+// If the ContainerTrackingSuggestion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContainerTrackingSuggestionMutation) OldImageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldImageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldImageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldImageURL: %w", err)
+	}
+	return oldValue.ImageURL, nil
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (m *ContainerTrackingSuggestionMutation) ClearImageURL() {
+	m.image_url = nil
+	m.clearedFields[containertrackingsuggestion.FieldImageURL] = struct{}{}
+}
+
+// ImageURLCleared returns if the "image_url" field was cleared in this mutation.
+func (m *ContainerTrackingSuggestionMutation) ImageURLCleared() bool {
+	_, ok := m.clearedFields[containertrackingsuggestion.FieldImageURL]
+	return ok
+}
+
+// ResetImageURL resets all changes to the "image_url" field.
+func (m *ContainerTrackingSuggestionMutation) ResetImageURL() {
+	m.image_url = nil
+	delete(m.clearedFields, containertrackingsuggestion.FieldImageURL)
+}
+
+// SetScore sets the "score" field.
+func (m *ContainerTrackingSuggestionMutation) SetScore(f float32) {
+	m.score = &f
+	m.addscore = nil
+}
+
+// Score returns the value of the "score" field in the mutation.
+func (m *ContainerTrackingSuggestionMutation) Score() (r float32, exists bool) {
+	v := m.score
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldScore returns the old "score" field's value of the ContainerTrackingSuggestion entity.
+// If the ContainerTrackingSuggestion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContainerTrackingSuggestionMutation) OldScore(ctx context.Context) (v float32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldScore is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldScore requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldScore: %w", err)
+	}
+	return oldValue.Score, nil
+}
+
+// AddScore adds f to the "score" field.
+func (m *ContainerTrackingSuggestionMutation) AddScore(f float32) {
+	if m.addscore != nil {
+		*m.addscore += f
+	} else {
+		m.addscore = &f
+	}
+}
+
+// AddedScore returns the value that was added to the "score" field in this mutation.
+func (m *ContainerTrackingSuggestionMutation) AddedScore() (r float32, exists bool) {
+	v := m.addscore
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetScore resets all changes to the "score" field.
+func (m *ContainerTrackingSuggestionMutation) ResetScore() {
+	m.score = nil
+	m.addscore = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *ContainerTrackingSuggestionMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *ContainerTrackingSuggestionMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the ContainerTrackingSuggestion entity.
+// If the ContainerTrackingSuggestion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContainerTrackingSuggestionMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *ContainerTrackingSuggestionMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// ClearTracking clears the "tracking" edge to the ContainerTracking entity.
+func (m *ContainerTrackingSuggestionMutation) ClearTracking() {
+	m.clearedtracking = true
+}
+
+// TrackingCleared reports if the "tracking" edge to the ContainerTracking entity was cleared.
+func (m *ContainerTrackingSuggestionMutation) TrackingCleared() bool {
+	return m.TrackingIDCleared() || m.clearedtracking
+}
+
+// TrackingIDs returns the "tracking" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// TrackingID instead. It exists only for internal usage by the builders.
+func (m *ContainerTrackingSuggestionMutation) TrackingIDs() (ids []int) {
+	if id := m.tracking; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetTracking resets all changes to the "tracking" edge.
+func (m *ContainerTrackingSuggestionMutation) ResetTracking() {
+	m.tracking = nil
+	m.clearedtracking = false
+}
+
+// Op returns the operation name.
+func (m *ContainerTrackingSuggestionMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (ContainerTrackingSuggestion).
+func (m *ContainerTrackingSuggestionMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ContainerTrackingSuggestionMutation) Fields() []string {
+	fields := make([]string, 0, 5)
+	if m.tracking != nil {
+		fields = append(fields, containertrackingsuggestion.FieldTrackingID)
+	}
+	if m.container_id != nil {
+		fields = append(fields, containertrackingsuggestion.FieldContainerID)
+	}
+	if m.image_url != nil {
+		fields = append(fields, containertrackingsuggestion.FieldImageURL)
+	}
+	if m.score != nil {
+		fields = append(fields, containertrackingsuggestion.FieldScore)
+	}
+	if m.created_at != nil {
+		fields = append(fields, containertrackingsuggestion.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ContainerTrackingSuggestionMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case containertrackingsuggestion.FieldTrackingID:
+		return m.TrackingID()
+	case containertrackingsuggestion.FieldContainerID:
+		return m.ContainerID()
+	case containertrackingsuggestion.FieldImageURL:
+		return m.ImageURL()
+	case containertrackingsuggestion.FieldScore:
+		return m.Score()
+	case containertrackingsuggestion.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ContainerTrackingSuggestionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case containertrackingsuggestion.FieldTrackingID:
+		return m.OldTrackingID(ctx)
+	case containertrackingsuggestion.FieldContainerID:
+		return m.OldContainerID(ctx)
+	case containertrackingsuggestion.FieldImageURL:
+		return m.OldImageURL(ctx)
+	case containertrackingsuggestion.FieldScore:
+		return m.OldScore(ctx)
+	case containertrackingsuggestion.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown ContainerTrackingSuggestion field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ContainerTrackingSuggestionMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case containertrackingsuggestion.FieldTrackingID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTrackingID(v)
+		return nil
+	case containertrackingsuggestion.FieldContainerID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContainerID(v)
+		return nil
+	case containertrackingsuggestion.FieldImageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetImageURL(v)
+		return nil
+	case containertrackingsuggestion.FieldScore:
+		v, ok := value.(float32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetScore(v)
+		return nil
+	case containertrackingsuggestion.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ContainerTrackingSuggestion field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ContainerTrackingSuggestionMutation) AddedFields() []string {
+	var fields []string
+	if m.addscore != nil {
+		fields = append(fields, containertrackingsuggestion.FieldScore)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ContainerTrackingSuggestionMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case containertrackingsuggestion.FieldScore:
+		return m.AddedScore()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ContainerTrackingSuggestionMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case containertrackingsuggestion.FieldScore:
+		v, ok := value.(float32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddScore(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ContainerTrackingSuggestion numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ContainerTrackingSuggestionMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(containertrackingsuggestion.FieldTrackingID) {
+		fields = append(fields, containertrackingsuggestion.FieldTrackingID)
+	}
+	if m.FieldCleared(containertrackingsuggestion.FieldImageURL) {
+		fields = append(fields, containertrackingsuggestion.FieldImageURL)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ContainerTrackingSuggestionMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ContainerTrackingSuggestionMutation) ClearField(name string) error {
+	switch name {
+	case containertrackingsuggestion.FieldTrackingID:
+		m.ClearTrackingID()
+		return nil
+	case containertrackingsuggestion.FieldImageURL:
+		m.ClearImageURL()
+		return nil
+	}
+	return fmt.Errorf("unknown ContainerTrackingSuggestion nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ContainerTrackingSuggestionMutation) ResetField(name string) error {
+	switch name {
+	case containertrackingsuggestion.FieldTrackingID:
+		m.ResetTrackingID()
+		return nil
+	case containertrackingsuggestion.FieldContainerID:
+		m.ResetContainerID()
+		return nil
+	case containertrackingsuggestion.FieldImageURL:
+		m.ResetImageURL()
+		return nil
+	case containertrackingsuggestion.FieldScore:
+		m.ResetScore()
+		return nil
+	case containertrackingsuggestion.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown ContainerTrackingSuggestion field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ContainerTrackingSuggestionMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.tracking != nil {
+		edges = append(edges, containertrackingsuggestion.EdgeTracking)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ContainerTrackingSuggestionMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case containertrackingsuggestion.EdgeTracking:
+		if id := m.tracking; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ContainerTrackingSuggestionMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ContainerTrackingSuggestionMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ContainerTrackingSuggestionMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedtracking {
+		edges = append(edges, containertrackingsuggestion.EdgeTracking)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ContainerTrackingSuggestionMutation) EdgeCleared(name string) bool {
+	switch name {
+	case containertrackingsuggestion.EdgeTracking:
+		return m.clearedtracking
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ContainerTrackingSuggestionMutation) ClearEdge(name string) error {
+	switch name {
+	case containertrackingsuggestion.EdgeTracking:
+		m.ClearTracking()
+		return nil
+	}
+	return fmt.Errorf("unknown ContainerTrackingSuggestion unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ContainerTrackingSuggestionMutation) ResetEdge(name string) error {
+	switch name {
+	case containertrackingsuggestion.EdgeTracking:
+		m.ResetTracking()
+		return nil
+	}
+	return fmt.Errorf("unknown ContainerTrackingSuggestion edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.

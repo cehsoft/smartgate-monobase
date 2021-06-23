@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// ContainerTracking is the client for interacting with the ContainerTracking builders.
 	ContainerTracking *ContainerTrackingClient
+	// ContainerTrackingSuggestion is the client for interacting with the ContainerTrackingSuggestion builders.
+	ContainerTrackingSuggestion *ContainerTrackingSuggestionClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -152,6 +154,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.ContainerTracking = NewContainerTrackingClient(tx.config)
+	tx.ContainerTrackingSuggestion = NewContainerTrackingSuggestionClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

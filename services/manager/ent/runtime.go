@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/schema"
 )
 
@@ -15,12 +16,14 @@ import (
 func init() {
 	containertrackingFields := schema.ContainerTracking{}.Fields()
 	_ = containertrackingFields
-	// containertrackingDescManual is the schema descriptor for manual field.
-	containertrackingDescManual := containertrackingFields[2].Descriptor()
-	// containertracking.DefaultManual holds the default value on creation for the manual field.
-	containertracking.DefaultManual = containertrackingDescManual.Default.(bool)
 	// containertrackingDescCreatedAt is the schema descriptor for created_at field.
-	containertrackingDescCreatedAt := containertrackingFields[3].Descriptor()
+	containertrackingDescCreatedAt := containertrackingFields[1].Descriptor()
 	// containertracking.DefaultCreatedAt holds the default value on creation for the created_at field.
 	containertracking.DefaultCreatedAt = containertrackingDescCreatedAt.Default.(func() time.Time)
+	containertrackingsuggestionFields := schema.ContainerTrackingSuggestion{}.Fields()
+	_ = containertrackingsuggestionFields
+	// containertrackingsuggestionDescCreatedAt is the schema descriptor for created_at field.
+	containertrackingsuggestionDescCreatedAt := containertrackingsuggestionFields[4].Descriptor()
+	// containertrackingsuggestion.DefaultCreatedAt holds the default value on creation for the created_at field.
+	containertrackingsuggestion.DefaultCreatedAt = containertrackingsuggestionDescCreatedAt.Default.(func() time.Time)
 }

@@ -25,14 +25,14 @@ message ReqMLResult {
 message ResMLResult {
     ResStatus status = 1;
 
-    int32 CachedID = 5;
+    int32 SuggestID = 5;
     string ContainerID = 2;
     string ImageURL = 3;
     float Score = 4;
 }
 
 message ReqConfirmContainerID {
-    optional int32 CachedID = 1;
+    optional int32 SuggestID = 1;
     string ContainerID = 2;
 }
 

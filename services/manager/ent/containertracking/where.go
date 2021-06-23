@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
 )
 
@@ -96,20 +97,6 @@ func IDLTE(id int) predicate.ContainerTracking {
 func ContainerID(v string) predicate.ContainerTracking {
 	return predicate.ContainerTracking(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldContainerID), v))
-	})
-}
-
-// ImageURL applies equality check predicate on the "image_url" field. It's identical to ImageURLEQ.
-func ImageURL(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldImageURL), v))
-	})
-}
-
-// Manual applies equality check predicate on the "manual" field. It's identical to ManualEQ.
-func Manual(v bool) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldManual), v))
 	})
 }
 
@@ -231,145 +218,6 @@ func ContainerIDContainsFold(v string) predicate.ContainerTracking {
 	})
 }
 
-// ImageURLEQ applies the EQ predicate on the "image_url" field.
-func ImageURLEQ(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLNEQ applies the NEQ predicate on the "image_url" field.
-func ImageURLNEQ(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLIn applies the In predicate on the "image_url" field.
-func ImageURLIn(vs ...string) predicate.ContainerTracking {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldImageURL), v...))
-	})
-}
-
-// ImageURLNotIn applies the NotIn predicate on the "image_url" field.
-func ImageURLNotIn(vs ...string) predicate.ContainerTracking {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldImageURL), v...))
-	})
-}
-
-// ImageURLGT applies the GT predicate on the "image_url" field.
-func ImageURLGT(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLGTE applies the GTE predicate on the "image_url" field.
-func ImageURLGTE(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLLT applies the LT predicate on the "image_url" field.
-func ImageURLLT(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLLTE applies the LTE predicate on the "image_url" field.
-func ImageURLLTE(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLContains applies the Contains predicate on the "image_url" field.
-func ImageURLContains(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLHasPrefix applies the HasPrefix predicate on the "image_url" field.
-func ImageURLHasPrefix(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLHasSuffix applies the HasSuffix predicate on the "image_url" field.
-func ImageURLHasSuffix(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLIsNil applies the IsNil predicate on the "image_url" field.
-func ImageURLIsNil() predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldImageURL)))
-	})
-}
-
-// ImageURLNotNil applies the NotNil predicate on the "image_url" field.
-func ImageURLNotNil() predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldImageURL)))
-	})
-}
-
-// ImageURLEqualFold applies the EqualFold predicate on the "image_url" field.
-func ImageURLEqualFold(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldImageURL), v))
-	})
-}
-
-// ImageURLContainsFold applies the ContainsFold predicate on the "image_url" field.
-func ImageURLContainsFold(v string) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldImageURL), v))
-	})
-}
-
-// ManualEQ applies the EQ predicate on the "manual" field.
-func ManualEQ(v bool) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldManual), v))
-	})
-}
-
-// ManualNEQ applies the NEQ predicate on the "manual" field.
-func ManualNEQ(v bool) predicate.ContainerTracking {
-	return predicate.ContainerTracking(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldManual), v))
-	})
-}
-
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.ContainerTracking {
 	return predicate.ContainerTracking(func(s *sql.Selector) {
@@ -443,6 +291,34 @@ func CreatedAtLT(v time.Time) predicate.ContainerTracking {
 func CreatedAtLTE(v time.Time) predicate.ContainerTracking {
 	return predicate.ContainerTracking(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldCreatedAt), v))
+	})
+}
+
+// HasSuggestions applies the HasEdge predicate on the "suggestions" edge.
+func HasSuggestions() predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(SuggestionsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SuggestionsTable, SuggestionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSuggestionsWith applies the HasEdge predicate on the "suggestions" edge with a given conditions (other predicates).
+func HasSuggestionsWith(preds ...predicate.ContainerTrackingSuggestion) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(SuggestionsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SuggestionsTable, SuggestionsColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

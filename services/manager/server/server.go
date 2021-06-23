@@ -3,11 +3,9 @@ package server
 import (
 	"context"
 	"log"
-	"strings"
 	"time"
 
-	"github.com/google/uuid"
-
+	"github.com/init-tech-solution/service-spitc-stream/services/lib/uuid"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/model"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
@@ -16,30 +14,37 @@ import (
 type Server struct {
 	db *ent.Client
 
-	cachedTrackings []*CachedContainerTracking
-	clients         map[string]chan *CachedContainerTracking
+	clients map[string]chan *ContainerTrackingSuggestion
 
 	mygrpc.UnimplementedMyGRPCServer
 }
 
-type CachedContainerTracking struct {
-	CacheID int
+type ContainerTrackingSuggestion struct {
+	ID int32
 	model.ContainerTracking
 }
 
 func CreateServer(db *ent.Client) *Server {
 	return &Server{
-		db:              db,
-		clients:         map[string]chan *CachedContainerTracking{},
-		cachedTrackings: []*CachedContainerTracking{},
+		db:      db,
+		clients: map[string]chan *ContainerTrackingSuggestion{},
 	}
 }
 
 func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*mygrpc.ResEmpty, error) {
 	log.Println("ML result received", req)
 
-	cached := CachedContainerTracking{
-		CacheID: len(svc.cachedTrackings),
+	suggestRrd, err := svc.db.ContainerTrackingSuggestion.Create().
+		SetContainerID(req.ContainerID).
+		SetImageURL(req.ImageURL).
+		SetScore(req.Score).
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	suggest := ContainerTrackingSuggestion{
+		ID: int32(suggestRrd.ID),
 		ContainerTracking: model.ContainerTracking{
 			ContainerID: req.ContainerID,
 			ImageURL:    req.ImageURL,
@@ -47,16 +52,13 @@ func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*m
 		},
 	}
 
-	// Append to cached
-	svc.cachedTrackings = append(svc.cachedTrackings, &cached)
-
 	// Send to subscribed clients
 	for uuid, trackingC := range svc.clients {
-		go func(uuid string, trackingC chan *CachedContainerTracking) {
+		go func(uuid string, trackingC chan *ContainerTrackingSuggestion) {
 			timeout := time.NewTimer(10 * time.Second)
 
 			select {
-			case trackingC <- &cached:
+			case trackingC <- &suggest:
 				log.Println(">>>> sent:", uuid)
 			case <-timeout.C:
 				log.Println("!!! timeout:", uuid)
@@ -69,22 +71,21 @@ func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*m
 
 func (svc *Server) PullMLResult(req *mygrpc.ReqEmpty, resp mygrpc.MyGRPC_PullMLResultServer) error {
 	// Create client UUID
-	uuidWithHyphen := uuid.New()
-	uuid := strings.Replace(uuidWithHyphen.String(), "-", "", -1)
+	clientId := uuid.UUID(0)
 
 	// Create client's data channel
-	svc.clients[uuid] = make(chan *CachedContainerTracking, 10)
+	svc.clients[clientId] = make(chan *ContainerTrackingSuggestion, 10)
 	defer func() {
-		delete(svc.clients, uuid)
+		delete(svc.clients, clientId)
 	}()
 
 	// Send to browser
-	for ocr := range svc.clients[uuid] {
+	for suggest := range svc.clients[clientId] {
 		err := resp.Send(&mygrpc.ResMLResult{
-			CachedID:    int32(ocr.CacheID),
-			ContainerID: ocr.ContainerID,
-			ImageURL:    ocr.ImageURL,
-			Score:       ocr.Score,
+			SuggestID:   suggest.ID,
+			ContainerID: suggest.ContainerID,
+			ImageURL:    suggest.ImageURL,
+			Score:       suggest.Score,
 		})
 
 		if err != nil {
@@ -99,23 +100,15 @@ func (svc *Server) ConfirmContainerID(ctx context.Context, req *mygrpc.ReqConfir
 	builder := svc.db.ContainerTracking.Create().
 		SetContainerID(req.ContainerID)
 
-	if req.CachedID != nil && len(svc.cachedTrackings) > int(*req.CachedID) {
-		cached := svc.cachedTrackings[*req.CachedID]
-		builder = builder.
-			SetImageURL(cached.ImageURL)
-		if cached.ContainerID != req.ContainerID {
-			builder = builder.
-				SetManual(true)
-		}
+	if req.SuggestID != nil {
+		builder = builder.AddSuggestionIDs(int(*req.SuggestID))
 	}
 
 	_, err := builder.Save(ctx)
 	if err != nil {
+		log.Println("!!!", err)
 		return nil, err
 	}
-
-	// TODO better clear cache logics
-	svc.cachedTrackings = []*CachedContainerTracking{}
 
 	return &mygrpc.ResEmpty{}, nil
 }

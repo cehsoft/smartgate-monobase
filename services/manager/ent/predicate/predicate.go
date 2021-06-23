@@ -9,5 +9,8 @@ import (
 // ContainerTracking is the predicate function for containertracking builders.
 type ContainerTracking func(*sql.Selector)
 
+// ContainerTrackingSuggestion is the predicate function for containertrackingsuggestion builders.
+type ContainerTrackingSuggestion func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

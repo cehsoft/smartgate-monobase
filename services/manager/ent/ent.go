@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/user"
 )
 
@@ -32,8 +33,9 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		containertracking.Table: containertracking.ValidColumn,
-		user.Table:              user.ValidColumn,
+		containertracking.Table:           containertracking.ValidColumn,
+		containertrackingsuggestion.Table: containertrackingsuggestion.ValidColumn,
+		user.Table:                        user.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

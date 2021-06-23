@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 )
 
 // ContainerTrackingCreate is the builder for creating a ContainerTracking entity.
@@ -26,34 +27,6 @@ func (ctc *ContainerTrackingCreate) SetContainerID(s string) *ContainerTrackingC
 	return ctc
 }
 
-// SetImageURL sets the "image_url" field.
-func (ctc *ContainerTrackingCreate) SetImageURL(s string) *ContainerTrackingCreate {
-	ctc.mutation.SetImageURL(s)
-	return ctc
-}
-
-// SetNillableImageURL sets the "image_url" field if the given value is not nil.
-func (ctc *ContainerTrackingCreate) SetNillableImageURL(s *string) *ContainerTrackingCreate {
-	if s != nil {
-		ctc.SetImageURL(*s)
-	}
-	return ctc
-}
-
-// SetManual sets the "manual" field.
-func (ctc *ContainerTrackingCreate) SetManual(b bool) *ContainerTrackingCreate {
-	ctc.mutation.SetManual(b)
-	return ctc
-}
-
-// SetNillableManual sets the "manual" field if the given value is not nil.
-func (ctc *ContainerTrackingCreate) SetNillableManual(b *bool) *ContainerTrackingCreate {
-	if b != nil {
-		ctc.SetManual(*b)
-	}
-	return ctc
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (ctc *ContainerTrackingCreate) SetCreatedAt(t time.Time) *ContainerTrackingCreate {
 	ctc.mutation.SetCreatedAt(t)
@@ -66,6 +39,21 @@ func (ctc *ContainerTrackingCreate) SetNillableCreatedAt(t *time.Time) *Containe
 		ctc.SetCreatedAt(*t)
 	}
 	return ctc
+}
+
+// AddSuggestionIDs adds the "suggestions" edge to the ContainerTrackingSuggestion entity by IDs.
+func (ctc *ContainerTrackingCreate) AddSuggestionIDs(ids ...int) *ContainerTrackingCreate {
+	ctc.mutation.AddSuggestionIDs(ids...)
+	return ctc
+}
+
+// AddSuggestions adds the "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (ctc *ContainerTrackingCreate) AddSuggestions(c ...*ContainerTrackingSuggestion) *ContainerTrackingCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return ctc.AddSuggestionIDs(ids...)
 }
 
 // Mutation returns the ContainerTrackingMutation object of the builder.
@@ -120,10 +108,6 @@ func (ctc *ContainerTrackingCreate) SaveX(ctx context.Context) *ContainerTrackin
 
 // defaults sets the default values of the builder before save.
 func (ctc *ContainerTrackingCreate) defaults() {
-	if _, ok := ctc.mutation.Manual(); !ok {
-		v := containertracking.DefaultManual
-		ctc.mutation.SetManual(v)
-	}
 	if _, ok := ctc.mutation.CreatedAt(); !ok {
 		v := containertracking.DefaultCreatedAt()
 		ctc.mutation.SetCreatedAt(v)
@@ -134,9 +118,6 @@ func (ctc *ContainerTrackingCreate) defaults() {
 func (ctc *ContainerTrackingCreate) check() error {
 	if _, ok := ctc.mutation.ContainerID(); !ok {
 		return &ValidationError{Name: "container_id", err: errors.New("ent: missing required field \"container_id\"")}
-	}
-	if _, ok := ctc.mutation.Manual(); !ok {
-		return &ValidationError{Name: "manual", err: errors.New("ent: missing required field \"manual\"")}
 	}
 	if _, ok := ctc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
@@ -176,22 +157,6 @@ func (ctc *ContainerTrackingCreate) createSpec() (*ContainerTracking, *sqlgraph.
 		})
 		_node.ContainerID = value
 	}
-	if value, ok := ctc.mutation.ImageURL(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: containertracking.FieldImageURL,
-		})
-		_node.ImageURL = value
-	}
-	if value, ok := ctc.mutation.Manual(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: containertracking.FieldManual,
-		})
-		_node.Manual = value
-	}
 	if value, ok := ctc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -199,6 +164,25 @@ func (ctc *ContainerTrackingCreate) createSpec() (*ContainerTracking, *sqlgraph.
 			Column: containertracking.FieldCreatedAt,
 		})
 		_node.CreatedAt = value
+	}
+	if nodes := ctc.mutation.SuggestionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   containertracking.SuggestionsTable,
+			Columns: []string{containertracking.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

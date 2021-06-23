@@ -18,12 +18,29 @@ type ContainerTracking struct {
 	ID int `json:"id,omitempty"`
 	// ContainerID holds the value of the "container_id" field.
 	ContainerID string `json:"container_id,omitempty"`
-	// ImageURL holds the value of the "image_url" field.
-	ImageURL string `json:"image_url,omitempty"`
-	// Manual holds the value of the "manual" field.
-	Manual bool `json:"manual,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ContainerTrackingQuery when eager-loading is set.
+	Edges ContainerTrackingEdges `json:"edges"`
+}
+
+// ContainerTrackingEdges holds the relations/edges for other nodes in the graph.
+type ContainerTrackingEdges struct {
+	// Suggestions holds the value of the suggestions edge.
+	Suggestions []*ContainerTrackingSuggestion `json:"suggestions,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// SuggestionsOrErr returns the Suggestions value or an error if the edge
+// was not loaded in eager-loading.
+func (e ContainerTrackingEdges) SuggestionsOrErr() ([]*ContainerTrackingSuggestion, error) {
+	if e.loadedTypes[0] {
+		return e.Suggestions, nil
+	}
+	return nil, &NotLoadedError{edge: "suggestions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -31,11 +48,9 @@ func (*ContainerTracking) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case containertracking.FieldManual:
-			values[i] = new(sql.NullBool)
 		case containertracking.FieldID:
 			values[i] = new(sql.NullInt64)
-		case containertracking.FieldContainerID, containertracking.FieldImageURL:
+		case containertracking.FieldContainerID:
 			values[i] = new(sql.NullString)
 		case containertracking.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -66,18 +81,6 @@ func (ct *ContainerTracking) assignValues(columns []string, values []interface{}
 			} else if value.Valid {
 				ct.ContainerID = value.String
 			}
-		case containertracking.FieldImageURL:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field image_url", values[i])
-			} else if value.Valid {
-				ct.ImageURL = value.String
-			}
-		case containertracking.FieldManual:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field manual", values[i])
-			} else if value.Valid {
-				ct.Manual = value.Bool
-			}
 		case containertracking.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -87,6 +90,11 @@ func (ct *ContainerTracking) assignValues(columns []string, values []interface{}
 		}
 	}
 	return nil
+}
+
+// QuerySuggestions queries the "suggestions" edge of the ContainerTracking entity.
+func (ct *ContainerTracking) QuerySuggestions() *ContainerTrackingSuggestionQuery {
+	return (&ContainerTrackingClient{config: ct.config}).QuerySuggestions(ct)
 }
 
 // Update returns a builder for updating this ContainerTracking.
@@ -114,10 +122,6 @@ func (ct *ContainerTracking) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", ct.ID))
 	builder.WriteString(", container_id=")
 	builder.WriteString(ct.ContainerID)
-	builder.WriteString(", image_url=")
-	builder.WriteString(ct.ImageURL)
-	builder.WriteString(", manual=")
-	builder.WriteString(fmt.Sprintf("%v", ct.Manual))
 	builder.WriteString(", created_at=")
 	builder.WriteString(ct.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')

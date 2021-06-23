@@ -812,7 +812,7 @@ proto.main.ResMLResult.prototype.toObject = function(opt_includeInstance) {
 proto.main.ResMLResult.toObject = function(includeInstance, msg) {
   var f, obj = {
     status: (f = msg.getStatus()) && proto.main.ResStatus.toObject(includeInstance, f),
-    cachedid: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    suggestid: jspb.Message.getFieldWithDefault(msg, 5, 0),
     containerid: jspb.Message.getFieldWithDefault(msg, 2, ""),
     imageurl: jspb.Message.getFieldWithDefault(msg, 3, ""),
     score: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0)
@@ -859,7 +859,7 @@ proto.main.ResMLResult.deserializeBinaryFromReader = function(msg, reader) {
       break;
     case 5:
       var value = /** @type {number} */ (reader.readInt32());
-      msg.setCachedid(value);
+      msg.setSuggestid(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -910,7 +910,7 @@ proto.main.ResMLResult.serializeBinaryToWriter = function(message, writer) {
       proto.main.ResStatus.serializeBinaryToWriter
     );
   }
-  f = message.getCachedid();
+  f = message.getSuggestid();
   if (f !== 0) {
     writer.writeInt32(
       5,
@@ -979,10 +979,10 @@ proto.main.ResMLResult.prototype.hasStatus = function() {
 
 
 /**
- * optional int32 CachedID = 5;
+ * optional int32 SuggestID = 5;
  * @return {number}
  */
-proto.main.ResMLResult.prototype.getCachedid = function() {
+proto.main.ResMLResult.prototype.getSuggestid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
@@ -991,7 +991,7 @@ proto.main.ResMLResult.prototype.getCachedid = function() {
  * @param {number} value
  * @return {!proto.main.ResMLResult} returns this
  */
-proto.main.ResMLResult.prototype.setCachedid = function(value) {
+proto.main.ResMLResult.prototype.setSuggestid = function(value) {
   return jspb.Message.setProto3IntField(this, 5, value);
 };
 
@@ -1082,7 +1082,7 @@ proto.main.ReqConfirmContainerID.prototype.toObject = function(opt_includeInstan
  */
 proto.main.ReqConfirmContainerID.toObject = function(includeInstance, msg) {
   var f, obj = {
-    cachedid: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    suggestid: jspb.Message.getFieldWithDefault(msg, 1, 0),
     containerid: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
@@ -1122,7 +1122,7 @@ proto.main.ReqConfirmContainerID.deserializeBinaryFromReader = function(msg, rea
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readInt32());
-      msg.setCachedid(value);
+      msg.setSuggestid(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -1175,10 +1175,10 @@ proto.main.ReqConfirmContainerID.serializeBinaryToWriter = function(message, wri
 
 
 /**
- * optional int32 CachedID = 1;
+ * optional int32 SuggestID = 1;
  * @return {number}
  */
-proto.main.ReqConfirmContainerID.prototype.getCachedid = function() {
+proto.main.ReqConfirmContainerID.prototype.getSuggestid = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
@@ -1187,7 +1187,7 @@ proto.main.ReqConfirmContainerID.prototype.getCachedid = function() {
  * @param {number} value
  * @return {!proto.main.ReqConfirmContainerID} returns this
  */
-proto.main.ReqConfirmContainerID.prototype.setCachedid = function(value) {
+proto.main.ReqConfirmContainerID.prototype.setSuggestid = function(value) {
   return jspb.Message.setField(this, 1, value);
 };
 
@@ -1196,7 +1196,7 @@ proto.main.ReqConfirmContainerID.prototype.setCachedid = function(value) {
  * Clears the field making it undefined.
  * @return {!proto.main.ReqConfirmContainerID} returns this
  */
-proto.main.ReqConfirmContainerID.prototype.clearCachedid = function() {
+proto.main.ReqConfirmContainerID.prototype.clearSuggestid = function() {
   return jspb.Message.setField(this, 1, undefined);
 };
 
@@ -1205,7 +1205,7 @@ proto.main.ReqConfirmContainerID.prototype.clearCachedid = function() {
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.main.ReqConfirmContainerID.prototype.hasCachedid = function() {
+proto.main.ReqConfirmContainerID.prototype.hasSuggestid = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 

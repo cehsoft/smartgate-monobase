@@ -103,8 +103,8 @@ export class ResMLResult extends jspb.Message {
   getStatus(): ResStatus | undefined;
   setStatus(value?: ResStatus): void;
 
-  getCachedid(): number;
-  setCachedid(value: number): void;
+  getSuggestid(): number;
+  setSuggestid(value: number): void;
 
   getContainerid(): string;
   setContainerid(value: string): void;
@@ -128,7 +128,7 @@ export class ResMLResult extends jspb.Message {
 export namespace ResMLResult {
   export type AsObject = {
     status?: ResStatus.AsObject,
-    cachedid: number,
+    suggestid: number,
     containerid: string,
     imageurl: string,
     score: number,
@@ -136,10 +136,10 @@ export namespace ResMLResult {
 }
 
 export class ReqConfirmContainerID extends jspb.Message {
-  hasCachedid(): boolean;
-  clearCachedid(): void;
-  getCachedid(): number;
-  setCachedid(value: number): void;
+  hasSuggestid(): boolean;
+  clearSuggestid(): void;
+  getSuggestid(): number;
+  setSuggestid(value: number): void;
 
   getContainerid(): string;
   setContainerid(value: string): void;
@@ -156,7 +156,7 @@ export class ReqConfirmContainerID extends jspb.Message {
 
 export namespace ReqConfirmContainerID {
   export type AsObject = {
-    cachedid: number,
+    suggestid: number,
     containerid: string,
   }
 }

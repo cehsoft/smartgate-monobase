@@ -10,26 +10,29 @@ import (
 )
 
 // ContainerTracking holds the schema definition for the ContainerTracking entity.
-type ContainerTracking struct {
+type ContainerTrackingSuggestion struct {
 	ent.Schema
 }
 
 // Fields of the ContainerTracking.
-func (ContainerTracking) Fields() []ent.Field {
+func (ContainerTrackingSuggestion) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("tracking_id").Optional(),
 		field.String("container_id"),
+		field.String("image_url").Optional(),
+		field.Float32("score"),
 		field.Time("created_at").Default(time.Now),
 	}
 }
 
 // Edges of the ContainerTracking.
-func (ContainerTracking) Edges() []ent.Edge {
+func (ContainerTrackingSuggestion) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("suggestions", ContainerTrackingSuggestion.Type), // One Tracking has many Suggestions
+		edge.From("tracking", ContainerTracking.Type).Ref("suggestions").Field("tracking_id").Unique(),
 	}
 }
 
-func (ContainerTracking) Indexes() []ent.Index {
+func (ContainerTrackingSuggestion) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("container_id"),
 	}

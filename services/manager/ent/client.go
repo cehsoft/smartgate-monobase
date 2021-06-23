@@ -10,10 +10,12 @@ import (
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/migrate"
 
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/user"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -23,6 +25,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// ContainerTracking is the client for interacting with the ContainerTracking builders.
 	ContainerTracking *ContainerTrackingClient
+	// ContainerTrackingSuggestion is the client for interacting with the ContainerTrackingSuggestion builders.
+	ContainerTrackingSuggestion *ContainerTrackingSuggestionClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -39,6 +43,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.ContainerTracking = NewContainerTrackingClient(c.config)
+	c.ContainerTrackingSuggestion = NewContainerTrackingSuggestionClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -71,10 +76,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:               ctx,
-		config:            cfg,
-		ContainerTracking: NewContainerTrackingClient(cfg),
-		User:              NewUserClient(cfg),
+		ctx:                         ctx,
+		config:                      cfg,
+		ContainerTracking:           NewContainerTrackingClient(cfg),
+		ContainerTrackingSuggestion: NewContainerTrackingSuggestionClient(cfg),
+		User:                        NewUserClient(cfg),
 	}, nil
 }
 
@@ -92,9 +98,10 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		config:            cfg,
-		ContainerTracking: NewContainerTrackingClient(cfg),
-		User:              NewUserClient(cfg),
+		config:                      cfg,
+		ContainerTracking:           NewContainerTrackingClient(cfg),
+		ContainerTrackingSuggestion: NewContainerTrackingSuggestionClient(cfg),
+		User:                        NewUserClient(cfg),
 	}, nil
 }
 
@@ -125,6 +132,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.ContainerTracking.Use(hooks...)
+	c.ContainerTrackingSuggestion.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
@@ -213,9 +221,131 @@ func (c *ContainerTrackingClient) GetX(ctx context.Context, id int) *ContainerTr
 	return obj
 }
 
+// QuerySuggestions queries the suggestions edge of a ContainerTracking.
+func (c *ContainerTrackingClient) QuerySuggestions(ct *ContainerTracking) *ContainerTrackingSuggestionQuery {
+	query := &ContainerTrackingSuggestionQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := ct.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(containertracking.Table, containertracking.FieldID, id),
+			sqlgraph.To(containertrackingsuggestion.Table, containertrackingsuggestion.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, containertracking.SuggestionsTable, containertracking.SuggestionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ct.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ContainerTrackingClient) Hooks() []Hook {
 	return c.hooks.ContainerTracking
+}
+
+// ContainerTrackingSuggestionClient is a client for the ContainerTrackingSuggestion schema.
+type ContainerTrackingSuggestionClient struct {
+	config
+}
+
+// NewContainerTrackingSuggestionClient returns a client for the ContainerTrackingSuggestion from the given config.
+func NewContainerTrackingSuggestionClient(c config) *ContainerTrackingSuggestionClient {
+	return &ContainerTrackingSuggestionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `containertrackingsuggestion.Hooks(f(g(h())))`.
+func (c *ContainerTrackingSuggestionClient) Use(hooks ...Hook) {
+	c.hooks.ContainerTrackingSuggestion = append(c.hooks.ContainerTrackingSuggestion, hooks...)
+}
+
+// Create returns a create builder for ContainerTrackingSuggestion.
+func (c *ContainerTrackingSuggestionClient) Create() *ContainerTrackingSuggestionCreate {
+	mutation := newContainerTrackingSuggestionMutation(c.config, OpCreate)
+	return &ContainerTrackingSuggestionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ContainerTrackingSuggestion entities.
+func (c *ContainerTrackingSuggestionClient) CreateBulk(builders ...*ContainerTrackingSuggestionCreate) *ContainerTrackingSuggestionCreateBulk {
+	return &ContainerTrackingSuggestionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ContainerTrackingSuggestion.
+func (c *ContainerTrackingSuggestionClient) Update() *ContainerTrackingSuggestionUpdate {
+	mutation := newContainerTrackingSuggestionMutation(c.config, OpUpdate)
+	return &ContainerTrackingSuggestionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ContainerTrackingSuggestionClient) UpdateOne(cts *ContainerTrackingSuggestion) *ContainerTrackingSuggestionUpdateOne {
+	mutation := newContainerTrackingSuggestionMutation(c.config, OpUpdateOne, withContainerTrackingSuggestion(cts))
+	return &ContainerTrackingSuggestionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ContainerTrackingSuggestionClient) UpdateOneID(id int) *ContainerTrackingSuggestionUpdateOne {
+	mutation := newContainerTrackingSuggestionMutation(c.config, OpUpdateOne, withContainerTrackingSuggestionID(id))
+	return &ContainerTrackingSuggestionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ContainerTrackingSuggestion.
+func (c *ContainerTrackingSuggestionClient) Delete() *ContainerTrackingSuggestionDelete {
+	mutation := newContainerTrackingSuggestionMutation(c.config, OpDelete)
+	return &ContainerTrackingSuggestionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *ContainerTrackingSuggestionClient) DeleteOne(cts *ContainerTrackingSuggestion) *ContainerTrackingSuggestionDeleteOne {
+	return c.DeleteOneID(cts.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *ContainerTrackingSuggestionClient) DeleteOneID(id int) *ContainerTrackingSuggestionDeleteOne {
+	builder := c.Delete().Where(containertrackingsuggestion.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ContainerTrackingSuggestionDeleteOne{builder}
+}
+
+// Query returns a query builder for ContainerTrackingSuggestion.
+func (c *ContainerTrackingSuggestionClient) Query() *ContainerTrackingSuggestionQuery {
+	return &ContainerTrackingSuggestionQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a ContainerTrackingSuggestion entity by its id.
+func (c *ContainerTrackingSuggestionClient) Get(ctx context.Context, id int) (*ContainerTrackingSuggestion, error) {
+	return c.Query().Where(containertrackingsuggestion.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ContainerTrackingSuggestionClient) GetX(ctx context.Context, id int) *ContainerTrackingSuggestion {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTracking queries the tracking edge of a ContainerTrackingSuggestion.
+func (c *ContainerTrackingSuggestionClient) QueryTracking(cts *ContainerTrackingSuggestion) *ContainerTrackingQuery {
+	query := &ContainerTrackingQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := cts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(containertrackingsuggestion.Table, containertrackingsuggestion.FieldID, id),
+			sqlgraph.To(containertracking.Table, containertracking.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, containertrackingsuggestion.TrackingTable, containertrackingsuggestion.TrackingColumn),
+		)
+		fromV = sqlgraph.Neighbors(cts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ContainerTrackingSuggestionClient) Hooks() []Hook {
+	return c.hooks.ContainerTrackingSuggestion
 }
 
 // UserClient is a client for the User schema.

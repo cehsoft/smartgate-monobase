@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -12,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
 )
 
@@ -24,6 +26,8 @@ type ContainerTrackingQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.ContainerTracking
+	// eager-loading edges.
+	withSuggestions *ContainerTrackingSuggestionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -58,6 +62,28 @@ func (ctq *ContainerTrackingQuery) Unique(unique bool) *ContainerTrackingQuery {
 func (ctq *ContainerTrackingQuery) Order(o ...OrderFunc) *ContainerTrackingQuery {
 	ctq.order = append(ctq.order, o...)
 	return ctq
+}
+
+// QuerySuggestions chains the current query on the "suggestions" edge.
+func (ctq *ContainerTrackingQuery) QuerySuggestions() *ContainerTrackingSuggestionQuery {
+	query := &ContainerTrackingSuggestionQuery{config: ctq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := ctq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := ctq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(containertracking.Table, containertracking.FieldID, selector),
+			sqlgraph.To(containertrackingsuggestion.Table, containertrackingsuggestion.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, containertracking.SuggestionsTable, containertracking.SuggestionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(ctq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first ContainerTracking entity from the query.
@@ -236,15 +262,27 @@ func (ctq *ContainerTrackingQuery) Clone() *ContainerTrackingQuery {
 		return nil
 	}
 	return &ContainerTrackingQuery{
-		config:     ctq.config,
-		limit:      ctq.limit,
-		offset:     ctq.offset,
-		order:      append([]OrderFunc{}, ctq.order...),
-		predicates: append([]predicate.ContainerTracking{}, ctq.predicates...),
+		config:          ctq.config,
+		limit:           ctq.limit,
+		offset:          ctq.offset,
+		order:           append([]OrderFunc{}, ctq.order...),
+		predicates:      append([]predicate.ContainerTracking{}, ctq.predicates...),
+		withSuggestions: ctq.withSuggestions.Clone(),
 		// clone intermediate query.
 		sql:  ctq.sql.Clone(),
 		path: ctq.path,
 	}
+}
+
+// WithSuggestions tells the query-builder to eager-load the nodes that are connected to
+// the "suggestions" edge. The optional arguments are used to configure the query builder of the edge.
+func (ctq *ContainerTrackingQuery) WithSuggestions(opts ...func(*ContainerTrackingSuggestionQuery)) *ContainerTrackingQuery {
+	query := &ContainerTrackingSuggestionQuery{config: ctq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	ctq.withSuggestions = query
+	return ctq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -310,8 +348,11 @@ func (ctq *ContainerTrackingQuery) prepareQuery(ctx context.Context) error {
 
 func (ctq *ContainerTrackingQuery) sqlAll(ctx context.Context) ([]*ContainerTracking, error) {
 	var (
-		nodes = []*ContainerTracking{}
-		_spec = ctq.querySpec()
+		nodes       = []*ContainerTracking{}
+		_spec       = ctq.querySpec()
+		loadedTypes = [1]bool{
+			ctq.withSuggestions != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &ContainerTracking{config: ctq.config}
@@ -323,6 +364,7 @@ func (ctq *ContainerTrackingQuery) sqlAll(ctx context.Context) ([]*ContainerTrac
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, ctq.driver, _spec); err != nil {
@@ -331,6 +373,32 @@ func (ctq *ContainerTrackingQuery) sqlAll(ctx context.Context) ([]*ContainerTrac
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := ctq.withSuggestions; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*ContainerTracking)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Suggestions = []*ContainerTrackingSuggestion{}
+		}
+		query.Where(predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+			s.Where(sql.InValues(containertracking.SuggestionsColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.TrackingID
+			node, ok := nodeids[fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "tracking_id" returned %v for node %v`, fk, n.ID)
+			}
+			node.Edges.Suggestions = append(node.Edges.Suggestions, n)
+		}
+	}
+
 	return nodes, nil
 }
 

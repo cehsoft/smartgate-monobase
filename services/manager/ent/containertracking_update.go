@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
 )
 
@@ -33,40 +34,6 @@ func (ctu *ContainerTrackingUpdate) SetContainerID(s string) *ContainerTrackingU
 	return ctu
 }
 
-// SetImageURL sets the "image_url" field.
-func (ctu *ContainerTrackingUpdate) SetImageURL(s string) *ContainerTrackingUpdate {
-	ctu.mutation.SetImageURL(s)
-	return ctu
-}
-
-// SetNillableImageURL sets the "image_url" field if the given value is not nil.
-func (ctu *ContainerTrackingUpdate) SetNillableImageURL(s *string) *ContainerTrackingUpdate {
-	if s != nil {
-		ctu.SetImageURL(*s)
-	}
-	return ctu
-}
-
-// ClearImageURL clears the value of the "image_url" field.
-func (ctu *ContainerTrackingUpdate) ClearImageURL() *ContainerTrackingUpdate {
-	ctu.mutation.ClearImageURL()
-	return ctu
-}
-
-// SetManual sets the "manual" field.
-func (ctu *ContainerTrackingUpdate) SetManual(b bool) *ContainerTrackingUpdate {
-	ctu.mutation.SetManual(b)
-	return ctu
-}
-
-// SetNillableManual sets the "manual" field if the given value is not nil.
-func (ctu *ContainerTrackingUpdate) SetNillableManual(b *bool) *ContainerTrackingUpdate {
-	if b != nil {
-		ctu.SetManual(*b)
-	}
-	return ctu
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (ctu *ContainerTrackingUpdate) SetCreatedAt(t time.Time) *ContainerTrackingUpdate {
 	ctu.mutation.SetCreatedAt(t)
@@ -81,9 +48,45 @@ func (ctu *ContainerTrackingUpdate) SetNillableCreatedAt(t *time.Time) *Containe
 	return ctu
 }
 
+// AddSuggestionIDs adds the "suggestions" edge to the ContainerTrackingSuggestion entity by IDs.
+func (ctu *ContainerTrackingUpdate) AddSuggestionIDs(ids ...int) *ContainerTrackingUpdate {
+	ctu.mutation.AddSuggestionIDs(ids...)
+	return ctu
+}
+
+// AddSuggestions adds the "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (ctu *ContainerTrackingUpdate) AddSuggestions(c ...*ContainerTrackingSuggestion) *ContainerTrackingUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return ctu.AddSuggestionIDs(ids...)
+}
+
 // Mutation returns the ContainerTrackingMutation object of the builder.
 func (ctu *ContainerTrackingUpdate) Mutation() *ContainerTrackingMutation {
 	return ctu.mutation
+}
+
+// ClearSuggestions clears all "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (ctu *ContainerTrackingUpdate) ClearSuggestions() *ContainerTrackingUpdate {
+	ctu.mutation.ClearSuggestions()
+	return ctu
+}
+
+// RemoveSuggestionIDs removes the "suggestions" edge to ContainerTrackingSuggestion entities by IDs.
+func (ctu *ContainerTrackingUpdate) RemoveSuggestionIDs(ids ...int) *ContainerTrackingUpdate {
+	ctu.mutation.RemoveSuggestionIDs(ids...)
+	return ctu
+}
+
+// RemoveSuggestions removes "suggestions" edges to ContainerTrackingSuggestion entities.
+func (ctu *ContainerTrackingUpdate) RemoveSuggestions(c ...*ContainerTrackingSuggestion) *ContainerTrackingUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return ctu.RemoveSuggestionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -162,32 +165,66 @@ func (ctu *ContainerTrackingUpdate) sqlSave(ctx context.Context) (n int, err err
 			Column: containertracking.FieldContainerID,
 		})
 	}
-	if value, ok := ctu.mutation.ImageURL(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: containertracking.FieldImageURL,
-		})
-	}
-	if ctu.mutation.ImageURLCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: containertracking.FieldImageURL,
-		})
-	}
-	if value, ok := ctu.mutation.Manual(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: containertracking.FieldManual,
-		})
-	}
 	if value, ok := ctu.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
 			Column: containertracking.FieldCreatedAt,
 		})
+	}
+	if ctu.mutation.SuggestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   containertracking.SuggestionsTable,
+			Columns: []string{containertracking.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ctu.mutation.RemovedSuggestionsIDs(); len(nodes) > 0 && !ctu.mutation.SuggestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   containertracking.SuggestionsTable,
+			Columns: []string{containertracking.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ctu.mutation.SuggestionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   containertracking.SuggestionsTable,
+			Columns: []string{containertracking.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, ctu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -214,40 +251,6 @@ func (ctuo *ContainerTrackingUpdateOne) SetContainerID(s string) *ContainerTrack
 	return ctuo
 }
 
-// SetImageURL sets the "image_url" field.
-func (ctuo *ContainerTrackingUpdateOne) SetImageURL(s string) *ContainerTrackingUpdateOne {
-	ctuo.mutation.SetImageURL(s)
-	return ctuo
-}
-
-// SetNillableImageURL sets the "image_url" field if the given value is not nil.
-func (ctuo *ContainerTrackingUpdateOne) SetNillableImageURL(s *string) *ContainerTrackingUpdateOne {
-	if s != nil {
-		ctuo.SetImageURL(*s)
-	}
-	return ctuo
-}
-
-// ClearImageURL clears the value of the "image_url" field.
-func (ctuo *ContainerTrackingUpdateOne) ClearImageURL() *ContainerTrackingUpdateOne {
-	ctuo.mutation.ClearImageURL()
-	return ctuo
-}
-
-// SetManual sets the "manual" field.
-func (ctuo *ContainerTrackingUpdateOne) SetManual(b bool) *ContainerTrackingUpdateOne {
-	ctuo.mutation.SetManual(b)
-	return ctuo
-}
-
-// SetNillableManual sets the "manual" field if the given value is not nil.
-func (ctuo *ContainerTrackingUpdateOne) SetNillableManual(b *bool) *ContainerTrackingUpdateOne {
-	if b != nil {
-		ctuo.SetManual(*b)
-	}
-	return ctuo
-}
-
 // SetCreatedAt sets the "created_at" field.
 func (ctuo *ContainerTrackingUpdateOne) SetCreatedAt(t time.Time) *ContainerTrackingUpdateOne {
 	ctuo.mutation.SetCreatedAt(t)
@@ -262,9 +265,45 @@ func (ctuo *ContainerTrackingUpdateOne) SetNillableCreatedAt(t *time.Time) *Cont
 	return ctuo
 }
 
+// AddSuggestionIDs adds the "suggestions" edge to the ContainerTrackingSuggestion entity by IDs.
+func (ctuo *ContainerTrackingUpdateOne) AddSuggestionIDs(ids ...int) *ContainerTrackingUpdateOne {
+	ctuo.mutation.AddSuggestionIDs(ids...)
+	return ctuo
+}
+
+// AddSuggestions adds the "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (ctuo *ContainerTrackingUpdateOne) AddSuggestions(c ...*ContainerTrackingSuggestion) *ContainerTrackingUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return ctuo.AddSuggestionIDs(ids...)
+}
+
 // Mutation returns the ContainerTrackingMutation object of the builder.
 func (ctuo *ContainerTrackingUpdateOne) Mutation() *ContainerTrackingMutation {
 	return ctuo.mutation
+}
+
+// ClearSuggestions clears all "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (ctuo *ContainerTrackingUpdateOne) ClearSuggestions() *ContainerTrackingUpdateOne {
+	ctuo.mutation.ClearSuggestions()
+	return ctuo
+}
+
+// RemoveSuggestionIDs removes the "suggestions" edge to ContainerTrackingSuggestion entities by IDs.
+func (ctuo *ContainerTrackingUpdateOne) RemoveSuggestionIDs(ids ...int) *ContainerTrackingUpdateOne {
+	ctuo.mutation.RemoveSuggestionIDs(ids...)
+	return ctuo
+}
+
+// RemoveSuggestions removes "suggestions" edges to ContainerTrackingSuggestion entities.
+func (ctuo *ContainerTrackingUpdateOne) RemoveSuggestions(c ...*ContainerTrackingSuggestion) *ContainerTrackingUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return ctuo.RemoveSuggestionIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -367,32 +406,66 @@ func (ctuo *ContainerTrackingUpdateOne) sqlSave(ctx context.Context) (_node *Con
 			Column: containertracking.FieldContainerID,
 		})
 	}
-	if value, ok := ctuo.mutation.ImageURL(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: containertracking.FieldImageURL,
-		})
-	}
-	if ctuo.mutation.ImageURLCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: containertracking.FieldImageURL,
-		})
-	}
-	if value, ok := ctuo.mutation.Manual(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: containertracking.FieldManual,
-		})
-	}
 	if value, ok := ctuo.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
 			Column: containertracking.FieldCreatedAt,
 		})
+	}
+	if ctuo.mutation.SuggestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   containertracking.SuggestionsTable,
+			Columns: []string{containertracking.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ctuo.mutation.RemovedSuggestionsIDs(); len(nodes) > 0 && !ctuo.mutation.SuggestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   containertracking.SuggestionsTable,
+			Columns: []string{containertracking.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ctuo.mutation.SuggestionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   containertracking.SuggestionsTable,
+			Columns: []string{containertracking.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &ContainerTracking{config: ctuo.config}
 	_spec.Assign = _node.assignValues
