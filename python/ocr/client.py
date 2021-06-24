@@ -2,7 +2,7 @@ import io
 import grpc
 from time import sleep
 
-from ocr.proto import ocr_pb2_grpc, ocr_pb2
+from proto import ocr_pb2_grpc, ocr_pb2
 from minio import Minio
 from minio.error import S3Error
 

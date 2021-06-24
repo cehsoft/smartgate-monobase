@@ -1,5 +1,5 @@
 syntax = "proto3";
-package main;
+package ocr_main;
 
 message ReqNewDetectedImage {    
     string ImageURL = 1;
