@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z\t./;mygrpc',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x13proto/service.proto\x12\x04main\"D\n\tResStatus\x12\x12\n\nstatusCode\x18\x01 \x01(\x05\x12\x0f\n\x07\x65rrCode\x18\x02 \x01(\t\x12\x12\n\nerrMessage\x18\x03 \x01(\t\"+\n\x08ResEmpty\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\"\n\n\x08ReqEmpty\"C\n\x0bReqMLResult\x12\x13\n\x0b\x43ontainerID\x18\x01 \x01(\t\x12\x10\n\x08ImageURL\x18\x02 \x01(\t\x12\r\n\x05Score\x18\x03 \x01(\x02\"w\n\x0bResMLResult\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\x11\n\tSuggestID\x18\x05 \x01(\x05\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\r\n\x05Score\x18\x04 \x01(\x02\"R\n\x15ReqConfirmContainerID\x12\x16\n\tSuggestID\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\tB\x0c\n\n_SuggestID\"Y\n\x11\x43ontainerTracking\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\x11\n\tCreatedAt\x18\x04 \x01(\x05\"h\n\x19ResListContainerTrackings\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12*\n\ttrackings\x18\x02 \x03(\x0b\x32\x17.main.ContainerTracking2\xfd\x01\n\x06MyGRPC\x12\x30\n\x0bnewMLResult\x12\x11.main.ReqMLResult\x1a\x0e.main.ResEmpty\x12\x33\n\x0cpullMLResult\x12\x0e.main.ReqEmpty\x1a\x11.main.ResMLResult0\x01\x12I\n\x16listContainerTrackings\x12\x0e.main.ReqEmpty\x1a\x1f.main.ResListContainerTrackings\x12\x41\n\x12\x63onfirmContainerID\x12\x1b.main.ReqConfirmContainerID\x1a\x0e.main.ResEmptyB\x0bZ\t./;mygrpcb\x06proto3'
+  serialized_pb=b'\n\x13proto/service.proto\x12\x04main\"D\n\tResStatus\x12\x12\n\nstatusCode\x18\x01 \x01(\x05\x12\x0f\n\x07\x65rrCode\x18\x02 \x01(\t\x12\x12\n\nerrMessage\x18\x03 \x01(\t\"+\n\x08ResEmpty\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\"\n\n\x08ReqEmpty\"C\n\x0bReqMLResult\x12\x13\n\x0b\x43ontainerID\x18\x01 \x01(\t\x12\x10\n\x08ImageURL\x18\x02 \x01(\t\x12\r\n\x05Score\x18\x03 \x01(\x02\"w\n\x0bResMLResult\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\x11\n\tSuggestID\x18\x05 \x01(\x05\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\r\n\x05Score\x18\x04 \x01(\x02\"R\n\x15ReqConfirmContainerID\x12\x16\n\tSuggestID\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\tB\x0c\n\n_SuggestID2\xb2\x01\n\x06MyGRPC\x12\x30\n\x0bnewMLResult\x12\x11.main.ReqMLResult\x1a\x0e.main.ResEmpty\x12\x33\n\x0cpullMLResult\x12\x0e.main.ReqEmpty\x1a\x11.main.ResMLResult0\x01\x12\x41\n\x12\x63onfirmContainerID\x12\x1b.main.ReqConfirmContainerID\x1a\x0e.main.ResEmptyB\x0bZ\t./;mygrpcb\x06proto3'
 )
 
 
@@ -277,113 +277,17 @@ _REQCONFIRMCONTAINERID = _descriptor.Descriptor(
   serialized_end=428,
 )
 
-
-_CONTAINERTRACKING = _descriptor.Descriptor(
-  name='ContainerTracking',
-  full_name='main.ContainerTracking',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='ID', full_name='main.ContainerTracking.ID', index=0,
-      number=1, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='ContainerID', full_name='main.ContainerTracking.ContainerID', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='ImageURL', full_name='main.ContainerTracking.ImageURL', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='CreatedAt', full_name='main.ContainerTracking.CreatedAt', index=3,
-      number=4, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=430,
-  serialized_end=519,
-)
-
-
-_RESLISTCONTAINERTRACKINGS = _descriptor.Descriptor(
-  name='ResListContainerTrackings',
-  full_name='main.ResListContainerTrackings',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='status', full_name='main.ResListContainerTrackings.status', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='trackings', full_name='main.ResListContainerTrackings.trackings', index=1,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=521,
-  serialized_end=625,
-)
-
 _RESEMPTY.fields_by_name['status'].message_type = _RESSTATUS
 _RESMLRESULT.fields_by_name['status'].message_type = _RESSTATUS
 _REQCONFIRMCONTAINERID.oneofs_by_name['_SuggestID'].fields.append(
   _REQCONFIRMCONTAINERID.fields_by_name['SuggestID'])
 _REQCONFIRMCONTAINERID.fields_by_name['SuggestID'].containing_oneof = _REQCONFIRMCONTAINERID.oneofs_by_name['_SuggestID']
-_RESLISTCONTAINERTRACKINGS.fields_by_name['status'].message_type = _RESSTATUS
-_RESLISTCONTAINERTRACKINGS.fields_by_name['trackings'].message_type = _CONTAINERTRACKING
 DESCRIPTOR.message_types_by_name['ResStatus'] = _RESSTATUS
 DESCRIPTOR.message_types_by_name['ResEmpty'] = _RESEMPTY
 DESCRIPTOR.message_types_by_name['ReqEmpty'] = _REQEMPTY
 DESCRIPTOR.message_types_by_name['ReqMLResult'] = _REQMLRESULT
 DESCRIPTOR.message_types_by_name['ResMLResult'] = _RESMLRESULT
 DESCRIPTOR.message_types_by_name['ReqConfirmContainerID'] = _REQCONFIRMCONTAINERID
-DESCRIPTOR.message_types_by_name['ContainerTracking'] = _CONTAINERTRACKING
-DESCRIPTOR.message_types_by_name['ResListContainerTrackings'] = _RESLISTCONTAINERTRACKINGS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 ResStatus = _reflection.GeneratedProtocolMessageType('ResStatus', (_message.Message,), {
@@ -428,20 +332,6 @@ ReqConfirmContainerID = _reflection.GeneratedProtocolMessageType('ReqConfirmCont
   })
 _sym_db.RegisterMessage(ReqConfirmContainerID)
 
-ContainerTracking = _reflection.GeneratedProtocolMessageType('ContainerTracking', (_message.Message,), {
-  'DESCRIPTOR' : _CONTAINERTRACKING,
-  '__module__' : 'proto.service_pb2'
-  # @@protoc_insertion_point(class_scope:main.ContainerTracking)
-  })
-_sym_db.RegisterMessage(ContainerTracking)
-
-ResListContainerTrackings = _reflection.GeneratedProtocolMessageType('ResListContainerTrackings', (_message.Message,), {
-  'DESCRIPTOR' : _RESLISTCONTAINERTRACKINGS,
-  '__module__' : 'proto.service_pb2'
-  # @@protoc_insertion_point(class_scope:main.ResListContainerTrackings)
-  })
-_sym_db.RegisterMessage(ResListContainerTrackings)
-
 
 DESCRIPTOR._options = None
 
@@ -452,8 +342,8 @@ _MYGRPC = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=628,
-  serialized_end=881,
+  serialized_start=431,
+  serialized_end=609,
   methods=[
   _descriptor.MethodDescriptor(
     name='newMLResult',
@@ -476,19 +366,9 @@ _MYGRPC = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
-    name='listContainerTrackings',
-    full_name='main.MyGRPC.listContainerTrackings',
-    index=2,
-    containing_service=None,
-    input_type=_REQEMPTY,
-    output_type=_RESLISTCONTAINERTRACKINGS,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
     name='confirmContainerID',
     full_name='main.MyGRPC.confirmContainerID',
-    index=3,
+    index=2,
     containing_service=None,
     input_type=_REQCONFIRMCONTAINERID,
     output_type=_RESEMPTY,

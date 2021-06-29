@@ -22,6 +22,15 @@ type MyGRPCpullMLResult = {
   readonly responseType: typeof proto_service_pb.ResMLResult;
 };
 
+type MyGRPClistContainerTrackings = {
+  readonly methodName: string;
+  readonly service: typeof MyGRPC;
+  readonly requestStream: false;
+  readonly responseStream: false;
+  readonly requestType: typeof proto_service_pb.ReqEmpty;
+  readonly responseType: typeof proto_service_pb.ResListContainerTrackings;
+};
+
 type MyGRPCconfirmContainerID = {
   readonly methodName: string;
   readonly service: typeof MyGRPC;
@@ -35,6 +44,7 @@ export class MyGRPC {
   static readonly serviceName: string;
   static readonly newMLResult: MyGRPCnewMLResult;
   static readonly pullMLResult: MyGRPCpullMLResult;
+  static readonly listContainerTrackings: MyGRPClistContainerTrackings;
   static readonly confirmContainerID: MyGRPCconfirmContainerID;
 }
 
@@ -80,6 +90,15 @@ export class MyGRPCClient {
     callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResEmpty|null) => void
   ): UnaryResponse;
   pullMLResult(requestMessage: proto_service_pb.ReqEmpty, metadata?: grpc.Metadata): ResponseStream<proto_service_pb.ResMLResult>;
+  listContainerTrackings(
+    requestMessage: proto_service_pb.ReqEmpty,
+    metadata: grpc.Metadata,
+    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResListContainerTrackings|null) => void
+  ): UnaryResponse;
+  listContainerTrackings(
+    requestMessage: proto_service_pb.ReqEmpty,
+    callback: (error: ServiceError|null, responseMessage: proto_service_pb.ResListContainerTrackings|null) => void
+  ): UnaryResponse;
   confirmContainerID(
     requestMessage: proto_service_pb.ReqConfirmContainerID,
     metadata: grpc.Metadata,

@@ -36,8 +36,22 @@ message ReqConfirmContainerID {
     string ContainerID = 2;
 }
 
+message ContainerTracking {
+    int32 ID = 1;
+    string ContainerID = 2;
+    string ImageURL = 3;
+    int32 CreatedAt = 4;
+}
+
+message ResListContainerTrackings {
+    ResStatus status = 1;
+
+    repeated ContainerTracking trackings = 2;
+}
+
 service MyGRPC {
     rpc newMLResult(ReqMLResult) returns (ResEmpty);
     rpc pullMLResult(ReqEmpty) returns (stream ResMLResult);
+    rpc listContainerTrackings(ReqEmpty) returns (ResListContainerTrackings);
     rpc confirmContainerID(ReqConfirmContainerID) returns (ResEmpty);
 }

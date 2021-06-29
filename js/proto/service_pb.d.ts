@@ -161,3 +161,63 @@ export namespace ReqConfirmContainerID {
   }
 }
 
+export class ContainerTracking extends jspb.Message {
+  getId(): number;
+  setId(value: number): void;
+
+  getContainerid(): string;
+  setContainerid(value: string): void;
+
+  getImageurl(): string;
+  setImageurl(value: string): void;
+
+  getCreatedat(): number;
+  setCreatedat(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ContainerTracking.AsObject;
+  static toObject(includeInstance: boolean, msg: ContainerTracking): ContainerTracking.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ContainerTracking, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ContainerTracking;
+  static deserializeBinaryFromReader(message: ContainerTracking, reader: jspb.BinaryReader): ContainerTracking;
+}
+
+export namespace ContainerTracking {
+  export type AsObject = {
+    id: number,
+    containerid: string,
+    imageurl: string,
+    createdat: number,
+  }
+}
+
+export class ResListContainerTrackings extends jspb.Message {
+  hasStatus(): boolean;
+  clearStatus(): void;
+  getStatus(): ResStatus | undefined;
+  setStatus(value?: ResStatus): void;
+
+  clearTrackingsList(): void;
+  getTrackingsList(): Array<ContainerTracking>;
+  setTrackingsList(value: Array<ContainerTracking>): void;
+  addTrackings(value?: ContainerTracking, index?: number): ContainerTracking;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ResListContainerTrackings.AsObject;
+  static toObject(includeInstance: boolean, msg: ResListContainerTrackings): ResListContainerTrackings.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ResListContainerTrackings, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ResListContainerTrackings;
+  static deserializeBinaryFromReader(message: ResListContainerTrackings, reader: jspb.BinaryReader): ResListContainerTrackings;
+}
+
+export namespace ResListContainerTrackings {
+  export type AsObject = {
+    status?: ResStatus.AsObject,
+    trackingsList: Array<ContainerTracking.AsObject>,
+  }
+}
+
