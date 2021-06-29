@@ -7,6 +7,7 @@ import (
 	"github.com/leandro-lugaresi/hub"
 
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/model"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 )
@@ -51,7 +52,10 @@ func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*m
 }
 
 func (svc *Server) ListContainerTrackings(ctx context.Context, req *mygrpc.ReqEmpty) (*mygrpc.ResListContainerTrackings, error) {
-	tracks, err := svc.db.ContainerTracking.Query().All(ctx)
+	tracks, err := svc.db.ContainerTracking.Query().
+		Order(ent.Desc(containertracking.FieldCreatedAt)).
+		Limit(100).
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}
