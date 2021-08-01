@@ -1307,7 +1307,8 @@ proto.main.ContainerTracking.toObject = function(includeInstance, msg) {
     id: jspb.Message.getFieldWithDefault(msg, 1, 0),
     containerid: jspb.Message.getFieldWithDefault(msg, 2, ""),
     imageurl: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    createdat: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    createdat: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    score: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0)
   };
 
   if (includeInstance) {
@@ -1359,6 +1360,10 @@ proto.main.ContainerTracking.deserializeBinaryFromReader = function(msg, reader)
     case 4:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedat(value);
+      break;
+    case 5:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setScore(value);
       break;
     default:
       reader.skipField();
@@ -1414,6 +1419,13 @@ proto.main.ContainerTracking.serializeBinaryToWriter = function(message, writer)
   if (f !== 0) {
     writer.writeInt32(
       4,
+      f
+    );
+  }
+  f = message.getScore();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      5,
       f
     );
   }
@@ -1489,6 +1501,24 @@ proto.main.ContainerTracking.prototype.getCreatedat = function() {
  */
 proto.main.ContainerTracking.prototype.setCreatedat = function(value) {
   return jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional float Score = 5;
+ * @return {number}
+ */
+proto.main.ContainerTracking.prototype.getScore = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 5, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.main.ContainerTracking} returns this
+ */
+proto.main.ContainerTracking.prototype.setScore = function(value) {
+  return jspb.Message.setProto3FloatField(this, 5, value);
 };
 
 

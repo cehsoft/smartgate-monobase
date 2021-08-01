@@ -41,6 +41,7 @@ message ContainerTracking {
     string ContainerID = 2;
     string ImageURL = 3;
     int32 CreatedAt = 4;
+    float Score = 5;
 }
 
 message ResListContainerTrackings {

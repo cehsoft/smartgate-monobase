@@ -8,6 +8,7 @@ import (
 	"github.com/init-tech-solution/service-spitc-stream/services/lib/uuid"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/model"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 )
@@ -73,6 +74,15 @@ func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*m
 func (svc *Server) ListContainerTrackings(ctx context.Context, req *mygrpc.ReqEmpty) (*mygrpc.ResListContainerTrackings, error) {
 	tracks, err := svc.db.ContainerTracking.Query().WithSuggestions().
 		Order(ent.Desc(containertracking.FieldCreatedAt)).
+		Where(containertracking.Not(containertracking.HasSuggestions())).
+		Limit(100).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	suggests, err := svc.db.ContainerTrackingSuggestion.Query().
+		Order(ent.Desc(containertrackingsuggestion.FieldCreatedAt)).
 		Limit(100).
 		All(ctx)
 	if err != nil {
@@ -80,6 +90,18 @@ func (svc *Server) ListContainerTrackings(ctx context.Context, req *mygrpc.ReqEm
 	}
 
 	resTrackings := []*mygrpc.ContainerTracking{}
+
+	for _, s := range suggests {
+		tracking := &mygrpc.ContainerTracking{
+			ID:          int32(s.ID),
+			ContainerID: s.ContainerID,
+			CreatedAt:   int32(s.CreatedAt.Unix()),
+			ImageURL:    s.ImageURL,
+			Score:       s.Score,
+		}
+
+		resTrackings = append(resTrackings, tracking)
+	}
 
 	for _, t := range tracks {
 		tracking := &mygrpc.ContainerTracking{
@@ -91,6 +113,7 @@ func (svc *Server) ListContainerTrackings(ctx context.Context, req *mygrpc.ReqEm
 		if len(t.Edges.Suggestions) > 0 {
 			suggest := t.Edges.Suggestions[0]
 			tracking.ImageURL = suggest.ImageURL
+			tracking.Score = suggest.Score
 		}
 
 		resTrackings = append(resTrackings, tracking)
