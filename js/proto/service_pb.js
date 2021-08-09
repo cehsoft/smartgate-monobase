@@ -1308,7 +1308,10 @@ proto.main.ContainerTracking.toObject = function(includeInstance, msg) {
     containerid: jspb.Message.getFieldWithDefault(msg, 2, ""),
     imageurl: jspb.Message.getFieldWithDefault(msg, 3, ""),
     createdat: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    score: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0)
+    score: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
+    bic: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    serial: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    checksum: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -1364,6 +1367,18 @@ proto.main.ContainerTracking.deserializeBinaryFromReader = function(msg, reader)
     case 5:
       var value = /** @type {number} */ (reader.readFloat());
       msg.setScore(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setBic(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSerial(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setChecksum(value);
       break;
     default:
       reader.skipField();
@@ -1426,6 +1441,27 @@ proto.main.ContainerTracking.serializeBinaryToWriter = function(message, writer)
   if (f !== 0.0) {
     writer.writeFloat(
       5,
+      f
+    );
+  }
+  f = message.getBic();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
+  f = message.getSerial();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
+      f
+    );
+  }
+  f = message.getChecksum();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
       f
     );
   }
@@ -1519,6 +1555,60 @@ proto.main.ContainerTracking.prototype.getScore = function() {
  */
 proto.main.ContainerTracking.prototype.setScore = function(value) {
   return jspb.Message.setProto3FloatField(this, 5, value);
+};
+
+
+/**
+ * optional string BIC = 6;
+ * @return {string}
+ */
+proto.main.ContainerTracking.prototype.getBic = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.main.ContainerTracking} returns this
+ */
+proto.main.ContainerTracking.prototype.setBic = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional string Serial = 7;
+ * @return {string}
+ */
+proto.main.ContainerTracking.prototype.getSerial = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.main.ContainerTracking} returns this
+ */
+proto.main.ContainerTracking.prototype.setSerial = function(value) {
+  return jspb.Message.setProto3StringField(this, 7, value);
+};
+
+
+/**
+ * optional string Checksum = 8;
+ * @return {string}
+ */
+proto.main.ContainerTracking.prototype.getChecksum = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.main.ContainerTracking} returns this
+ */
+proto.main.ContainerTracking.prototype.setChecksum = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
 };
 
 

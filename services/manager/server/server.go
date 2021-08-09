@@ -2,19 +2,21 @@ package server
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/init-tech-solution/service-spitc-stream/services/lib/uuid"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
-	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/model"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 )
 
 type Server struct {
-	db *ent.Client
+	db    *ent.Client
+	rawdb *sql.DB
 
 	clients map[string]chan *ContainerTrackingSuggestion
 
@@ -26,9 +28,10 @@ type ContainerTrackingSuggestion struct {
 	model.ContainerTracking
 }
 
-func CreateServer(db *ent.Client) *Server {
+func CreateServer(db *ent.Client, rawdb *sql.DB) *Server {
 	return &Server{
 		db:      db,
+		rawdb:   rawdb,
 		clients: map[string]chan *ContainerTrackingSuggestion{},
 	}
 }
@@ -36,8 +39,17 @@ func CreateServer(db *ent.Client) *Server {
 func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*mygrpc.ResEmpty, error) {
 	log.Println("ML result received", req)
 
+	splittedIDs := splitContainerID(req.ContainerID)
+
+	if splittedIDs == nil {
+		return nil, fmt.Errorf("result is not valid")
+	}
+
 	suggestRrd, err := svc.db.ContainerTrackingSuggestion.Create().
 		SetContainerID(req.ContainerID).
+		SetBic(splittedIDs[0]).
+		SetSerial(splittedIDs[1]).
+		SetChecksum(splittedIDs[2]).
 		SetImageURL(req.ImageURL).
 		SetScore(req.Score).
 		Save(ctx)
@@ -72,14 +84,26 @@ func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*m
 }
 
 func (svc *Server) ListContainerTrackings(ctx context.Context, req *mygrpc.ReqEmpty) (*mygrpc.ResListContainerTrackings, error) {
-	tracks, err := svc.db.ContainerTracking.Query().WithSuggestions().
-		Order(ent.Desc(containertracking.FieldCreatedAt)).
-		Where(containertracking.Not(containertracking.HasSuggestions())).
-		Limit(100).
-		All(ctx)
+	// tracks, err := svc.db.ContainerTracking.Query().WithSuggestions().
+	// 	Order(ent.Desc(containertracking.FieldCreatedAt)).
+	// 	Where(containertracking.Not(containertracking.HasSuggestions())).
+	// 	Limit(100).
+	// 	All(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	rows, err := svc.rawdb.Query(`
+select s.id, s.container_id, s.image_url, s.score, s.bic, s.serial, s.checksum, s.created_at from container_tracking_suggestions as s join (SELECT count(*), max(score), serial,
+    date_trunc('hour', created_at) +
+    (((date_part('minute', created_at)::integer / 5::integer) * 5::integer)
+    || ' minutes')::interval AS chunk_time
+FROM container_tracking_suggestions
+GROUP BY serial, chunk_time) as c ON s.score = c.max AND s.serial = c.serial LIMIT 100;`)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	suggests, err := svc.db.ContainerTrackingSuggestion.Query().
 		Order(ent.Desc(containertrackingsuggestion.FieldCreatedAt)).
@@ -92,32 +116,57 @@ func (svc *Server) ListContainerTrackings(ctx context.Context, req *mygrpc.ReqEm
 	resTrackings := []*mygrpc.ContainerTracking{}
 
 	for _, s := range suggests {
-		tracking := &mygrpc.ContainerTracking{
-			ID:          int32(s.ID),
-			ContainerID: s.ContainerID,
-			CreatedAt:   int32(s.CreatedAt.Unix()),
-			ImageURL:    s.ImageURL,
-			Score:       s.Score,
+		splittedIDs := splitContainerID(s.ContainerID)
+
+		if s.Bic != splittedIDs[0] {
+			s.Update().SetBic(splittedIDs[0]).
+				SetSerial(splittedIDs[1]).
+				SetChecksum(splittedIDs[2]).Save(ctx)
 		}
 
-		resTrackings = append(resTrackings, tracking)
+		// tracking := &mygrpc.ContainerTracking{
+		// 	ID:          int32(s.ID),
+		// 	Score:       s.Score,
+		// 	ImageURL:    s.ImageURL,
+		// 	ContainerID: s.ContainerID,
+		// 	BIC:         splittedIDs[0],
+		// 	Serial:      splittedIDs[1],
+		// 	Checksum:    splittedIDs[2],
+		// 	CreatedAt:   int32(s.CreatedAt.Unix()),
+		// }
+
+		// resTrackings = append(resTrackings, tracking)
 	}
 
-	for _, t := range tracks {
-		tracking := &mygrpc.ContainerTracking{
-			ID:          int32(t.ID),
-			ContainerID: t.ContainerID,
-			CreatedAt:   int32(t.CreatedAt.Unix()),
+	for rows.Next() {
+		t := &mygrpc.ContainerTracking{}
+		tzdate := &time.Time{}
+		err := rows.Scan(&t.ID, &t.ContainerID, &t.ImageURL, &t.Score, &t.BIC, &t.Serial, &t.Checksum, tzdate)
+		if err != nil {
+			return nil, err
 		}
-
-		if len(t.Edges.Suggestions) > 0 {
-			suggest := t.Edges.Suggestions[0]
-			tracking.ImageURL = suggest.ImageURL
-			tracking.Score = suggest.Score
-		}
-
-		resTrackings = append(resTrackings, tracking)
+		t.CreatedAt = int32(tzdate.UTC().Unix())
+		resTrackings = append(resTrackings, t)
 	}
+
+	// for _, t := range tracks {
+	// 	tracking := &mygrpc.ContainerTracking{
+	// 		ID:          int32(t.ID),
+	// 		ContainerID: t.ContainerID,
+	// 		CreatedAt:   int32(t.CreatedAt.Unix()),
+	// 	}
+
+	// 	if len(t.Edges.Suggestions) > 0 {
+	// 		suggest := t.Edges.Suggestions[0]
+	// 		tracking.ImageURL = suggest.ImageURL
+	// 		tracking.Score = suggest.Score
+	// 		tracking.BIC = suggest.Bic
+	// 		tracking.Serial = suggest.Serial
+	// 		tracking.Checksum = suggest.Checksum
+	// 	}
+
+	// 	resTrackings = append(resTrackings, tracking)
+	// }
 
 	return &mygrpc.ResListContainerTrackings{
 		Trackings: resTrackings,

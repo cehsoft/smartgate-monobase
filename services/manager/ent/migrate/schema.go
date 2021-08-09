@@ -32,6 +32,9 @@ var (
 	ContainerTrackingSuggestionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "container_id", Type: field.TypeString},
+		{Name: "bic", Type: field.TypeString, Nullable: true},
+		{Name: "serial", Type: field.TypeString, Nullable: true},
+		{Name: "checksum", Type: field.TypeString, Nullable: true},
 		{Name: "image_url", Type: field.TypeString, Nullable: true},
 		{Name: "score", Type: field.TypeFloat32},
 		{Name: "created_at", Type: field.TypeTime},
@@ -45,7 +48,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "container_tracking_suggestions_container_trackings_suggestions",
-				Columns:    []*schema.Column{ContainerTrackingSuggestionsColumns[5]},
+				Columns:    []*schema.Column{ContainerTrackingSuggestionsColumns[8]},
 				RefColumns: []*schema.Column{ContainerTrackingsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

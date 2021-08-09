@@ -19,6 +19,9 @@ func (ContainerTrackingSuggestion) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("tracking_id").Optional(),
 		field.String("container_id"),
+		field.String("bic").Optional(),
+		field.String("serial").Optional(),
+		field.String("checksum").Optional(),
 		field.String("image_url").Optional(),
 		field.Float32("score"),
 		field.Time("created_at").Default(time.Now),

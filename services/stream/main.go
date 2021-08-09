@@ -103,22 +103,34 @@ func doSignaling(ctx echo.Context, config Config) error {
 	return nil
 }
 
+// var rtspURLs map[string]string = map[string]string{
+// 	// "c238": "rtsp://admin:tg12346789g@14.161.28.68:50238/Streaming/channels/101",
+// 	// "c239": "rtsp://admin:tg12346789g@14.161.28.68:50239/Streaming/channels/101",
+// 	// "c240": "rtsp://admin:tg12346789g@14.161.28.68:50240/Streaming/channels/101",
+// 	// "c241": "rtsp://admin:tg12346789g@14.161.28.68:50241/Streaming/channels/101",
+// 	// "c242": "rtsp://admin:tg12346789g@14.161.28.68:50242/Streaming/channels/101",
+// 	// "c238": "rtsp://admin:tg12346789g@10.10.13.238:554/Streaming/channels/101",
+// 	// "c239": "rtsp://admin:tg12346789g@10.10.13.239:554/Streaming/channels/101",
+// 	// "c240": "rtsp://admin:tg12346789g@10.10.13.240:554/Streaming/channels/101",
+// 	// "c241": "rtsp://admin:tg12346789g@10.10.13.241:554/Streaming/channels/101",
+// 	// "c242": "rtsp://admin:tg12346789g@10.10.13.242:554/Streaming/channels/101",
+// 	"c238": "rtsp://10.10.14.60:8554/c238",
+// 	"c239": "rtsp://10.10.14.60:8554/c239",
+// 	"c240": "rtsp://10.10.14.60:8554/c240",
+// 	"c241": "rtsp://10.10.14.60:8554/c241",
+// 	"c242": "rtsp://10.10.14.60:8554/c242",
+// }
+
 var rtspURLs map[string]string = map[string]string{
-	// "c238": "rtsp://admin:tg12346789g@14.161.28.68:50238/Streaming/channels/101",
-	// "c239": "rtsp://admin:tg12346789g@14.161.28.68:50239/Streaming/channels/101",
-	// "c240": "rtsp://admin:tg12346789g@14.161.28.68:50240/Streaming/channels/101",
-	// "c241": "rtsp://admin:tg12346789g@14.161.28.68:50241/Streaming/channels/101",
-	// "c242": "rtsp://admin:tg12346789g@14.161.28.68:50242/Streaming/channels/101",
-	// "c238": "rtsp://admin:tg12346789g@10.10.13.238:554/Streaming/channels/101",
-	// "c239": "rtsp://admin:tg12346789g@10.10.13.239:554/Streaming/channels/101",
-	// "c240": "rtsp://admin:tg12346789g@10.10.13.240:554/Streaming/channels/101",
-	// "c241": "rtsp://admin:tg12346789g@10.10.13.241:554/Streaming/channels/101",
-	// "c242": "rtsp://admin:tg12346789g@10.10.13.242:554/Streaming/channels/101",
-	"c238": "rtsp://10.10.14.60:8554/c238",
-	"c239": "rtsp://10.10.14.60:8554/c239",
-	"c240": "rtsp://10.10.14.60:8554/c240",
-	"c241": "rtsp://10.10.14.60:8554/c241",
-	"c242": "rtsp://10.10.14.60:8554/c242",
+	"c201": "rtsp://10.10.14.69:8554/c201",
+	"c202": "rtsp://10.10.14.69:8554/c202",
+	"c203": "rtsp://10.10.14.69:8554/c203",
+	"c204": "rtsp://10.10.14.69:8554/c204",
+	"c238": "rtsp://10.10.14.69:8554/c238",
+	"c239": "rtsp://10.10.14.69:8554/c239",
+	"c240": "rtsp://10.10.14.69:8554/c240",
+	"c241": "rtsp://10.10.14.69:8554/c241",
+	"c242": "rtsp://10.10.14.69:8554/c242",
 }
 
 func main() {

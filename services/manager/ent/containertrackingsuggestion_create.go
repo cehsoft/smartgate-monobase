@@ -41,6 +41,48 @@ func (ctsc *ContainerTrackingSuggestionCreate) SetContainerID(s string) *Contain
 	return ctsc
 }
 
+// SetBic sets the "bic" field.
+func (ctsc *ContainerTrackingSuggestionCreate) SetBic(s string) *ContainerTrackingSuggestionCreate {
+	ctsc.mutation.SetBic(s)
+	return ctsc
+}
+
+// SetNillableBic sets the "bic" field if the given value is not nil.
+func (ctsc *ContainerTrackingSuggestionCreate) SetNillableBic(s *string) *ContainerTrackingSuggestionCreate {
+	if s != nil {
+		ctsc.SetBic(*s)
+	}
+	return ctsc
+}
+
+// SetSerial sets the "serial" field.
+func (ctsc *ContainerTrackingSuggestionCreate) SetSerial(s string) *ContainerTrackingSuggestionCreate {
+	ctsc.mutation.SetSerial(s)
+	return ctsc
+}
+
+// SetNillableSerial sets the "serial" field if the given value is not nil.
+func (ctsc *ContainerTrackingSuggestionCreate) SetNillableSerial(s *string) *ContainerTrackingSuggestionCreate {
+	if s != nil {
+		ctsc.SetSerial(*s)
+	}
+	return ctsc
+}
+
+// SetChecksum sets the "checksum" field.
+func (ctsc *ContainerTrackingSuggestionCreate) SetChecksum(s string) *ContainerTrackingSuggestionCreate {
+	ctsc.mutation.SetChecksum(s)
+	return ctsc
+}
+
+// SetNillableChecksum sets the "checksum" field if the given value is not nil.
+func (ctsc *ContainerTrackingSuggestionCreate) SetNillableChecksum(s *string) *ContainerTrackingSuggestionCreate {
+	if s != nil {
+		ctsc.SetChecksum(*s)
+	}
+	return ctsc
+}
+
 // SetImageURL sets the "image_url" field.
 func (ctsc *ContainerTrackingSuggestionCreate) SetImageURL(s string) *ContainerTrackingSuggestionCreate {
 	ctsc.mutation.SetImageURL(s)
@@ -183,6 +225,30 @@ func (ctsc *ContainerTrackingSuggestionCreate) createSpec() (*ContainerTrackingS
 			Column: containertrackingsuggestion.FieldContainerID,
 		})
 		_node.ContainerID = value
+	}
+	if value, ok := ctsc.mutation.Bic(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldBic,
+		})
+		_node.Bic = value
+	}
+	if value, ok := ctsc.mutation.Serial(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldSerial,
+		})
+		_node.Serial = value
+	}
+	if value, ok := ctsc.mutation.Checksum(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldChecksum,
+		})
+		_node.Checksum = value
 	}
 	if value, ok := ctsc.mutation.ImageURL(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

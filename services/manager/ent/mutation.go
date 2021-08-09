@@ -469,6 +469,9 @@ type ContainerTrackingSuggestionMutation struct {
 	typ             string
 	id              *int
 	container_id    *string
+	bic             *string
+	serial          *string
+	checksum        *string
 	image_url       *string
 	score           *float32
 	addscore        *float32
@@ -643,6 +646,153 @@ func (m *ContainerTrackingSuggestionMutation) OldContainerID(ctx context.Context
 // ResetContainerID resets all changes to the "container_id" field.
 func (m *ContainerTrackingSuggestionMutation) ResetContainerID() {
 	m.container_id = nil
+}
+
+// SetBic sets the "bic" field.
+func (m *ContainerTrackingSuggestionMutation) SetBic(s string) {
+	m.bic = &s
+}
+
+// Bic returns the value of the "bic" field in the mutation.
+func (m *ContainerTrackingSuggestionMutation) Bic() (r string, exists bool) {
+	v := m.bic
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBic returns the old "bic" field's value of the ContainerTrackingSuggestion entity.
+// If the ContainerTrackingSuggestion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContainerTrackingSuggestionMutation) OldBic(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldBic is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldBic requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBic: %w", err)
+	}
+	return oldValue.Bic, nil
+}
+
+// ClearBic clears the value of the "bic" field.
+func (m *ContainerTrackingSuggestionMutation) ClearBic() {
+	m.bic = nil
+	m.clearedFields[containertrackingsuggestion.FieldBic] = struct{}{}
+}
+
+// BicCleared returns if the "bic" field was cleared in this mutation.
+func (m *ContainerTrackingSuggestionMutation) BicCleared() bool {
+	_, ok := m.clearedFields[containertrackingsuggestion.FieldBic]
+	return ok
+}
+
+// ResetBic resets all changes to the "bic" field.
+func (m *ContainerTrackingSuggestionMutation) ResetBic() {
+	m.bic = nil
+	delete(m.clearedFields, containertrackingsuggestion.FieldBic)
+}
+
+// SetSerial sets the "serial" field.
+func (m *ContainerTrackingSuggestionMutation) SetSerial(s string) {
+	m.serial = &s
+}
+
+// Serial returns the value of the "serial" field in the mutation.
+func (m *ContainerTrackingSuggestionMutation) Serial() (r string, exists bool) {
+	v := m.serial
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSerial returns the old "serial" field's value of the ContainerTrackingSuggestion entity.
+// If the ContainerTrackingSuggestion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContainerTrackingSuggestionMutation) OldSerial(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldSerial is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldSerial requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSerial: %w", err)
+	}
+	return oldValue.Serial, nil
+}
+
+// ClearSerial clears the value of the "serial" field.
+func (m *ContainerTrackingSuggestionMutation) ClearSerial() {
+	m.serial = nil
+	m.clearedFields[containertrackingsuggestion.FieldSerial] = struct{}{}
+}
+
+// SerialCleared returns if the "serial" field was cleared in this mutation.
+func (m *ContainerTrackingSuggestionMutation) SerialCleared() bool {
+	_, ok := m.clearedFields[containertrackingsuggestion.FieldSerial]
+	return ok
+}
+
+// ResetSerial resets all changes to the "serial" field.
+func (m *ContainerTrackingSuggestionMutation) ResetSerial() {
+	m.serial = nil
+	delete(m.clearedFields, containertrackingsuggestion.FieldSerial)
+}
+
+// SetChecksum sets the "checksum" field.
+func (m *ContainerTrackingSuggestionMutation) SetChecksum(s string) {
+	m.checksum = &s
+}
+
+// Checksum returns the value of the "checksum" field in the mutation.
+func (m *ContainerTrackingSuggestionMutation) Checksum() (r string, exists bool) {
+	v := m.checksum
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChecksum returns the old "checksum" field's value of the ContainerTrackingSuggestion entity.
+// If the ContainerTrackingSuggestion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContainerTrackingSuggestionMutation) OldChecksum(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldChecksum is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldChecksum requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChecksum: %w", err)
+	}
+	return oldValue.Checksum, nil
+}
+
+// ClearChecksum clears the value of the "checksum" field.
+func (m *ContainerTrackingSuggestionMutation) ClearChecksum() {
+	m.checksum = nil
+	m.clearedFields[containertrackingsuggestion.FieldChecksum] = struct{}{}
+}
+
+// ChecksumCleared returns if the "checksum" field was cleared in this mutation.
+func (m *ContainerTrackingSuggestionMutation) ChecksumCleared() bool {
+	_, ok := m.clearedFields[containertrackingsuggestion.FieldChecksum]
+	return ok
+}
+
+// ResetChecksum resets all changes to the "checksum" field.
+func (m *ContainerTrackingSuggestionMutation) ResetChecksum() {
+	m.checksum = nil
+	delete(m.clearedFields, containertrackingsuggestion.FieldChecksum)
 }
 
 // SetImageURL sets the "image_url" field.
@@ -826,12 +976,21 @@ func (m *ContainerTrackingSuggestionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ContainerTrackingSuggestionMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 8)
 	if m.tracking != nil {
 		fields = append(fields, containertrackingsuggestion.FieldTrackingID)
 	}
 	if m.container_id != nil {
 		fields = append(fields, containertrackingsuggestion.FieldContainerID)
+	}
+	if m.bic != nil {
+		fields = append(fields, containertrackingsuggestion.FieldBic)
+	}
+	if m.serial != nil {
+		fields = append(fields, containertrackingsuggestion.FieldSerial)
+	}
+	if m.checksum != nil {
+		fields = append(fields, containertrackingsuggestion.FieldChecksum)
 	}
 	if m.image_url != nil {
 		fields = append(fields, containertrackingsuggestion.FieldImageURL)
@@ -854,6 +1013,12 @@ func (m *ContainerTrackingSuggestionMutation) Field(name string) (ent.Value, boo
 		return m.TrackingID()
 	case containertrackingsuggestion.FieldContainerID:
 		return m.ContainerID()
+	case containertrackingsuggestion.FieldBic:
+		return m.Bic()
+	case containertrackingsuggestion.FieldSerial:
+		return m.Serial()
+	case containertrackingsuggestion.FieldChecksum:
+		return m.Checksum()
 	case containertrackingsuggestion.FieldImageURL:
 		return m.ImageURL()
 	case containertrackingsuggestion.FieldScore:
@@ -873,6 +1038,12 @@ func (m *ContainerTrackingSuggestionMutation) OldField(ctx context.Context, name
 		return m.OldTrackingID(ctx)
 	case containertrackingsuggestion.FieldContainerID:
 		return m.OldContainerID(ctx)
+	case containertrackingsuggestion.FieldBic:
+		return m.OldBic(ctx)
+	case containertrackingsuggestion.FieldSerial:
+		return m.OldSerial(ctx)
+	case containertrackingsuggestion.FieldChecksum:
+		return m.OldChecksum(ctx)
 	case containertrackingsuggestion.FieldImageURL:
 		return m.OldImageURL(ctx)
 	case containertrackingsuggestion.FieldScore:
@@ -901,6 +1072,27 @@ func (m *ContainerTrackingSuggestionMutation) SetField(name string, value ent.Va
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetContainerID(v)
+		return nil
+	case containertrackingsuggestion.FieldBic:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBic(v)
+		return nil
+	case containertrackingsuggestion.FieldSerial:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSerial(v)
+		return nil
+	case containertrackingsuggestion.FieldChecksum:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChecksum(v)
 		return nil
 	case containertrackingsuggestion.FieldImageURL:
 		v, ok := value.(string)
@@ -971,6 +1163,15 @@ func (m *ContainerTrackingSuggestionMutation) ClearedFields() []string {
 	if m.FieldCleared(containertrackingsuggestion.FieldTrackingID) {
 		fields = append(fields, containertrackingsuggestion.FieldTrackingID)
 	}
+	if m.FieldCleared(containertrackingsuggestion.FieldBic) {
+		fields = append(fields, containertrackingsuggestion.FieldBic)
+	}
+	if m.FieldCleared(containertrackingsuggestion.FieldSerial) {
+		fields = append(fields, containertrackingsuggestion.FieldSerial)
+	}
+	if m.FieldCleared(containertrackingsuggestion.FieldChecksum) {
+		fields = append(fields, containertrackingsuggestion.FieldChecksum)
+	}
 	if m.FieldCleared(containertrackingsuggestion.FieldImageURL) {
 		fields = append(fields, containertrackingsuggestion.FieldImageURL)
 	}
@@ -991,6 +1192,15 @@ func (m *ContainerTrackingSuggestionMutation) ClearField(name string) error {
 	case containertrackingsuggestion.FieldTrackingID:
 		m.ClearTrackingID()
 		return nil
+	case containertrackingsuggestion.FieldBic:
+		m.ClearBic()
+		return nil
+	case containertrackingsuggestion.FieldSerial:
+		m.ClearSerial()
+		return nil
+	case containertrackingsuggestion.FieldChecksum:
+		m.ClearChecksum()
+		return nil
 	case containertrackingsuggestion.FieldImageURL:
 		m.ClearImageURL()
 		return nil
@@ -1007,6 +1217,15 @@ func (m *ContainerTrackingSuggestionMutation) ResetField(name string) error {
 		return nil
 	case containertrackingsuggestion.FieldContainerID:
 		m.ResetContainerID()
+		return nil
+	case containertrackingsuggestion.FieldBic:
+		m.ResetBic()
+		return nil
+	case containertrackingsuggestion.FieldSerial:
+		m.ResetSerial()
+		return nil
+	case containertrackingsuggestion.FieldChecksum:
+		m.ResetChecksum()
 		return nil
 	case containertrackingsuggestion.FieldImageURL:
 		m.ResetImageURL()

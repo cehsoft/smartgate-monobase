@@ -107,6 +107,27 @@ func ContainerID(v string) predicate.ContainerTrackingSuggestion {
 	})
 }
 
+// Bic applies equality check predicate on the "bic" field. It's identical to BicEQ.
+func Bic(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldBic), v))
+	})
+}
+
+// Serial applies equality check predicate on the "serial" field. It's identical to SerialEQ.
+func Serial(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSerial), v))
+	})
+}
+
+// Checksum applies equality check predicate on the "checksum" field. It's identical to ChecksumEQ.
+func Checksum(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldChecksum), v))
+	})
+}
+
 // ImageURL applies equality check predicate on the "image_url" field. It's identical to ImageURLEQ.
 func ImageURL(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
@@ -298,6 +319,381 @@ func ContainerIDEqualFold(v string) predicate.ContainerTrackingSuggestion {
 func ContainerIDContainsFold(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldContainerID), v))
+	})
+}
+
+// BicEQ applies the EQ predicate on the "bic" field.
+func BicEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldBic), v))
+	})
+}
+
+// BicNEQ applies the NEQ predicate on the "bic" field.
+func BicNEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldBic), v))
+	})
+}
+
+// BicIn applies the In predicate on the "bic" field.
+func BicIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldBic), v...))
+	})
+}
+
+// BicNotIn applies the NotIn predicate on the "bic" field.
+func BicNotIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldBic), v...))
+	})
+}
+
+// BicGT applies the GT predicate on the "bic" field.
+func BicGT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldBic), v))
+	})
+}
+
+// BicGTE applies the GTE predicate on the "bic" field.
+func BicGTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldBic), v))
+	})
+}
+
+// BicLT applies the LT predicate on the "bic" field.
+func BicLT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldBic), v))
+	})
+}
+
+// BicLTE applies the LTE predicate on the "bic" field.
+func BicLTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldBic), v))
+	})
+}
+
+// BicContains applies the Contains predicate on the "bic" field.
+func BicContains(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldBic), v))
+	})
+}
+
+// BicHasPrefix applies the HasPrefix predicate on the "bic" field.
+func BicHasPrefix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldBic), v))
+	})
+}
+
+// BicHasSuffix applies the HasSuffix predicate on the "bic" field.
+func BicHasSuffix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldBic), v))
+	})
+}
+
+// BicIsNil applies the IsNil predicate on the "bic" field.
+func BicIsNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldBic)))
+	})
+}
+
+// BicNotNil applies the NotNil predicate on the "bic" field.
+func BicNotNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldBic)))
+	})
+}
+
+// BicEqualFold applies the EqualFold predicate on the "bic" field.
+func BicEqualFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldBic), v))
+	})
+}
+
+// BicContainsFold applies the ContainsFold predicate on the "bic" field.
+func BicContainsFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldBic), v))
+	})
+}
+
+// SerialEQ applies the EQ predicate on the "serial" field.
+func SerialEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSerial), v))
+	})
+}
+
+// SerialNEQ applies the NEQ predicate on the "serial" field.
+func SerialNEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldSerial), v))
+	})
+}
+
+// SerialIn applies the In predicate on the "serial" field.
+func SerialIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldSerial), v...))
+	})
+}
+
+// SerialNotIn applies the NotIn predicate on the "serial" field.
+func SerialNotIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldSerial), v...))
+	})
+}
+
+// SerialGT applies the GT predicate on the "serial" field.
+func SerialGT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldSerial), v))
+	})
+}
+
+// SerialGTE applies the GTE predicate on the "serial" field.
+func SerialGTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldSerial), v))
+	})
+}
+
+// SerialLT applies the LT predicate on the "serial" field.
+func SerialLT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldSerial), v))
+	})
+}
+
+// SerialLTE applies the LTE predicate on the "serial" field.
+func SerialLTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldSerial), v))
+	})
+}
+
+// SerialContains applies the Contains predicate on the "serial" field.
+func SerialContains(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldSerial), v))
+	})
+}
+
+// SerialHasPrefix applies the HasPrefix predicate on the "serial" field.
+func SerialHasPrefix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldSerial), v))
+	})
+}
+
+// SerialHasSuffix applies the HasSuffix predicate on the "serial" field.
+func SerialHasSuffix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldSerial), v))
+	})
+}
+
+// SerialIsNil applies the IsNil predicate on the "serial" field.
+func SerialIsNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldSerial)))
+	})
+}
+
+// SerialNotNil applies the NotNil predicate on the "serial" field.
+func SerialNotNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldSerial)))
+	})
+}
+
+// SerialEqualFold applies the EqualFold predicate on the "serial" field.
+func SerialEqualFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldSerial), v))
+	})
+}
+
+// SerialContainsFold applies the ContainsFold predicate on the "serial" field.
+func SerialContainsFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldSerial), v))
+	})
+}
+
+// ChecksumEQ applies the EQ predicate on the "checksum" field.
+func ChecksumEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumNEQ applies the NEQ predicate on the "checksum" field.
+func ChecksumNEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumIn applies the In predicate on the "checksum" field.
+func ChecksumIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldChecksum), v...))
+	})
+}
+
+// ChecksumNotIn applies the NotIn predicate on the "checksum" field.
+func ChecksumNotIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldChecksum), v...))
+	})
+}
+
+// ChecksumGT applies the GT predicate on the "checksum" field.
+func ChecksumGT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumGTE applies the GTE predicate on the "checksum" field.
+func ChecksumGTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumLT applies the LT predicate on the "checksum" field.
+func ChecksumLT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumLTE applies the LTE predicate on the "checksum" field.
+func ChecksumLTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumContains applies the Contains predicate on the "checksum" field.
+func ChecksumContains(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumHasPrefix applies the HasPrefix predicate on the "checksum" field.
+func ChecksumHasPrefix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumHasSuffix applies the HasSuffix predicate on the "checksum" field.
+func ChecksumHasSuffix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumIsNil applies the IsNil predicate on the "checksum" field.
+func ChecksumIsNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldChecksum)))
+	})
+}
+
+// ChecksumNotNil applies the NotNil predicate on the "checksum" field.
+func ChecksumNotNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldChecksum)))
+	})
+}
+
+// ChecksumEqualFold applies the EqualFold predicate on the "checksum" field.
+func ChecksumEqualFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldChecksum), v))
+	})
+}
+
+// ChecksumContainsFold applies the ContainsFold predicate on the "checksum" field.
+func ChecksumContainsFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldChecksum), v))
 	})
 }
 

@@ -21,6 +21,12 @@ type ContainerTrackingSuggestion struct {
 	TrackingID int `json:"tracking_id,omitempty"`
 	// ContainerID holds the value of the "container_id" field.
 	ContainerID string `json:"container_id,omitempty"`
+	// Bic holds the value of the "bic" field.
+	Bic string `json:"bic,omitempty"`
+	// Serial holds the value of the "serial" field.
+	Serial string `json:"serial,omitempty"`
+	// Checksum holds the value of the "checksum" field.
+	Checksum string `json:"checksum,omitempty"`
 	// ImageURL holds the value of the "image_url" field.
 	ImageURL string `json:"image_url,omitempty"`
 	// Score holds the value of the "score" field.
@@ -64,7 +70,7 @@ func (*ContainerTrackingSuggestion) scanValues(columns []string) ([]interface{},
 			values[i] = new(sql.NullFloat64)
 		case containertrackingsuggestion.FieldID, containertrackingsuggestion.FieldTrackingID:
 			values[i] = new(sql.NullInt64)
-		case containertrackingsuggestion.FieldContainerID, containertrackingsuggestion.FieldImageURL:
+		case containertrackingsuggestion.FieldContainerID, containertrackingsuggestion.FieldBic, containertrackingsuggestion.FieldSerial, containertrackingsuggestion.FieldChecksum, containertrackingsuggestion.FieldImageURL:
 			values[i] = new(sql.NullString)
 		case containertrackingsuggestion.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -100,6 +106,24 @@ func (cts *ContainerTrackingSuggestion) assignValues(columns []string, values []
 				return fmt.Errorf("unexpected type %T for field container_id", values[i])
 			} else if value.Valid {
 				cts.ContainerID = value.String
+			}
+		case containertrackingsuggestion.FieldBic:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field bic", values[i])
+			} else if value.Valid {
+				cts.Bic = value.String
+			}
+		case containertrackingsuggestion.FieldSerial:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field serial", values[i])
+			} else if value.Valid {
+				cts.Serial = value.String
+			}
+		case containertrackingsuggestion.FieldChecksum:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field checksum", values[i])
+			} else if value.Valid {
+				cts.Checksum = value.String
 			}
 		case containertrackingsuggestion.FieldImageURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -156,6 +180,12 @@ func (cts *ContainerTrackingSuggestion) String() string {
 	builder.WriteString(fmt.Sprintf("%v", cts.TrackingID))
 	builder.WriteString(", container_id=")
 	builder.WriteString(cts.ContainerID)
+	builder.WriteString(", bic=")
+	builder.WriteString(cts.Bic)
+	builder.WriteString(", serial=")
+	builder.WriteString(cts.Serial)
+	builder.WriteString(", checksum=")
+	builder.WriteString(cts.Checksum)
 	builder.WriteString(", image_url=")
 	builder.WriteString(cts.ImageURL)
 	builder.WriteString(", score=")

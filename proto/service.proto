@@ -42,6 +42,9 @@ message ContainerTracking {
     string ImageURL = 3;
     int32 CreatedAt = 4;
     float Score = 5;
+    string BIC = 6;
+    string Serial = 7;
+    string Checksum = 8;
 }
 
 message ResListContainerTrackings {

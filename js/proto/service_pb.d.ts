@@ -177,6 +177,15 @@ export class ContainerTracking extends jspb.Message {
   getScore(): number;
   setScore(value: number): void;
 
+  getBic(): string;
+  setBic(value: string): void;
+
+  getSerial(): string;
+  setSerial(value: string): void;
+
+  getChecksum(): string;
+  setChecksum(value: string): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ContainerTracking.AsObject;
   static toObject(includeInstance: boolean, msg: ContainerTracking): ContainerTracking.AsObject;
@@ -194,6 +203,9 @@ export namespace ContainerTracking {
     imageurl: string,
     createdat: number,
     score: number,
+    bic: string,
+    serial: string,
+    checksum: string,
   }
 }
 

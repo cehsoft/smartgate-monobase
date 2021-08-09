@@ -15,6 +15,12 @@ const (
 	FieldTrackingID = "tracking_id"
 	// FieldContainerID holds the string denoting the container_id field in the database.
 	FieldContainerID = "container_id"
+	// FieldBic holds the string denoting the bic field in the database.
+	FieldBic = "bic"
+	// FieldSerial holds the string denoting the serial field in the database.
+	FieldSerial = "serial"
+	// FieldChecksum holds the string denoting the checksum field in the database.
+	FieldChecksum = "checksum"
 	// FieldImageURL holds the string denoting the image_url field in the database.
 	FieldImageURL = "image_url"
 	// FieldScore holds the string denoting the score field in the database.
@@ -39,6 +45,9 @@ var Columns = []string{
 	FieldID,
 	FieldTrackingID,
 	FieldContainerID,
+	FieldBic,
+	FieldSerial,
+	FieldChecksum,
 	FieldImageURL,
 	FieldScore,
 	FieldCreatedAt,

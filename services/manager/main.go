@@ -24,6 +24,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/migrate"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/server"
 )
@@ -97,12 +98,14 @@ func main() {
 
 	if err := client.Schema.Create(
 		context.Background(),
+		migrate.WithDropIndex(true),
+		migrate.WithDropColumn(true),
 		// migrate.WithGlobalUniqueID(true),
 	); err != nil {
 		log.Fatal("opening ent client", err)
 	}
 
-	server := server.CreateServer(client)
+	server := server.CreateServer(client, db)
 	mygrpc.RegisterMyGRPCServer(apiserver, server)
 
 	go func() {
