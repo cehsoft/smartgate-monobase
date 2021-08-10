@@ -94,12 +94,13 @@ func (svc *Server) ListContainerTrackings(ctx context.Context, req *mygrpc.ReqEm
 	// }
 
 	rows, err := svc.rawdb.Query(`
-select s.id, s.container_id, s.image_url, s.score, s.bic, s.serial, s.checksum, s.created_at from container_tracking_suggestions as s join (SELECT count(*), max(score), serial,
+	select s.id, s.container_id, s.image_url, s.score, s.bic, s.serial, s.checksum, s.created_at from container_tracking_suggestions as s join (SELECT count(*), max(score), serial,
     date_trunc('hour', created_at) +
     (((date_part('minute', created_at)::integer / 5::integer) * 5::integer)
     || ' minutes')::interval AS chunk_time
 FROM container_tracking_suggestions
-GROUP BY serial, chunk_time) as c ON s.score = c.max AND s.serial = c.serial LIMIT 100;`)
+GROUP BY serial, chunk_time) as c ON s.score = c.max AND s.serial = c.serial order by created_at desc LIMIT 100;
+	`)
 	if err != nil {
 		return nil, err
 	}
