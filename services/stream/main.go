@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"log"
 	"sync/atomic"
 	"time"
@@ -103,37 +104,37 @@ func doSignaling(ctx echo.Context, config Config) error {
 	return nil
 }
 
-// var rtspURLs map[string]string = map[string]string{
-// 	// "c238": "rtsp://admin:tg12346789g@14.161.28.68:50238/Streaming/channels/101",
-// 	// "c239": "rtsp://admin:tg12346789g@14.161.28.68:50239/Streaming/channels/101",
-// 	// "c240": "rtsp://admin:tg12346789g@14.161.28.68:50240/Streaming/channels/101",
-// 	// "c241": "rtsp://admin:tg12346789g@14.161.28.68:50241/Streaming/channels/101",
-// 	// "c242": "rtsp://admin:tg12346789g@14.161.28.68:50242/Streaming/channels/101",
-// 	// "c238": "rtsp://admin:tg12346789g@10.10.13.238:554/Streaming/channels/101",
-// 	// "c239": "rtsp://admin:tg12346789g@10.10.13.239:554/Streaming/channels/101",
-// 	// "c240": "rtsp://admin:tg12346789g@10.10.13.240:554/Streaming/channels/101",
-// 	// "c241": "rtsp://admin:tg12346789g@10.10.13.241:554/Streaming/channels/101",
-// 	// "c242": "rtsp://admin:tg12346789g@10.10.13.242:554/Streaming/channels/101",
-// 	"c238": "rtsp://10.10.14.60:8554/c238",
-// 	"c239": "rtsp://10.10.14.60:8554/c239",
-// 	"c240": "rtsp://10.10.14.60:8554/c240",
-// 	"c241": "rtsp://10.10.14.60:8554/c241",
-// 	"c242": "rtsp://10.10.14.60:8554/c242",
-// }
-
-var rtspURLs map[string]string = map[string]string{
-	"c201": "rtsp://10.10.14.69:8554/c201",
-	"c202": "rtsp://10.10.14.69:8554/c202",
-	"c203": "rtsp://10.10.14.69:8554/c203",
-	"c204": "rtsp://10.10.14.69:8554/c204",
-	"c238": "rtsp://10.10.14.69:8554/c238",
-	"c239": "rtsp://10.10.14.69:8554/c239",
-	"c240": "rtsp://10.10.14.69:8554/c240",
-	"c241": "rtsp://10.10.14.69:8554/c241",
-	"c242": "rtsp://10.10.14.69:8554/c242",
-}
-
 func main() {
+
+	// var rtspURLs map[string]string = map[string]string{
+	// 	// "c238": "rtsp://admin:tg12346789g@14.161.28.68:50238/Streaming/channels/101",
+	// 	// "c239": "rtsp://admin:tg12346789g@14.161.28.68:50239/Streaming/channels/101",
+	// 	// "c240": "rtsp://admin:tg12346789g@14.161.28.68:50240/Streaming/channels/101",
+	// 	// "c241": "rtsp://admin:tg12346789g@14.161.28.68:50241/Streaming/channels/101",
+	// 	// "c242": "rtsp://admin:tg12346789g@14.161.28.68:50242/Streaming/channels/101",
+	// 	// "c238": "rtsp://admin:tg12346789g@10.10.13.238:554/Streaming/channels/101",
+	// 	// "c239": "rtsp://admin:tg12346789g@10.10.13.239:554/Streaming/channels/101",
+	// 	// "c240": "rtsp://admin:tg12346789g@10.10.13.240:554/Streaming/channels/101",
+	// 	// "c241": "rtsp://admin:tg12346789g@10.10.13.241:554/Streaming/channels/101",
+	// 	// "c242": "rtsp://admin:tg12346789g@10.10.13.242:554/Streaming/channels/101",
+	// 	"c238": "rtsp://10.10.14.60:8554/c238",
+	// 	"c239": "rtsp://10.10.14.60:8554/c239",
+	// 	"c240": "rtsp://10.10.14.60:8554/c240",
+	// 	"c241": "rtsp://10.10.14.60:8554/c241",
+	// 	"c242": "rtsp://10.10.14.60:8554/c242",
+	// }
+
+	rtspConfig, err := ioutil.ReadFile("rtsp_config.json")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	rtspURLs := map[string]string{}
+	err = json.Unmarshal(rtspConfig, &rtspURLs)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	ctx := context.Background()
 
 	var config Config
@@ -144,8 +145,6 @@ func main() {
 	cf, _ := json.Marshal(config)
 	log.Println("Loaded config:", string(cf))
 
-	var err error
-
 	for cam := range rtspURLs {
 		outboundVideoTracks[cam], err = webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{
 			MimeType: "video/h264",
@@ -155,7 +154,7 @@ func main() {
 		}
 	}
 
-	go rtspConsumer()
+	go rtspConsumer(rtspURLs)
 
 	sv := echo.New()
 	sv.Use(middleware.Logger())
@@ -183,7 +182,7 @@ func main() {
 }
 
 // Convert H264 to Annex-B, then write to outboundVideoTrack which sends to all PeerConnections
-func rtspConsumer() {
+func rtspConsumer(rtspURLs map[string]string) {
 	annexbNALUStartCode := func() []byte { return []byte{0x00, 0x00, 0x00, 0x01} }
 
 	for cam, rtspURL := range rtspURLs {
