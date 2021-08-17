@@ -37,6 +37,15 @@ MyGRPC.listContainerTrackings = {
   responseType: proto_service_pb.ResListContainerTrackings
 };
 
+MyGRPC.listContainerOCRs = {
+  methodName: "listContainerOCRs",
+  service: MyGRPC,
+  requestStream: false,
+  responseStream: false,
+  requestType: proto_service_pb.ReqEmpty,
+  responseType: proto_service_pb.ResListContainerOCRs
+};
+
 MyGRPC.confirmContainerID = {
   methodName: "confirmContainerID",
   service: MyGRPC,
@@ -128,6 +137,37 @@ MyGRPCClient.prototype.listContainerTrackings = function listContainerTrackings(
     callback = arguments[1];
   }
   var client = grpc.unary(MyGRPC.listContainerTrackings, {
+    request: requestMessage,
+    host: this.serviceHost,
+    metadata: metadata,
+    transport: this.options.transport,
+    debug: this.options.debug,
+    onEnd: function (response) {
+      if (callback) {
+        if (response.status !== grpc.Code.OK) {
+          var err = new Error(response.statusMessage);
+          err.code = response.status;
+          err.metadata = response.trailers;
+          callback(err, null);
+        } else {
+          callback(null, response.message);
+        }
+      }
+    }
+  });
+  return {
+    cancel: function () {
+      callback = null;
+      client.close();
+    }
+  };
+};
+
+MyGRPCClient.prototype.listContainerOCRs = function listContainerOCRs(requestMessage, metadata, callback) {
+  if (arguments.length === 2) {
+    callback = arguments[1];
+  }
+  var client = grpc.unary(MyGRPC.listContainerOCRs, {
     request: requestMessage,
     host: this.serviceHost,
     metadata: metadata,

@@ -54,6 +54,16 @@ export namespace ResEmpty {
 }
 
 export class ReqEmpty extends jspb.Message {
+  hasOffset(): boolean;
+  clearOffset(): void;
+  getOffset(): number;
+  setOffset(value: number): void;
+
+  hasLimit(): boolean;
+  clearLimit(): void;
+  getLimit(): number;
+  setLimit(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReqEmpty.AsObject;
   static toObject(includeInstance: boolean, msg: ReqEmpty): ReqEmpty.AsObject;
@@ -66,6 +76,8 @@ export class ReqEmpty extends jspb.Message {
 
 export namespace ReqEmpty {
   export type AsObject = {
+    offset: number,
+    limit: number,
   }
 }
 
@@ -161,21 +173,18 @@ export namespace ReqConfirmContainerID {
   }
 }
 
-export class ContainerTracking extends jspb.Message {
+export class ContainerOCR extends jspb.Message {
   getId(): number;
   setId(value: number): void;
+
+  getScore(): number;
+  setScore(value: number): void;
 
   getContainerid(): string;
   setContainerid(value: string): void;
 
   getImageurl(): string;
   setImageurl(value: string): void;
-
-  getCreatedat(): number;
-  setCreatedat(value: number): void;
-
-  getScore(): number;
-  setScore(value: number): void;
 
   getBic(): string;
   setBic(value: string): void;
@@ -185,6 +194,60 @@ export class ContainerTracking extends jspb.Message {
 
   getChecksum(): string;
   setChecksum(value: string): void;
+
+  getCreatedat(): number;
+  setCreatedat(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ContainerOCR.AsObject;
+  static toObject(includeInstance: boolean, msg: ContainerOCR): ContainerOCR.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ContainerOCR, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ContainerOCR;
+  static deserializeBinaryFromReader(message: ContainerOCR, reader: jspb.BinaryReader): ContainerOCR;
+}
+
+export namespace ContainerOCR {
+  export type AsObject = {
+    id: number,
+    score: number,
+    containerid: string,
+    imageurl: string,
+    bic: string,
+    serial: string,
+    checksum: string,
+    createdat: number,
+  }
+}
+
+export class ContainerTracking extends jspb.Message {
+  getId(): number;
+  setId(value: number): void;
+
+  getOcrid(): number;
+  setOcrid(value: number): void;
+
+  getScore(): number;
+  setScore(value: number): void;
+
+  getContainerid(): string;
+  setContainerid(value: string): void;
+
+  getImageurl(): string;
+  setImageurl(value: string): void;
+
+  getBic(): string;
+  setBic(value: string): void;
+
+  getSerial(): string;
+  setSerial(value: string): void;
+
+  getChecksum(): string;
+  setChecksum(value: string): void;
+
+  getCreatedat(): number;
+  setCreatedat(value: number): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ContainerTracking.AsObject;
@@ -199,13 +262,14 @@ export class ContainerTracking extends jspb.Message {
 export namespace ContainerTracking {
   export type AsObject = {
     id: number,
+    ocrid: number,
+    score: number,
     containerid: string,
     imageurl: string,
-    createdat: number,
-    score: number,
     bic: string,
     serial: string,
     checksum: string,
+    createdat: number,
   }
 }
 
@@ -214,6 +278,9 @@ export class ResListContainerTrackings extends jspb.Message {
   clearStatus(): void;
   getStatus(): ResStatus | undefined;
   setStatus(value?: ResStatus): void;
+
+  getTotal(): number;
+  setTotal(value: number): void;
 
   clearTrackingsList(): void;
   getTrackingsList(): Array<ContainerTracking>;
@@ -233,7 +300,40 @@ export class ResListContainerTrackings extends jspb.Message {
 export namespace ResListContainerTrackings {
   export type AsObject = {
     status?: ResStatus.AsObject,
+    total: number,
     trackingsList: Array<ContainerTracking.AsObject>,
+  }
+}
+
+export class ResListContainerOCRs extends jspb.Message {
+  hasStatus(): boolean;
+  clearStatus(): void;
+  getStatus(): ResStatus | undefined;
+  setStatus(value?: ResStatus): void;
+
+  getTotal(): number;
+  setTotal(value: number): void;
+
+  clearOcrsList(): void;
+  getOcrsList(): Array<ContainerOCR>;
+  setOcrsList(value: Array<ContainerOCR>): void;
+  addOcrs(value?: ContainerOCR, index?: number): ContainerOCR;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ResListContainerOCRs.AsObject;
+  static toObject(includeInstance: boolean, msg: ResListContainerOCRs): ResListContainerOCRs.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ResListContainerOCRs, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ResListContainerOCRs;
+  static deserializeBinaryFromReader(message: ResListContainerOCRs, reader: jspb.BinaryReader): ResListContainerOCRs;
+}
+
+export namespace ResListContainerOCRs {
+  export type AsObject = {
+    status?: ResStatus.AsObject,
+    total: number,
+    ocrsList: Array<ContainerOCR.AsObject>,
   }
 }
 

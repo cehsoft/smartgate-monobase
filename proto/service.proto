@@ -14,6 +14,8 @@ message ResEmpty {
 }
 
 message ReqEmpty {
+    optional int32 offset = 1;
+    optional int32 limit = 2;
 }
 
 message ReqMLResult {
@@ -36,26 +38,45 @@ message ReqConfirmContainerID {
     string ContainerID = 2;
 }
 
-message ContainerTracking {
+message ContainerOCR {
     int32 ID = 1;
+    float Score = 5;
     string ContainerID = 2;
     string ImageURL = 3;
-    int32 CreatedAt = 4;
-    float Score = 5;
     string BIC = 6;
     string Serial = 7;
     string Checksum = 8;
+    int32 CreatedAt = 4;
+}
+
+message ContainerTracking {
+    int32 ID = 1;
+    int32 OCRID = 9;
+    float Score = 5;
+    string ContainerID = 2;
+    string ImageURL = 3;
+    string BIC = 6;
+    string Serial = 7;
+    string Checksum = 8;
+    int32 CreatedAt = 4;
 }
 
 message ResListContainerTrackings {
     ResStatus status = 1;
-
+    int32 total = 3;
     repeated ContainerTracking trackings = 2;
+}
+
+message ResListContainerOCRs {
+    ResStatus status = 1;
+    int32 total = 3;
+    repeated ContainerOCR ocrs = 2;
 }
 
 service MyGRPC {
     rpc newMLResult(ReqMLResult) returns (ResEmpty);
     rpc pullMLResult(ReqEmpty) returns (stream ResMLResult);
     rpc listContainerTrackings(ReqEmpty) returns (ResListContainerTrackings);
+    rpc listContainerOCRs(ReqEmpty) returns (ResListContainerOCRs);
     rpc confirmContainerID(ReqConfirmContainerID) returns (ResEmpty);
 }
