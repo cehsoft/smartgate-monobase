@@ -94,12 +94,24 @@ func (svc *Server) ListContainerTrackings(ctx context.Context, req *mygrpc.ReqEm
 	// }
 
 	rows, err := svc.rawdb.Query(`
-	select s.id, s.container_id, s.image_url, s.score, s.bic, s.serial, s.checksum, s.created_at from container_tracking_suggestions as s join (SELECT count(*), max(score), serial,
-    date_trunc('hour', created_at) +
-    (((date_part('minute', created_at)::integer / 5::integer) * 5::integer)
-    || ' minutes')::interval AS chunk_time
-FROM container_tracking_suggestions
-GROUP BY serial, chunk_time) as c ON s.score = c.max AND s.serial = c.serial order by created_at desc LIMIT 100;
+	WITH dedup_table AS (
+		SELECT chunk_time, s.id, s.container_id, s.image_url, s.score, s.bic, s.serial, s.checksum, s.created_at, 
+			ROW_NUMBER() OVER(PARTITION BY s.serial, s.score ORDER BY id asc) AS row_num
+			FROM container_tracking_suggestions AS s 
+			JOIN (
+				SELECT count(*), max(score), serial,
+						date_trunc('hour', created_at) +
+						(((date_part('minute', created_at)::integer / 10::integer) * 10::integer)
+						|| ' minutes')::interval AS chunk_time
+				FROM container_tracking_suggestions			
+				GROUP BY serial, chunk_time
+			) AS c
+			ON s.score = c.max AND s.serial = c.serial
+			ORDER BY created_at desc
+	) SELECT id, container_id, image_url, score, bic, serial, checksum, created_at
+		FROM dedup_table 
+		WHERE row_num = 1 
+		LIMIT 100;
 	`)
 	if err != nil {
 		return nil, err
