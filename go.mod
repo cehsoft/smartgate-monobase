@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	entgo.io/ent v0.8.0
+	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/deepch/vdk v0.0.0-20210523103705-5b25bda1a000
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/google/uuid v1.2.0

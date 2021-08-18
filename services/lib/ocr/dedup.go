@@ -4,6 +4,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/agnivade/levenshtein"
 	"github.com/init-tech-solution/service-spitc-stream/services/lib/copi"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 )
@@ -22,25 +23,34 @@ func DedupOCRs(inputOCRs []*ent.ContainerTrackingSuggestion) ([]*ent.ContainerTr
 		return ocrs[i].CreatedAt.After(ocrs[j].CreatedAt)
 	})
 
+	prev := &ent.ContainerTrackingSuggestion{}
 	for _, ocr := range ocrs {
-		if serialOCRs[ocr.Serial] == nil {
-			serialOCRs[ocr.Serial] = []*ent.ContainerTrackingSuggestion{}
+		label := ocr.Serial
+		distance := levenshtein.ComputeDistance(prev.Serial, label)
+		if distance < 3 {
+			label = prev.Serial
 		}
 
-		lastIdx := len(serialOCRs[ocr.Serial]) - 1
+		if serialOCRs[label] == nil {
+			serialOCRs[label] = []*ent.ContainerTrackingSuggestion{}
+		}
+
+		lastIdx := len(serialOCRs[label]) - 1
 		if lastIdx > -1 {
-			lastOCR := serialOCRs[ocr.Serial][lastIdx]
+			lastOCR := serialOCRs[label][lastIdx]
 			if lastOCR.CreatedAt.Sub(ocr.CreatedAt) < time.Duration(5*time.Minute) {
 				if ocr.Score > lastOCR.Score {
-					serialOCRs[ocr.Serial][lastIdx] = ocr
+					serialOCRs[label][lastIdx] = ocr
 				}
 			} else {
-				serialOCRs[ocr.Serial] = append(serialOCRs[ocr.Serial], ocr)
+				serialOCRs[label] = append(serialOCRs[label], ocr)
 			}
 
 		} else {
-			serialOCRs[ocr.Serial] = append(serialOCRs[ocr.Serial], ocr)
+			serialOCRs[label] = append(serialOCRs[label], ocr)
 		}
+
+		prev = ocr
 	}
 
 	ocrs = []*ent.ContainerTrackingSuggestion{}
