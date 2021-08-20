@@ -7,7 +7,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/init-tech-solution/service-spitc-stream/services/lib/ocr"
 	"github.com/init-tech-solution/service-spitc-stream/services/lib/uuid"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
@@ -157,7 +156,7 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqEmpty) 
 
 	resOCRs := []*mygrpc.ContainerOCR{}
 
-	ocrs, err = ocr.DedupOCRs(ocrs)
+	ocrs, err = dedupOCRs(ocrs)
 	if err != nil {
 		return nil, err
 	}
