@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/agnivade/levenshtein"
-	"github.com/init-tech-solution/service-spitc-stream/services/lib/copi"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
+	"github.com/mitchellh/copystructure"
 )
 
 func splitContainerID(containerID string) []string {
@@ -21,12 +21,14 @@ func splitContainerID(containerID string) []string {
 }
 
 func dedupOCRs(inputOCRs []*ent.ContainerTrackingSuggestion) ([]*ent.ContainerTrackingSuggestion, error) {
-	ocrs := []*ent.ContainerTrackingSuggestion{}
+	var ocrs []*ent.ContainerTrackingSuggestion
 
-	err := copi.Dup(inputOCRs, &ocrs)
+	copied, err := copystructure.Copy(inputOCRs)
 	if err != nil {
-		return ocrs, err
+		return ocrs, nil
 	}
+
+	ocrs = copied.([]*ent.ContainerTrackingSuggestion)
 
 	sort.SliceStable(ocrs, func(i, j int) bool {
 		return ocrs[i].CreatedAt.After(ocrs[j].CreatedAt)
@@ -74,5 +76,5 @@ func dedupOCRs(inputOCRs []*ent.ContainerTrackingSuggestion) ([]*ent.ContainerTr
 		return result[i].CreatedAt.After(result[j].CreatedAt)
 	})
 
-	return ocrs, nil
+	return result, nil
 }
