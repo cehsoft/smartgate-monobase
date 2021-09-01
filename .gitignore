@@ -4,3 +4,4 @@ vendor
 .vscode/
 stream-webrtc
 spitc-manager
+js/
