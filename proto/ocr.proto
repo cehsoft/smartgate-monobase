@@ -6,6 +6,7 @@ message ReqNewDetectedImage {
     string CamID = 2;
     string CaptureTime = 3;
     string DataType = 5;
+    string TrackingID = 6;
     string Score = 4;
 }
 
