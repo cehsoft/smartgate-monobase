@@ -5,8 +5,11 @@ package ent
 import (
 	"time"
 
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/gate"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/lane"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/schema"
 )
 
@@ -14,6 +17,12 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	camsettingFields := schema.CamSetting{}.Fields()
+	_ = camsettingFields
+	// camsettingDescCreatedAt is the schema descriptor for created_at field.
+	camsettingDescCreatedAt := camsettingFields[4].Descriptor()
+	// camsetting.DefaultCreatedAt holds the default value on creation for the created_at field.
+	camsetting.DefaultCreatedAt = camsettingDescCreatedAt.Default.(func() time.Time)
 	containertrackingFields := schema.ContainerTracking{}.Fields()
 	_ = containertrackingFields
 	// containertrackingDescCreatedAt is the schema descriptor for created_at field.
@@ -26,4 +35,16 @@ func init() {
 	containertrackingsuggestionDescCreatedAt := containertrackingsuggestionFields[7].Descriptor()
 	// containertrackingsuggestion.DefaultCreatedAt holds the default value on creation for the created_at field.
 	containertrackingsuggestion.DefaultCreatedAt = containertrackingsuggestionDescCreatedAt.Default.(func() time.Time)
+	gateFields := schema.Gate{}.Fields()
+	_ = gateFields
+	// gateDescCreatedAt is the schema descriptor for created_at field.
+	gateDescCreatedAt := gateFields[1].Descriptor()
+	// gate.DefaultCreatedAt holds the default value on creation for the created_at field.
+	gate.DefaultCreatedAt = gateDescCreatedAt.Default.(func() time.Time)
+	laneFields := schema.Lane{}.Fields()
+	_ = laneFields
+	// laneDescCreatedAt is the schema descriptor for created_at field.
+	laneDescCreatedAt := laneFields[2].Descriptor()
+	// lane.DefaultCreatedAt holds the default value on creation for the created_at field.
+	lane.DefaultCreatedAt = laneDescCreatedAt.Default.(func() time.Time)
 }

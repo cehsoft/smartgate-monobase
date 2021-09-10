@@ -12,10 +12,16 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// CamSetting is the client for interacting with the CamSetting builders.
+	CamSetting *CamSettingClient
 	// ContainerTracking is the client for interacting with the ContainerTracking builders.
 	ContainerTracking *ContainerTrackingClient
 	// ContainerTrackingSuggestion is the client for interacting with the ContainerTrackingSuggestion builders.
 	ContainerTrackingSuggestion *ContainerTrackingSuggestionClient
+	// Gate is the client for interacting with the Gate builders.
+	Gate *GateClient
+	// Lane is the client for interacting with the Lane builders.
+	Lane *LaneClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -153,8 +159,11 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.CamSetting = NewCamSettingClient(tx.config)
 	tx.ContainerTracking = NewContainerTrackingClient(tx.config)
 	tx.ContainerTrackingSuggestion = NewContainerTrackingSuggestionClient(tx.config)
+	tx.Gate = NewGateClient(tx.config)
+	tx.Lane = NewLaneClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 
@@ -165,7 +174,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: ContainerTracking.QueryXXX(), the query will be executed
+// applies a query, for example: CamSetting.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

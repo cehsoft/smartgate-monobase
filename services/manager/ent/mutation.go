@@ -8,8 +8,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/gate"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/lane"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
 
 	"entgo.io/ent"
@@ -24,10 +27,596 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
+	TypeCamSetting                  = "CamSetting"
 	TypeContainerTracking           = "ContainerTracking"
 	TypeContainerTrackingSuggestion = "ContainerTrackingSuggestion"
+	TypeGate                        = "Gate"
+	TypeLane                        = "Lane"
 	TypeUser                        = "User"
 )
+
+// CamSettingMutation represents an operation that mutates the CamSetting nodes in the graph.
+type CamSettingMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	name          *string
+	rtsp_url      *string
+	webrtc_url    *string
+	created_at    *time.Time
+	clearedFields map[string]struct{}
+	lane          *int
+	clearedlane   bool
+	done          bool
+	oldValue      func(context.Context) (*CamSetting, error)
+	predicates    []predicate.CamSetting
+}
+
+var _ ent.Mutation = (*CamSettingMutation)(nil)
+
+// camsettingOption allows management of the mutation configuration using functional options.
+type camsettingOption func(*CamSettingMutation)
+
+// newCamSettingMutation creates new mutation for the CamSetting entity.
+func newCamSettingMutation(c config, op Op, opts ...camsettingOption) *CamSettingMutation {
+	m := &CamSettingMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeCamSetting,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withCamSettingID sets the ID field of the mutation.
+func withCamSettingID(id int) camsettingOption {
+	return func(m *CamSettingMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *CamSetting
+		)
+		m.oldValue = func(ctx context.Context) (*CamSetting, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().CamSetting.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withCamSetting sets the old CamSetting of the mutation.
+func withCamSetting(node *CamSetting) camsettingOption {
+	return func(m *CamSettingMutation) {
+		m.oldValue = func(context.Context) (*CamSetting, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m CamSettingMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m CamSettingMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *CamSettingMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetName sets the "name" field.
+func (m *CamSettingMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *CamSettingMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the CamSetting entity.
+// If the CamSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CamSettingMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *CamSettingMutation) ResetName() {
+	m.name = nil
+}
+
+// SetLaneID sets the "lane_id" field.
+func (m *CamSettingMutation) SetLaneID(i int) {
+	m.lane = &i
+}
+
+// LaneID returns the value of the "lane_id" field in the mutation.
+func (m *CamSettingMutation) LaneID() (r int, exists bool) {
+	v := m.lane
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLaneID returns the old "lane_id" field's value of the CamSetting entity.
+// If the CamSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CamSettingMutation) OldLaneID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldLaneID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldLaneID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLaneID: %w", err)
+	}
+	return oldValue.LaneID, nil
+}
+
+// ClearLaneID clears the value of the "lane_id" field.
+func (m *CamSettingMutation) ClearLaneID() {
+	m.lane = nil
+	m.clearedFields[camsetting.FieldLaneID] = struct{}{}
+}
+
+// LaneIDCleared returns if the "lane_id" field was cleared in this mutation.
+func (m *CamSettingMutation) LaneIDCleared() bool {
+	_, ok := m.clearedFields[camsetting.FieldLaneID]
+	return ok
+}
+
+// ResetLaneID resets all changes to the "lane_id" field.
+func (m *CamSettingMutation) ResetLaneID() {
+	m.lane = nil
+	delete(m.clearedFields, camsetting.FieldLaneID)
+}
+
+// SetRtspURL sets the "rtsp_url" field.
+func (m *CamSettingMutation) SetRtspURL(s string) {
+	m.rtsp_url = &s
+}
+
+// RtspURL returns the value of the "rtsp_url" field in the mutation.
+func (m *CamSettingMutation) RtspURL() (r string, exists bool) {
+	v := m.rtsp_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRtspURL returns the old "rtsp_url" field's value of the CamSetting entity.
+// If the CamSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CamSettingMutation) OldRtspURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldRtspURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldRtspURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRtspURL: %w", err)
+	}
+	return oldValue.RtspURL, nil
+}
+
+// ResetRtspURL resets all changes to the "rtsp_url" field.
+func (m *CamSettingMutation) ResetRtspURL() {
+	m.rtsp_url = nil
+}
+
+// SetWebrtcURL sets the "webrtc_url" field.
+func (m *CamSettingMutation) SetWebrtcURL(s string) {
+	m.webrtc_url = &s
+}
+
+// WebrtcURL returns the value of the "webrtc_url" field in the mutation.
+func (m *CamSettingMutation) WebrtcURL() (r string, exists bool) {
+	v := m.webrtc_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWebrtcURL returns the old "webrtc_url" field's value of the CamSetting entity.
+// If the CamSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CamSettingMutation) OldWebrtcURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldWebrtcURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldWebrtcURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWebrtcURL: %w", err)
+	}
+	return oldValue.WebrtcURL, nil
+}
+
+// ResetWebrtcURL resets all changes to the "webrtc_url" field.
+func (m *CamSettingMutation) ResetWebrtcURL() {
+	m.webrtc_url = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *CamSettingMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *CamSettingMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the CamSetting entity.
+// If the CamSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CamSettingMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *CamSettingMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// ClearLane clears the "lane" edge to the Lane entity.
+func (m *CamSettingMutation) ClearLane() {
+	m.clearedlane = true
+}
+
+// LaneCleared reports if the "lane" edge to the Lane entity was cleared.
+func (m *CamSettingMutation) LaneCleared() bool {
+	return m.LaneIDCleared() || m.clearedlane
+}
+
+// LaneIDs returns the "lane" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// LaneID instead. It exists only for internal usage by the builders.
+func (m *CamSettingMutation) LaneIDs() (ids []int) {
+	if id := m.lane; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetLane resets all changes to the "lane" edge.
+func (m *CamSettingMutation) ResetLane() {
+	m.lane = nil
+	m.clearedlane = false
+}
+
+// Op returns the operation name.
+func (m *CamSettingMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (CamSetting).
+func (m *CamSettingMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *CamSettingMutation) Fields() []string {
+	fields := make([]string, 0, 5)
+	if m.name != nil {
+		fields = append(fields, camsetting.FieldName)
+	}
+	if m.lane != nil {
+		fields = append(fields, camsetting.FieldLaneID)
+	}
+	if m.rtsp_url != nil {
+		fields = append(fields, camsetting.FieldRtspURL)
+	}
+	if m.webrtc_url != nil {
+		fields = append(fields, camsetting.FieldWebrtcURL)
+	}
+	if m.created_at != nil {
+		fields = append(fields, camsetting.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *CamSettingMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case camsetting.FieldName:
+		return m.Name()
+	case camsetting.FieldLaneID:
+		return m.LaneID()
+	case camsetting.FieldRtspURL:
+		return m.RtspURL()
+	case camsetting.FieldWebrtcURL:
+		return m.WebrtcURL()
+	case camsetting.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *CamSettingMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case camsetting.FieldName:
+		return m.OldName(ctx)
+	case camsetting.FieldLaneID:
+		return m.OldLaneID(ctx)
+	case camsetting.FieldRtspURL:
+		return m.OldRtspURL(ctx)
+	case camsetting.FieldWebrtcURL:
+		return m.OldWebrtcURL(ctx)
+	case camsetting.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown CamSetting field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *CamSettingMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case camsetting.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case camsetting.FieldLaneID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLaneID(v)
+		return nil
+	case camsetting.FieldRtspURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRtspURL(v)
+		return nil
+	case camsetting.FieldWebrtcURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWebrtcURL(v)
+		return nil
+	case camsetting.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown CamSetting field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *CamSettingMutation) AddedFields() []string {
+	var fields []string
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *CamSettingMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *CamSettingMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown CamSetting numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *CamSettingMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(camsetting.FieldLaneID) {
+		fields = append(fields, camsetting.FieldLaneID)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *CamSettingMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *CamSettingMutation) ClearField(name string) error {
+	switch name {
+	case camsetting.FieldLaneID:
+		m.ClearLaneID()
+		return nil
+	}
+	return fmt.Errorf("unknown CamSetting nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *CamSettingMutation) ResetField(name string) error {
+	switch name {
+	case camsetting.FieldName:
+		m.ResetName()
+		return nil
+	case camsetting.FieldLaneID:
+		m.ResetLaneID()
+		return nil
+	case camsetting.FieldRtspURL:
+		m.ResetRtspURL()
+		return nil
+	case camsetting.FieldWebrtcURL:
+		m.ResetWebrtcURL()
+		return nil
+	case camsetting.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown CamSetting field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *CamSettingMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.lane != nil {
+		edges = append(edges, camsetting.EdgeLane)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *CamSettingMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case camsetting.EdgeLane:
+		if id := m.lane; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *CamSettingMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *CamSettingMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *CamSettingMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedlane {
+		edges = append(edges, camsetting.EdgeLane)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *CamSettingMutation) EdgeCleared(name string) bool {
+	switch name {
+	case camsetting.EdgeLane:
+		return m.clearedlane
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *CamSettingMutation) ClearEdge(name string) error {
+	switch name {
+	case camsetting.EdgeLane:
+		m.ClearLane()
+		return nil
+	}
+	return fmt.Errorf("unknown CamSetting unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *CamSettingMutation) ResetEdge(name string) error {
+	switch name {
+	case camsetting.EdgeLane:
+		m.ResetLane()
+		return nil
+	}
+	return fmt.Errorf("unknown CamSetting edge %s", name)
+}
 
 // ContainerTrackingMutation represents an operation that mutates the ContainerTracking nodes in the graph.
 type ContainerTrackingMutation struct {
@@ -1314,6 +1903,996 @@ func (m *ContainerTrackingSuggestionMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown ContainerTrackingSuggestion edge %s", name)
+}
+
+// GateMutation represents an operation that mutates the Gate nodes in the graph.
+type GateMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	name          *string
+	created_at    *time.Time
+	clearedFields map[string]struct{}
+	lanes         map[int]struct{}
+	removedlanes  map[int]struct{}
+	clearedlanes  bool
+	done          bool
+	oldValue      func(context.Context) (*Gate, error)
+	predicates    []predicate.Gate
+}
+
+var _ ent.Mutation = (*GateMutation)(nil)
+
+// gateOption allows management of the mutation configuration using functional options.
+type gateOption func(*GateMutation)
+
+// newGateMutation creates new mutation for the Gate entity.
+func newGateMutation(c config, op Op, opts ...gateOption) *GateMutation {
+	m := &GateMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeGate,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withGateID sets the ID field of the mutation.
+func withGateID(id int) gateOption {
+	return func(m *GateMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Gate
+		)
+		m.oldValue = func(ctx context.Context) (*Gate, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Gate.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withGate sets the old Gate of the mutation.
+func withGate(node *Gate) gateOption {
+	return func(m *GateMutation) {
+		m.oldValue = func(context.Context) (*Gate, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m GateMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m GateMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *GateMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetName sets the "name" field.
+func (m *GateMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *GateMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Gate entity.
+// If the Gate object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GateMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *GateMutation) ResetName() {
+	m.name = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *GateMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *GateMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Gate entity.
+// If the Gate object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GateMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *GateMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// AddLaneIDs adds the "lanes" edge to the Lane entity by ids.
+func (m *GateMutation) AddLaneIDs(ids ...int) {
+	if m.lanes == nil {
+		m.lanes = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.lanes[ids[i]] = struct{}{}
+	}
+}
+
+// ClearLanes clears the "lanes" edge to the Lane entity.
+func (m *GateMutation) ClearLanes() {
+	m.clearedlanes = true
+}
+
+// LanesCleared reports if the "lanes" edge to the Lane entity was cleared.
+func (m *GateMutation) LanesCleared() bool {
+	return m.clearedlanes
+}
+
+// RemoveLaneIDs removes the "lanes" edge to the Lane entity by IDs.
+func (m *GateMutation) RemoveLaneIDs(ids ...int) {
+	if m.removedlanes == nil {
+		m.removedlanes = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedlanes[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedLanes returns the removed IDs of the "lanes" edge to the Lane entity.
+func (m *GateMutation) RemovedLanesIDs() (ids []int) {
+	for id := range m.removedlanes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// LanesIDs returns the "lanes" edge IDs in the mutation.
+func (m *GateMutation) LanesIDs() (ids []int) {
+	for id := range m.lanes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetLanes resets all changes to the "lanes" edge.
+func (m *GateMutation) ResetLanes() {
+	m.lanes = nil
+	m.clearedlanes = false
+	m.removedlanes = nil
+}
+
+// Op returns the operation name.
+func (m *GateMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (Gate).
+func (m *GateMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *GateMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.name != nil {
+		fields = append(fields, gate.FieldName)
+	}
+	if m.created_at != nil {
+		fields = append(fields, gate.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *GateMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case gate.FieldName:
+		return m.Name()
+	case gate.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *GateMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case gate.FieldName:
+		return m.OldName(ctx)
+	case gate.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Gate field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *GateMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case gate.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case gate.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Gate field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *GateMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *GateMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *GateMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Gate numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *GateMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *GateMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *GateMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Gate nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *GateMutation) ResetField(name string) error {
+	switch name {
+	case gate.FieldName:
+		m.ResetName()
+		return nil
+	case gate.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Gate field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *GateMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.lanes != nil {
+		edges = append(edges, gate.EdgeLanes)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *GateMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case gate.EdgeLanes:
+		ids := make([]ent.Value, 0, len(m.lanes))
+		for id := range m.lanes {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *GateMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedlanes != nil {
+		edges = append(edges, gate.EdgeLanes)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *GateMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case gate.EdgeLanes:
+		ids := make([]ent.Value, 0, len(m.removedlanes))
+		for id := range m.removedlanes {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *GateMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedlanes {
+		edges = append(edges, gate.EdgeLanes)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *GateMutation) EdgeCleared(name string) bool {
+	switch name {
+	case gate.EdgeLanes:
+		return m.clearedlanes
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *GateMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Gate unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *GateMutation) ResetEdge(name string) error {
+	switch name {
+	case gate.EdgeLanes:
+		m.ResetLanes()
+		return nil
+	}
+	return fmt.Errorf("unknown Gate edge %s", name)
+}
+
+// LaneMutation represents an operation that mutates the Lane nodes in the graph.
+type LaneMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	name          *string
+	created_at    *time.Time
+	clearedFields map[string]struct{}
+	cams          map[int]struct{}
+	removedcams   map[int]struct{}
+	clearedcams   bool
+	gate          *int
+	clearedgate   bool
+	done          bool
+	oldValue      func(context.Context) (*Lane, error)
+	predicates    []predicate.Lane
+}
+
+var _ ent.Mutation = (*LaneMutation)(nil)
+
+// laneOption allows management of the mutation configuration using functional options.
+type laneOption func(*LaneMutation)
+
+// newLaneMutation creates new mutation for the Lane entity.
+func newLaneMutation(c config, op Op, opts ...laneOption) *LaneMutation {
+	m := &LaneMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeLane,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withLaneID sets the ID field of the mutation.
+func withLaneID(id int) laneOption {
+	return func(m *LaneMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Lane
+		)
+		m.oldValue = func(ctx context.Context) (*Lane, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Lane.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withLane sets the old Lane of the mutation.
+func withLane(node *Lane) laneOption {
+	return func(m *LaneMutation) {
+		m.oldValue = func(context.Context) (*Lane, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m LaneMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m LaneMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID
+// is only available if it was provided to the builder.
+func (m *LaneMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetName sets the "name" field.
+func (m *LaneMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *LaneMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Lane entity.
+// If the Lane object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LaneMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *LaneMutation) ResetName() {
+	m.name = nil
+}
+
+// SetGateID sets the "gate_id" field.
+func (m *LaneMutation) SetGateID(i int) {
+	m.gate = &i
+}
+
+// GateID returns the value of the "gate_id" field in the mutation.
+func (m *LaneMutation) GateID() (r int, exists bool) {
+	v := m.gate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGateID returns the old "gate_id" field's value of the Lane entity.
+// If the Lane object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LaneMutation) OldGateID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldGateID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldGateID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGateID: %w", err)
+	}
+	return oldValue.GateID, nil
+}
+
+// ClearGateID clears the value of the "gate_id" field.
+func (m *LaneMutation) ClearGateID() {
+	m.gate = nil
+	m.clearedFields[lane.FieldGateID] = struct{}{}
+}
+
+// GateIDCleared returns if the "gate_id" field was cleared in this mutation.
+func (m *LaneMutation) GateIDCleared() bool {
+	_, ok := m.clearedFields[lane.FieldGateID]
+	return ok
+}
+
+// ResetGateID resets all changes to the "gate_id" field.
+func (m *LaneMutation) ResetGateID() {
+	m.gate = nil
+	delete(m.clearedFields, lane.FieldGateID)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *LaneMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *LaneMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Lane entity.
+// If the Lane object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LaneMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *LaneMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// AddCamIDs adds the "cams" edge to the CamSetting entity by ids.
+func (m *LaneMutation) AddCamIDs(ids ...int) {
+	if m.cams == nil {
+		m.cams = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.cams[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCams clears the "cams" edge to the CamSetting entity.
+func (m *LaneMutation) ClearCams() {
+	m.clearedcams = true
+}
+
+// CamsCleared reports if the "cams" edge to the CamSetting entity was cleared.
+func (m *LaneMutation) CamsCleared() bool {
+	return m.clearedcams
+}
+
+// RemoveCamIDs removes the "cams" edge to the CamSetting entity by IDs.
+func (m *LaneMutation) RemoveCamIDs(ids ...int) {
+	if m.removedcams == nil {
+		m.removedcams = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedcams[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCams returns the removed IDs of the "cams" edge to the CamSetting entity.
+func (m *LaneMutation) RemovedCamsIDs() (ids []int) {
+	for id := range m.removedcams {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CamsIDs returns the "cams" edge IDs in the mutation.
+func (m *LaneMutation) CamsIDs() (ids []int) {
+	for id := range m.cams {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCams resets all changes to the "cams" edge.
+func (m *LaneMutation) ResetCams() {
+	m.cams = nil
+	m.clearedcams = false
+	m.removedcams = nil
+}
+
+// ClearGate clears the "gate" edge to the Gate entity.
+func (m *LaneMutation) ClearGate() {
+	m.clearedgate = true
+}
+
+// GateCleared reports if the "gate" edge to the Gate entity was cleared.
+func (m *LaneMutation) GateCleared() bool {
+	return m.GateIDCleared() || m.clearedgate
+}
+
+// GateIDs returns the "gate" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// GateID instead. It exists only for internal usage by the builders.
+func (m *LaneMutation) GateIDs() (ids []int) {
+	if id := m.gate; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetGate resets all changes to the "gate" edge.
+func (m *LaneMutation) ResetGate() {
+	m.gate = nil
+	m.clearedgate = false
+}
+
+// Op returns the operation name.
+func (m *LaneMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (Lane).
+func (m *LaneMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *LaneMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.name != nil {
+		fields = append(fields, lane.FieldName)
+	}
+	if m.gate != nil {
+		fields = append(fields, lane.FieldGateID)
+	}
+	if m.created_at != nil {
+		fields = append(fields, lane.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *LaneMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case lane.FieldName:
+		return m.Name()
+	case lane.FieldGateID:
+		return m.GateID()
+	case lane.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *LaneMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case lane.FieldName:
+		return m.OldName(ctx)
+	case lane.FieldGateID:
+		return m.OldGateID(ctx)
+	case lane.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Lane field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *LaneMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case lane.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case lane.FieldGateID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGateID(v)
+		return nil
+	case lane.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Lane field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *LaneMutation) AddedFields() []string {
+	var fields []string
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *LaneMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *LaneMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Lane numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *LaneMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(lane.FieldGateID) {
+		fields = append(fields, lane.FieldGateID)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *LaneMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *LaneMutation) ClearField(name string) error {
+	switch name {
+	case lane.FieldGateID:
+		m.ClearGateID()
+		return nil
+	}
+	return fmt.Errorf("unknown Lane nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *LaneMutation) ResetField(name string) error {
+	switch name {
+	case lane.FieldName:
+		m.ResetName()
+		return nil
+	case lane.FieldGateID:
+		m.ResetGateID()
+		return nil
+	case lane.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Lane field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *LaneMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.cams != nil {
+		edges = append(edges, lane.EdgeCams)
+	}
+	if m.gate != nil {
+		edges = append(edges, lane.EdgeGate)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *LaneMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case lane.EdgeCams:
+		ids := make([]ent.Value, 0, len(m.cams))
+		for id := range m.cams {
+			ids = append(ids, id)
+		}
+		return ids
+	case lane.EdgeGate:
+		if id := m.gate; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *LaneMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedcams != nil {
+		edges = append(edges, lane.EdgeCams)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *LaneMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case lane.EdgeCams:
+		ids := make([]ent.Value, 0, len(m.removedcams))
+		for id := range m.removedcams {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *LaneMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedcams {
+		edges = append(edges, lane.EdgeCams)
+	}
+	if m.clearedgate {
+		edges = append(edges, lane.EdgeGate)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *LaneMutation) EdgeCleared(name string) bool {
+	switch name {
+	case lane.EdgeCams:
+		return m.clearedcams
+	case lane.EdgeGate:
+		return m.clearedgate
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *LaneMutation) ClearEdge(name string) error {
+	switch name {
+	case lane.EdgeGate:
+		m.ClearGate()
+		return nil
+	}
+	return fmt.Errorf("unknown Lane unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *LaneMutation) ResetEdge(name string) error {
+	switch name {
+	case lane.EdgeCams:
+		m.ResetCams()
+		return nil
+	case lane.EdgeGate:
+		m.ResetGate()
+		return nil
+	}
+	return fmt.Errorf("unknown Lane edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.

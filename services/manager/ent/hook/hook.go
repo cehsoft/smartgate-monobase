@@ -9,6 +9,19 @@ import (
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 )
 
+// The CamSettingFunc type is an adapter to allow the use of ordinary
+// function as CamSetting mutator.
+type CamSettingFunc func(context.Context, *ent.CamSettingMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CamSettingFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.CamSettingMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CamSettingMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The ContainerTrackingFunc type is an adapter to allow the use of ordinary
 // function as ContainerTracking mutator.
 type ContainerTrackingFunc func(context.Context, *ent.ContainerTrackingMutation) (ent.Value, error)
@@ -31,6 +44,32 @@ func (f ContainerTrackingSuggestionFunc) Mutate(ctx context.Context, m ent.Mutat
 	mv, ok := m.(*ent.ContainerTrackingSuggestionMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ContainerTrackingSuggestionMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The GateFunc type is an adapter to allow the use of ordinary
+// function as Gate mutator.
+type GateFunc func(context.Context, *ent.GateMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.GateMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GateMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The LaneFunc type is an adapter to allow the use of ordinary
+// function as Lane mutator.
+type LaneFunc func(context.Context, *ent.LaneMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LaneFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.LaneMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LaneMutation", m)
 	}
 	return f(ctx, mv)
 }

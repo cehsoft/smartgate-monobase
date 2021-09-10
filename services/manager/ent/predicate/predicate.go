@@ -6,11 +6,20 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// CamSetting is the predicate function for camsetting builders.
+type CamSetting func(*sql.Selector)
+
 // ContainerTracking is the predicate function for containertracking builders.
 type ContainerTracking func(*sql.Selector)
 
 // ContainerTrackingSuggestion is the predicate function for containertrackingsuggestion builders.
 type ContainerTrackingSuggestion func(*sql.Selector)
+
+// Gate is the predicate function for gate builders.
+type Gate func(*sql.Selector)
+
+// Lane is the predicate function for lane builders.
+type Lane func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

@@ -24,8 +24,11 @@ type config struct {
 
 // hooks per client, for fast access.
 type hooks struct {
+	CamSetting                  []ent.Hook
 	ContainerTracking           []ent.Hook
 	ContainerTrackingSuggestion []ent.Hook
+	Gate                        []ent.Hook
+	Lane                        []ent.Hook
 	User                        []ent.Hook
 }
 

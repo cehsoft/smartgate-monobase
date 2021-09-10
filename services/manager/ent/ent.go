@@ -10,8 +10,11 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/gate"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/lane"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/user"
 )
 
@@ -33,8 +36,11 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
+		camsetting.Table:                  camsetting.ValidColumn,
 		containertracking.Table:           containertracking.ValidColumn,
 		containertrackingsuggestion.Table: containertrackingsuggestion.ValidColumn,
+		gate.Table:                        gate.ValidColumn,
+		lane.Table:                        lane.ValidColumn,
 		user.Table:                        user.ValidColumn,
 	}
 	check, ok := checks[table]

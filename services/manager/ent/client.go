@@ -9,8 +9,11 @@ import (
 
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/migrate"
 
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/gate"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/lane"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/user"
 
 	"entgo.io/ent/dialect"
@@ -23,10 +26,16 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// CamSetting is the client for interacting with the CamSetting builders.
+	CamSetting *CamSettingClient
 	// ContainerTracking is the client for interacting with the ContainerTracking builders.
 	ContainerTracking *ContainerTrackingClient
 	// ContainerTrackingSuggestion is the client for interacting with the ContainerTrackingSuggestion builders.
 	ContainerTrackingSuggestion *ContainerTrackingSuggestionClient
+	// Gate is the client for interacting with the Gate builders.
+	Gate *GateClient
+	// Lane is the client for interacting with the Lane builders.
+	Lane *LaneClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -42,8 +51,11 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.CamSetting = NewCamSettingClient(c.config)
 	c.ContainerTracking = NewContainerTrackingClient(c.config)
 	c.ContainerTrackingSuggestion = NewContainerTrackingSuggestionClient(c.config)
+	c.Gate = NewGateClient(c.config)
+	c.Lane = NewLaneClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -78,8 +90,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:                         ctx,
 		config:                      cfg,
+		CamSetting:                  NewCamSettingClient(cfg),
 		ContainerTracking:           NewContainerTrackingClient(cfg),
 		ContainerTrackingSuggestion: NewContainerTrackingSuggestionClient(cfg),
+		Gate:                        NewGateClient(cfg),
+		Lane:                        NewLaneClient(cfg),
 		User:                        NewUserClient(cfg),
 	}, nil
 }
@@ -99,8 +114,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
 		config:                      cfg,
+		CamSetting:                  NewCamSettingClient(cfg),
 		ContainerTracking:           NewContainerTrackingClient(cfg),
 		ContainerTrackingSuggestion: NewContainerTrackingSuggestionClient(cfg),
+		Gate:                        NewGateClient(cfg),
+		Lane:                        NewLaneClient(cfg),
 		User:                        NewUserClient(cfg),
 	}, nil
 }
@@ -108,7 +126,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		ContainerTracking.
+//		CamSetting.
 //		Query().
 //		Count(ctx)
 //
@@ -131,9 +149,118 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.CamSetting.Use(hooks...)
 	c.ContainerTracking.Use(hooks...)
 	c.ContainerTrackingSuggestion.Use(hooks...)
+	c.Gate.Use(hooks...)
+	c.Lane.Use(hooks...)
 	c.User.Use(hooks...)
+}
+
+// CamSettingClient is a client for the CamSetting schema.
+type CamSettingClient struct {
+	config
+}
+
+// NewCamSettingClient returns a client for the CamSetting from the given config.
+func NewCamSettingClient(c config) *CamSettingClient {
+	return &CamSettingClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `camsetting.Hooks(f(g(h())))`.
+func (c *CamSettingClient) Use(hooks ...Hook) {
+	c.hooks.CamSetting = append(c.hooks.CamSetting, hooks...)
+}
+
+// Create returns a create builder for CamSetting.
+func (c *CamSettingClient) Create() *CamSettingCreate {
+	mutation := newCamSettingMutation(c.config, OpCreate)
+	return &CamSettingCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CamSetting entities.
+func (c *CamSettingClient) CreateBulk(builders ...*CamSettingCreate) *CamSettingCreateBulk {
+	return &CamSettingCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CamSetting.
+func (c *CamSettingClient) Update() *CamSettingUpdate {
+	mutation := newCamSettingMutation(c.config, OpUpdate)
+	return &CamSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CamSettingClient) UpdateOne(cs *CamSetting) *CamSettingUpdateOne {
+	mutation := newCamSettingMutation(c.config, OpUpdateOne, withCamSetting(cs))
+	return &CamSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CamSettingClient) UpdateOneID(id int) *CamSettingUpdateOne {
+	mutation := newCamSettingMutation(c.config, OpUpdateOne, withCamSettingID(id))
+	return &CamSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CamSetting.
+func (c *CamSettingClient) Delete() *CamSettingDelete {
+	mutation := newCamSettingMutation(c.config, OpDelete)
+	return &CamSettingDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *CamSettingClient) DeleteOne(cs *CamSetting) *CamSettingDeleteOne {
+	return c.DeleteOneID(cs.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *CamSettingClient) DeleteOneID(id int) *CamSettingDeleteOne {
+	builder := c.Delete().Where(camsetting.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CamSettingDeleteOne{builder}
+}
+
+// Query returns a query builder for CamSetting.
+func (c *CamSettingClient) Query() *CamSettingQuery {
+	return &CamSettingQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a CamSetting entity by its id.
+func (c *CamSettingClient) Get(ctx context.Context, id int) (*CamSetting, error) {
+	return c.Query().Where(camsetting.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CamSettingClient) GetX(ctx context.Context, id int) *CamSetting {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryLane queries the lane edge of a CamSetting.
+func (c *CamSettingClient) QueryLane(cs *CamSetting) *LaneQuery {
+	query := &LaneQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := cs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(camsetting.Table, camsetting.FieldID, id),
+			sqlgraph.To(lane.Table, lane.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, camsetting.LaneTable, camsetting.LaneColumn),
+		)
+		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CamSettingClient) Hooks() []Hook {
+	return c.hooks.CamSetting
 }
 
 // ContainerTrackingClient is a client for the ContainerTracking schema.
@@ -346,6 +473,234 @@ func (c *ContainerTrackingSuggestionClient) QueryTracking(cts *ContainerTracking
 // Hooks returns the client hooks.
 func (c *ContainerTrackingSuggestionClient) Hooks() []Hook {
 	return c.hooks.ContainerTrackingSuggestion
+}
+
+// GateClient is a client for the Gate schema.
+type GateClient struct {
+	config
+}
+
+// NewGateClient returns a client for the Gate from the given config.
+func NewGateClient(c config) *GateClient {
+	return &GateClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `gate.Hooks(f(g(h())))`.
+func (c *GateClient) Use(hooks ...Hook) {
+	c.hooks.Gate = append(c.hooks.Gate, hooks...)
+}
+
+// Create returns a create builder for Gate.
+func (c *GateClient) Create() *GateCreate {
+	mutation := newGateMutation(c.config, OpCreate)
+	return &GateCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Gate entities.
+func (c *GateClient) CreateBulk(builders ...*GateCreate) *GateCreateBulk {
+	return &GateCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Gate.
+func (c *GateClient) Update() *GateUpdate {
+	mutation := newGateMutation(c.config, OpUpdate)
+	return &GateUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *GateClient) UpdateOne(ga *Gate) *GateUpdateOne {
+	mutation := newGateMutation(c.config, OpUpdateOne, withGate(ga))
+	return &GateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *GateClient) UpdateOneID(id int) *GateUpdateOne {
+	mutation := newGateMutation(c.config, OpUpdateOne, withGateID(id))
+	return &GateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Gate.
+func (c *GateClient) Delete() *GateDelete {
+	mutation := newGateMutation(c.config, OpDelete)
+	return &GateDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *GateClient) DeleteOne(ga *Gate) *GateDeleteOne {
+	return c.DeleteOneID(ga.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *GateClient) DeleteOneID(id int) *GateDeleteOne {
+	builder := c.Delete().Where(gate.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &GateDeleteOne{builder}
+}
+
+// Query returns a query builder for Gate.
+func (c *GateClient) Query() *GateQuery {
+	return &GateQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Gate entity by its id.
+func (c *GateClient) Get(ctx context.Context, id int) (*Gate, error) {
+	return c.Query().Where(gate.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *GateClient) GetX(ctx context.Context, id int) *Gate {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryLanes queries the lanes edge of a Gate.
+func (c *GateClient) QueryLanes(ga *Gate) *LaneQuery {
+	query := &LaneQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := ga.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(gate.Table, gate.FieldID, id),
+			sqlgraph.To(lane.Table, lane.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, gate.LanesTable, gate.LanesColumn),
+		)
+		fromV = sqlgraph.Neighbors(ga.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *GateClient) Hooks() []Hook {
+	return c.hooks.Gate
+}
+
+// LaneClient is a client for the Lane schema.
+type LaneClient struct {
+	config
+}
+
+// NewLaneClient returns a client for the Lane from the given config.
+func NewLaneClient(c config) *LaneClient {
+	return &LaneClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `lane.Hooks(f(g(h())))`.
+func (c *LaneClient) Use(hooks ...Hook) {
+	c.hooks.Lane = append(c.hooks.Lane, hooks...)
+}
+
+// Create returns a create builder for Lane.
+func (c *LaneClient) Create() *LaneCreate {
+	mutation := newLaneMutation(c.config, OpCreate)
+	return &LaneCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Lane entities.
+func (c *LaneClient) CreateBulk(builders ...*LaneCreate) *LaneCreateBulk {
+	return &LaneCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Lane.
+func (c *LaneClient) Update() *LaneUpdate {
+	mutation := newLaneMutation(c.config, OpUpdate)
+	return &LaneUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *LaneClient) UpdateOne(l *Lane) *LaneUpdateOne {
+	mutation := newLaneMutation(c.config, OpUpdateOne, withLane(l))
+	return &LaneUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *LaneClient) UpdateOneID(id int) *LaneUpdateOne {
+	mutation := newLaneMutation(c.config, OpUpdateOne, withLaneID(id))
+	return &LaneUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Lane.
+func (c *LaneClient) Delete() *LaneDelete {
+	mutation := newLaneMutation(c.config, OpDelete)
+	return &LaneDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *LaneClient) DeleteOne(l *Lane) *LaneDeleteOne {
+	return c.DeleteOneID(l.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *LaneClient) DeleteOneID(id int) *LaneDeleteOne {
+	builder := c.Delete().Where(lane.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &LaneDeleteOne{builder}
+}
+
+// Query returns a query builder for Lane.
+func (c *LaneClient) Query() *LaneQuery {
+	return &LaneQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Lane entity by its id.
+func (c *LaneClient) Get(ctx context.Context, id int) (*Lane, error) {
+	return c.Query().Where(lane.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *LaneClient) GetX(ctx context.Context, id int) *Lane {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCams queries the cams edge of a Lane.
+func (c *LaneClient) QueryCams(l *Lane) *CamSettingQuery {
+	query := &CamSettingQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := l.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(lane.Table, lane.FieldID, id),
+			sqlgraph.To(camsetting.Table, camsetting.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, lane.CamsTable, lane.CamsColumn),
+		)
+		fromV = sqlgraph.Neighbors(l.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGate queries the gate edge of a Lane.
+func (c *LaneClient) QueryGate(l *Lane) *GateQuery {
+	query := &GateQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := l.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(lane.Table, lane.FieldID, id),
+			sqlgraph.To(gate.Table, gate.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, lane.GateTable, lane.GateColumn),
+		)
+		fromV = sqlgraph.Neighbors(l.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *LaneClient) Hooks() []Hook {
+	return c.hooks.Lane
 }
 
 // UserClient is a client for the User schema.
