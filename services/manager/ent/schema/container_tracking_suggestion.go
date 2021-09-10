@@ -17,8 +17,11 @@ type ContainerTrackingSuggestion struct {
 // Fields of the ContainerTracking.
 func (ContainerTrackingSuggestion) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("container_id"), // deprecated in favor of result
+		field.String("result"),
+		field.Int("cam_id").Optional(),
 		field.Int("tracking_id").Optional(),
-		field.String("container_id"),
+		field.String("tracking_type").Optional(),
 		field.String("bic").Optional(),
 		field.String("serial").Optional(),
 		field.String("checksum").Optional(),
@@ -31,6 +34,7 @@ func (ContainerTrackingSuggestion) Fields() []ent.Field {
 // Edges of the ContainerTracking.
 func (ContainerTrackingSuggestion) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.From("cam", CamSetting.Type).Ref("suggestions").Field("cam_id").Unique(),
 		edge.From("tracking", ContainerTracking.Type).Ref("suggestions").Field("tracking_id").Unique(),
 	}
 }

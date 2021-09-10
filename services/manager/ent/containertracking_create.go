@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
@@ -19,11 +20,26 @@ type ContainerTrackingCreate struct {
 	config
 	mutation *ContainerTrackingMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetContainerID sets the "container_id" field.
 func (ctc *ContainerTrackingCreate) SetContainerID(s string) *ContainerTrackingCreate {
 	ctc.mutation.SetContainerID(s)
+	return ctc
+}
+
+// SetSessionID sets the "session_id" field.
+func (ctc *ContainerTrackingCreate) SetSessionID(s string) *ContainerTrackingCreate {
+	ctc.mutation.SetSessionID(s)
+	return ctc
+}
+
+// SetNillableSessionID sets the "session_id" field if the given value is not nil.
+func (ctc *ContainerTrackingCreate) SetNillableSessionID(s *string) *ContainerTrackingCreate {
+	if s != nil {
+		ctc.SetSessionID(*s)
+	}
 	return ctc
 }
 
@@ -83,11 +99,17 @@ func (ctc *ContainerTrackingCreate) Save(ctx context.Context) (*ContainerTrackin
 				return nil, err
 			}
 			ctc.mutation = mutation
-			node, err = ctc.sqlSave(ctx)
+			if node, err = ctc.sqlSave(ctx); err != nil {
+				return nil, err
+			}
+			mutation.id = &node.ID
 			mutation.done = true
 			return node, err
 		})
 		for i := len(ctc.hooks) - 1; i >= 0; i-- {
+			if ctc.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = ctc.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, ctc.mutation); err != nil {
@@ -106,6 +128,19 @@ func (ctc *ContainerTrackingCreate) SaveX(ctx context.Context) *ContainerTrackin
 	return v
 }
 
+// Exec executes the query.
+func (ctc *ContainerTrackingCreate) Exec(ctx context.Context) error {
+	_, err := ctc.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (ctc *ContainerTrackingCreate) ExecX(ctx context.Context) {
+	if err := ctc.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
 // defaults sets the default values of the builder before save.
 func (ctc *ContainerTrackingCreate) defaults() {
 	if _, ok := ctc.mutation.CreatedAt(); !ok {
@@ -117,10 +152,10 @@ func (ctc *ContainerTrackingCreate) defaults() {
 // check runs all checks and user-defined validators on the builder.
 func (ctc *ContainerTrackingCreate) check() error {
 	if _, ok := ctc.mutation.ContainerID(); !ok {
-		return &ValidationError{Name: "container_id", err: errors.New("ent: missing required field \"container_id\"")}
+		return &ValidationError{Name: "container_id", err: errors.New(`ent: missing required field "container_id"`)}
 	}
 	if _, ok := ctc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
 	}
 	return nil
 }
@@ -128,8 +163,8 @@ func (ctc *ContainerTrackingCreate) check() error {
 func (ctc *ContainerTrackingCreate) sqlSave(ctx context.Context) (*ContainerTracking, error) {
 	_node, _spec := ctc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, ctc.driver, _spec); err != nil {
-		if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}
@@ -149,6 +184,7 @@ func (ctc *ContainerTrackingCreate) createSpec() (*ContainerTracking, *sqlgraph.
 			},
 		}
 	)
+	_spec.OnConflict = ctc.conflict
 	if value, ok := ctc.mutation.ContainerID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -156,6 +192,14 @@ func (ctc *ContainerTrackingCreate) createSpec() (*ContainerTracking, *sqlgraph.
 			Column: containertracking.FieldContainerID,
 		})
 		_node.ContainerID = value
+	}
+	if value, ok := ctc.mutation.SessionID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertracking.FieldSessionID,
+		})
+		_node.SessionID = value
 	}
 	if value, ok := ctc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -187,10 +231,228 @@ func (ctc *ContainerTrackingCreate) createSpec() (*ContainerTracking, *sqlgraph.
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.ContainerTracking.Create().
+//		SetContainerID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ContainerTrackingUpsert) {
+//			SetContainerID(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (ctc *ContainerTrackingCreate) OnConflict(opts ...sql.ConflictOption) *ContainerTrackingUpsertOne {
+	ctc.conflict = opts
+	return &ContainerTrackingUpsertOne{
+		create: ctc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.ContainerTracking.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (ctc *ContainerTrackingCreate) OnConflictColumns(columns ...string) *ContainerTrackingUpsertOne {
+	ctc.conflict = append(ctc.conflict, sql.ConflictColumns(columns...))
+	return &ContainerTrackingUpsertOne{
+		create: ctc,
+	}
+}
+
+type (
+	// ContainerTrackingUpsertOne is the builder for "upsert"-ing
+	//  one ContainerTracking node.
+	ContainerTrackingUpsertOne struct {
+		create *ContainerTrackingCreate
+	}
+
+	// ContainerTrackingUpsert is the "OnConflict" setter.
+	ContainerTrackingUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetContainerID sets the "container_id" field.
+func (u *ContainerTrackingUpsert) SetContainerID(v string) *ContainerTrackingUpsert {
+	u.Set(containertracking.FieldContainerID, v)
+	return u
+}
+
+// UpdateContainerID sets the "container_id" field to the value that was provided on create.
+func (u *ContainerTrackingUpsert) UpdateContainerID() *ContainerTrackingUpsert {
+	u.SetExcluded(containertracking.FieldContainerID)
+	return u
+}
+
+// SetSessionID sets the "session_id" field.
+func (u *ContainerTrackingUpsert) SetSessionID(v string) *ContainerTrackingUpsert {
+	u.Set(containertracking.FieldSessionID, v)
+	return u
+}
+
+// UpdateSessionID sets the "session_id" field to the value that was provided on create.
+func (u *ContainerTrackingUpsert) UpdateSessionID() *ContainerTrackingUpsert {
+	u.SetExcluded(containertracking.FieldSessionID)
+	return u
+}
+
+// ClearSessionID clears the value of the "session_id" field.
+func (u *ContainerTrackingUpsert) ClearSessionID() *ContainerTrackingUpsert {
+	u.SetNull(containertracking.FieldSessionID)
+	return u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *ContainerTrackingUpsert) SetCreatedAt(v time.Time) *ContainerTrackingUpsert {
+	u.Set(containertracking.FieldCreatedAt, v)
+	return u
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *ContainerTrackingUpsert) UpdateCreatedAt() *ContainerTrackingUpsert {
+	u.SetExcluded(containertracking.FieldCreatedAt)
+	return u
+}
+
+// UpdateNewValues updates the fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.ContainerTracking.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *ContainerTrackingUpsertOne) UpdateNewValues() *ContainerTrackingUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//  client.ContainerTracking.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
+func (u *ContainerTrackingUpsertOne) Ignore() *ContainerTrackingUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ContainerTrackingUpsertOne) DoNothing() *ContainerTrackingUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ContainerTrackingCreate.OnConflict
+// documentation for more info.
+func (u *ContainerTrackingUpsertOne) Update(set func(*ContainerTrackingUpsert)) *ContainerTrackingUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ContainerTrackingUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetContainerID sets the "container_id" field.
+func (u *ContainerTrackingUpsertOne) SetContainerID(v string) *ContainerTrackingUpsertOne {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.SetContainerID(v)
+	})
+}
+
+// UpdateContainerID sets the "container_id" field to the value that was provided on create.
+func (u *ContainerTrackingUpsertOne) UpdateContainerID() *ContainerTrackingUpsertOne {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.UpdateContainerID()
+	})
+}
+
+// SetSessionID sets the "session_id" field.
+func (u *ContainerTrackingUpsertOne) SetSessionID(v string) *ContainerTrackingUpsertOne {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.SetSessionID(v)
+	})
+}
+
+// UpdateSessionID sets the "session_id" field to the value that was provided on create.
+func (u *ContainerTrackingUpsertOne) UpdateSessionID() *ContainerTrackingUpsertOne {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.UpdateSessionID()
+	})
+}
+
+// ClearSessionID clears the value of the "session_id" field.
+func (u *ContainerTrackingUpsertOne) ClearSessionID() *ContainerTrackingUpsertOne {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.ClearSessionID()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *ContainerTrackingUpsertOne) SetCreatedAt(v time.Time) *ContainerTrackingUpsertOne {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *ContainerTrackingUpsertOne) UpdateCreatedAt() *ContainerTrackingUpsertOne {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *ContainerTrackingUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ContainerTrackingCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ContainerTrackingUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *ContainerTrackingUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *ContainerTrackingUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // ContainerTrackingCreateBulk is the builder for creating many ContainerTracking entities in bulk.
 type ContainerTrackingCreateBulk struct {
 	config
 	builders []*ContainerTrackingCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the ContainerTracking entities in the database.
@@ -216,19 +478,24 @@ func (ctcb *ContainerTrackingCreateBulk) Save(ctx context.Context) ([]*Container
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, ctcb.builders[i+1].mutation)
 				} else {
+					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = ctcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ctcb.driver, &sqlgraph.BatchCreateSpec{Nodes: specs}); err != nil {
-						if cerr, ok := isSQLConstraintError(err); ok {
-							err = cerr
+					if err = sqlgraph.BatchCreate(ctx, ctcb.driver, spec); err != nil {
+						if sqlgraph.IsConstraintError(err) {
+							err = &ConstraintError{err.Error(), err}
 						}
 					}
 				}
-				mutation.done = true
 				if err != nil {
 					return nil, err
 				}
-				id := specs[i].ID.Value.(int64)
-				nodes[i].ID = int(id)
+				mutation.id = &nodes[i].ID
+				mutation.done = true
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				return nodes[i], nil
 			})
 			for i := len(builder.hooks) - 1; i >= 0; i-- {
@@ -252,4 +519,171 @@ func (ctcb *ContainerTrackingCreateBulk) SaveX(ctx context.Context) []*Container
 		panic(err)
 	}
 	return v
+}
+
+// Exec executes the query.
+func (ctcb *ContainerTrackingCreateBulk) Exec(ctx context.Context) error {
+	_, err := ctcb.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (ctcb *ContainerTrackingCreateBulk) ExecX(ctx context.Context) {
+	if err := ctcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.ContainerTracking.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ContainerTrackingUpsert) {
+//			SetContainerID(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (ctcb *ContainerTrackingCreateBulk) OnConflict(opts ...sql.ConflictOption) *ContainerTrackingUpsertBulk {
+	ctcb.conflict = opts
+	return &ContainerTrackingUpsertBulk{
+		create: ctcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.ContainerTracking.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (ctcb *ContainerTrackingCreateBulk) OnConflictColumns(columns ...string) *ContainerTrackingUpsertBulk {
+	ctcb.conflict = append(ctcb.conflict, sql.ConflictColumns(columns...))
+	return &ContainerTrackingUpsertBulk{
+		create: ctcb,
+	}
+}
+
+// ContainerTrackingUpsertBulk is the builder for "upsert"-ing
+// a bulk of ContainerTracking nodes.
+type ContainerTrackingUpsertBulk struct {
+	create *ContainerTrackingCreateBulk
+}
+
+// UpdateNewValues updates the fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.ContainerTracking.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *ContainerTrackingUpsertBulk) UpdateNewValues() *ContainerTrackingUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.ContainerTracking.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+//
+func (u *ContainerTrackingUpsertBulk) Ignore() *ContainerTrackingUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ContainerTrackingUpsertBulk) DoNothing() *ContainerTrackingUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ContainerTrackingCreateBulk.OnConflict
+// documentation for more info.
+func (u *ContainerTrackingUpsertBulk) Update(set func(*ContainerTrackingUpsert)) *ContainerTrackingUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ContainerTrackingUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetContainerID sets the "container_id" field.
+func (u *ContainerTrackingUpsertBulk) SetContainerID(v string) *ContainerTrackingUpsertBulk {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.SetContainerID(v)
+	})
+}
+
+// UpdateContainerID sets the "container_id" field to the value that was provided on create.
+func (u *ContainerTrackingUpsertBulk) UpdateContainerID() *ContainerTrackingUpsertBulk {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.UpdateContainerID()
+	})
+}
+
+// SetSessionID sets the "session_id" field.
+func (u *ContainerTrackingUpsertBulk) SetSessionID(v string) *ContainerTrackingUpsertBulk {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.SetSessionID(v)
+	})
+}
+
+// UpdateSessionID sets the "session_id" field to the value that was provided on create.
+func (u *ContainerTrackingUpsertBulk) UpdateSessionID() *ContainerTrackingUpsertBulk {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.UpdateSessionID()
+	})
+}
+
+// ClearSessionID clears the value of the "session_id" field.
+func (u *ContainerTrackingUpsertBulk) ClearSessionID() *ContainerTrackingUpsertBulk {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.ClearSessionID()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *ContainerTrackingUpsertBulk) SetCreatedAt(v time.Time) *ContainerTrackingUpsertBulk {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *ContainerTrackingUpsertBulk) UpdateCreatedAt() *ContainerTrackingUpsertBulk {
+	return u.Update(func(s *ContainerTrackingUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *ContainerTrackingUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ContainerTrackingCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ContainerTrackingCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ContainerTrackingUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

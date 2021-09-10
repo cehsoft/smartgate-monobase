@@ -325,8 +325,8 @@ func (gq *GateQuery) GroupBy(field string, fields ...string) *GateGroupBy {
 //		Select(gate.FieldName).
 //		Scan(ctx, &v)
 //
-func (gq *GateQuery) Select(field string, fields ...string) *GateSelect {
-	gq.fields = append([]string{field}, fields...)
+func (gq *GateQuery) Select(fields ...string) *GateSelect {
+	gq.fields = append(gq.fields, fields...)
 	return &GateSelect{GateQuery: gq}
 }
 
@@ -466,10 +466,14 @@ func (gq *GateQuery) querySpec() *sqlgraph.QuerySpec {
 func (gq *GateQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(gq.driver.Dialect())
 	t1 := builder.Table(gate.Table)
-	selector := builder.Select(t1.Columns(gate.Columns...)...).From(t1)
+	columns := gq.fields
+	if len(columns) == 0 {
+		columns = gate.Columns
+	}
+	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if gq.sql != nil {
 		selector = gq.sql
-		selector.Select(selector.Columns(gate.Columns...)...)
+		selector.Select(selector.Columns(columns...)...)
 	}
 	for _, p := range gq.predicates {
 		p(selector)
@@ -737,13 +741,24 @@ func (ggb *GateGroupBy) sqlScan(ctx context.Context, v interface{}) error {
 }
 
 func (ggb *GateGroupBy) sqlQuery() *sql.Selector {
-	selector := ggb.sql
-	columns := make([]string, 0, len(ggb.fields)+len(ggb.fns))
-	columns = append(columns, ggb.fields...)
+	selector := ggb.sql.Select()
+	aggregation := make([]string, 0, len(ggb.fns))
 	for _, fn := range ggb.fns {
-		columns = append(columns, fn(selector))
+		aggregation = append(aggregation, fn(selector))
 	}
-	return selector.Select(columns...).GroupBy(ggb.fields...)
+	// If no columns were selected in a custom aggregation function, the default
+	// selection is the fields used for "group-by", and the aggregation functions.
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(ggb.fields)+len(ggb.fns))
+		for _, f := range ggb.fields {
+			columns = append(columns, selector.C(f))
+		}
+		for _, c := range aggregation {
+			columns = append(columns, c)
+		}
+		selector.Select(columns...)
+	}
+	return selector.GroupBy(selector.Columns(ggb.fields...)...)
 }
 
 // GateSelect is the builder for selecting fields of Gate entities.
@@ -959,16 +974,10 @@ func (gs *GateSelect) BoolX(ctx context.Context) bool {
 
 func (gs *GateSelect) sqlScan(ctx context.Context, v interface{}) error {
 	rows := &sql.Rows{}
-	query, args := gs.sqlQuery().Query()
+	query, args := gs.sql.Query()
 	if err := gs.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
-}
-
-func (gs *GateSelect) sqlQuery() sql.Querier {
-	selector := gs.sql
-	selector.Select(selector.Columns(gs.fields...)...)
-	return selector
 }

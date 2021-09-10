@@ -627,6 +627,34 @@ func HasLaneWith(preds ...predicate.Lane) predicate.CamSetting {
 	})
 }
 
+// HasSuggestions applies the HasEdge predicate on the "suggestions" edge.
+func HasSuggestions() predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(SuggestionsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SuggestionsTable, SuggestionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSuggestionsWith applies the HasEdge predicate on the "suggestions" edge with a given conditions (other predicates).
+func HasSuggestionsWith(preds ...predicate.ContainerTrackingSuggestion) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(SuggestionsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SuggestionsTable, SuggestionsColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.CamSetting) predicate.CamSetting {
 	return predicate.CamSetting(func(s *sql.Selector) {

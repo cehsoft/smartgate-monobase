@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/lane"
 )
 
@@ -19,6 +21,7 @@ type CamSettingCreate struct {
 	config
 	mutation *CamSettingMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetName sets the "name" field.
@@ -72,6 +75,21 @@ func (csc *CamSettingCreate) SetLane(l *Lane) *CamSettingCreate {
 	return csc.SetLaneID(l.ID)
 }
 
+// AddSuggestionIDs adds the "suggestions" edge to the ContainerTrackingSuggestion entity by IDs.
+func (csc *CamSettingCreate) AddSuggestionIDs(ids ...int) *CamSettingCreate {
+	csc.mutation.AddSuggestionIDs(ids...)
+	return csc
+}
+
+// AddSuggestions adds the "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (csc *CamSettingCreate) AddSuggestions(c ...*ContainerTrackingSuggestion) *CamSettingCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csc.AddSuggestionIDs(ids...)
+}
+
 // Mutation returns the CamSettingMutation object of the builder.
 func (csc *CamSettingCreate) Mutation() *CamSettingMutation {
 	return csc.mutation
@@ -99,11 +117,17 @@ func (csc *CamSettingCreate) Save(ctx context.Context) (*CamSetting, error) {
 				return nil, err
 			}
 			csc.mutation = mutation
-			node, err = csc.sqlSave(ctx)
+			if node, err = csc.sqlSave(ctx); err != nil {
+				return nil, err
+			}
+			mutation.id = &node.ID
 			mutation.done = true
 			return node, err
 		})
 		for i := len(csc.hooks) - 1; i >= 0; i-- {
+			if csc.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = csc.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, csc.mutation); err != nil {
@@ -122,6 +146,19 @@ func (csc *CamSettingCreate) SaveX(ctx context.Context) *CamSetting {
 	return v
 }
 
+// Exec executes the query.
+func (csc *CamSettingCreate) Exec(ctx context.Context) error {
+	_, err := csc.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (csc *CamSettingCreate) ExecX(ctx context.Context) {
+	if err := csc.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
 // defaults sets the default values of the builder before save.
 func (csc *CamSettingCreate) defaults() {
 	if _, ok := csc.mutation.CreatedAt(); !ok {
@@ -133,16 +170,16 @@ func (csc *CamSettingCreate) defaults() {
 // check runs all checks and user-defined validators on the builder.
 func (csc *CamSettingCreate) check() error {
 	if _, ok := csc.mutation.Name(); !ok {
-		return &ValidationError{Name: "name", err: errors.New("ent: missing required field \"name\"")}
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "name"`)}
 	}
 	if _, ok := csc.mutation.RtspURL(); !ok {
-		return &ValidationError{Name: "rtsp_url", err: errors.New("ent: missing required field \"rtsp_url\"")}
+		return &ValidationError{Name: "rtsp_url", err: errors.New(`ent: missing required field "rtsp_url"`)}
 	}
 	if _, ok := csc.mutation.WebrtcURL(); !ok {
-		return &ValidationError{Name: "webrtc_url", err: errors.New("ent: missing required field \"webrtc_url\"")}
+		return &ValidationError{Name: "webrtc_url", err: errors.New(`ent: missing required field "webrtc_url"`)}
 	}
 	if _, ok := csc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
 	}
 	return nil
 }
@@ -150,8 +187,8 @@ func (csc *CamSettingCreate) check() error {
 func (csc *CamSettingCreate) sqlSave(ctx context.Context) (*CamSetting, error) {
 	_node, _spec := csc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, csc.driver, _spec); err != nil {
-		if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}
@@ -171,6 +208,7 @@ func (csc *CamSettingCreate) createSpec() (*CamSetting, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	_spec.OnConflict = csc.conflict
 	if value, ok := csc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -223,13 +261,302 @@ func (csc *CamSettingCreate) createSpec() (*CamSetting, *sqlgraph.CreateSpec) {
 		_node.LaneID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := csc.mutation.SuggestionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   camsetting.SuggestionsTable,
+			Columns: []string{camsetting.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.CamSetting.Create().
+//		SetName(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CamSettingUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (csc *CamSettingCreate) OnConflict(opts ...sql.ConflictOption) *CamSettingUpsertOne {
+	csc.conflict = opts
+	return &CamSettingUpsertOne{
+		create: csc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.CamSetting.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (csc *CamSettingCreate) OnConflictColumns(columns ...string) *CamSettingUpsertOne {
+	csc.conflict = append(csc.conflict, sql.ConflictColumns(columns...))
+	return &CamSettingUpsertOne{
+		create: csc,
+	}
+}
+
+type (
+	// CamSettingUpsertOne is the builder for "upsert"-ing
+	//  one CamSetting node.
+	CamSettingUpsertOne struct {
+		create *CamSettingCreate
+	}
+
+	// CamSettingUpsert is the "OnConflict" setter.
+	CamSettingUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetName sets the "name" field.
+func (u *CamSettingUpsert) SetName(v string) *CamSettingUpsert {
+	u.Set(camsetting.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *CamSettingUpsert) UpdateName() *CamSettingUpsert {
+	u.SetExcluded(camsetting.FieldName)
+	return u
+}
+
+// SetLaneID sets the "lane_id" field.
+func (u *CamSettingUpsert) SetLaneID(v int) *CamSettingUpsert {
+	u.Set(camsetting.FieldLaneID, v)
+	return u
+}
+
+// UpdateLaneID sets the "lane_id" field to the value that was provided on create.
+func (u *CamSettingUpsert) UpdateLaneID() *CamSettingUpsert {
+	u.SetExcluded(camsetting.FieldLaneID)
+	return u
+}
+
+// ClearLaneID clears the value of the "lane_id" field.
+func (u *CamSettingUpsert) ClearLaneID() *CamSettingUpsert {
+	u.SetNull(camsetting.FieldLaneID)
+	return u
+}
+
+// SetRtspURL sets the "rtsp_url" field.
+func (u *CamSettingUpsert) SetRtspURL(v string) *CamSettingUpsert {
+	u.Set(camsetting.FieldRtspURL, v)
+	return u
+}
+
+// UpdateRtspURL sets the "rtsp_url" field to the value that was provided on create.
+func (u *CamSettingUpsert) UpdateRtspURL() *CamSettingUpsert {
+	u.SetExcluded(camsetting.FieldRtspURL)
+	return u
+}
+
+// SetWebrtcURL sets the "webrtc_url" field.
+func (u *CamSettingUpsert) SetWebrtcURL(v string) *CamSettingUpsert {
+	u.Set(camsetting.FieldWebrtcURL, v)
+	return u
+}
+
+// UpdateWebrtcURL sets the "webrtc_url" field to the value that was provided on create.
+func (u *CamSettingUpsert) UpdateWebrtcURL() *CamSettingUpsert {
+	u.SetExcluded(camsetting.FieldWebrtcURL)
+	return u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *CamSettingUpsert) SetCreatedAt(v time.Time) *CamSettingUpsert {
+	u.Set(camsetting.FieldCreatedAt, v)
+	return u
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *CamSettingUpsert) UpdateCreatedAt() *CamSettingUpsert {
+	u.SetExcluded(camsetting.FieldCreatedAt)
+	return u
+}
+
+// UpdateNewValues updates the fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.CamSetting.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *CamSettingUpsertOne) UpdateNewValues() *CamSettingUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//  client.CamSetting.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
+func (u *CamSettingUpsertOne) Ignore() *CamSettingUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CamSettingUpsertOne) DoNothing() *CamSettingUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CamSettingCreate.OnConflict
+// documentation for more info.
+func (u *CamSettingUpsertOne) Update(set func(*CamSettingUpsert)) *CamSettingUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CamSettingUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *CamSettingUpsertOne) SetName(v string) *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *CamSettingUpsertOne) UpdateName() *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetLaneID sets the "lane_id" field.
+func (u *CamSettingUpsertOne) SetLaneID(v int) *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetLaneID(v)
+	})
+}
+
+// UpdateLaneID sets the "lane_id" field to the value that was provided on create.
+func (u *CamSettingUpsertOne) UpdateLaneID() *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateLaneID()
+	})
+}
+
+// ClearLaneID clears the value of the "lane_id" field.
+func (u *CamSettingUpsertOne) ClearLaneID() *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.ClearLaneID()
+	})
+}
+
+// SetRtspURL sets the "rtsp_url" field.
+func (u *CamSettingUpsertOne) SetRtspURL(v string) *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetRtspURL(v)
+	})
+}
+
+// UpdateRtspURL sets the "rtsp_url" field to the value that was provided on create.
+func (u *CamSettingUpsertOne) UpdateRtspURL() *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateRtspURL()
+	})
+}
+
+// SetWebrtcURL sets the "webrtc_url" field.
+func (u *CamSettingUpsertOne) SetWebrtcURL(v string) *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetWebrtcURL(v)
+	})
+}
+
+// UpdateWebrtcURL sets the "webrtc_url" field to the value that was provided on create.
+func (u *CamSettingUpsertOne) UpdateWebrtcURL() *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateWebrtcURL()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *CamSettingUpsertOne) SetCreatedAt(v time.Time) *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *CamSettingUpsertOne) UpdateCreatedAt() *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *CamSettingUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for CamSettingCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CamSettingUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *CamSettingUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *CamSettingUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
 }
 
 // CamSettingCreateBulk is the builder for creating many CamSetting entities in bulk.
 type CamSettingCreateBulk struct {
 	config
 	builders []*CamSettingCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the CamSetting entities in the database.
@@ -255,19 +582,24 @@ func (cscb *CamSettingCreateBulk) Save(ctx context.Context) ([]*CamSetting, erro
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, cscb.builders[i+1].mutation)
 				} else {
+					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = cscb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, cscb.driver, &sqlgraph.BatchCreateSpec{Nodes: specs}); err != nil {
-						if cerr, ok := isSQLConstraintError(err); ok {
-							err = cerr
+					if err = sqlgraph.BatchCreate(ctx, cscb.driver, spec); err != nil {
+						if sqlgraph.IsConstraintError(err) {
+							err = &ConstraintError{err.Error(), err}
 						}
 					}
 				}
-				mutation.done = true
 				if err != nil {
 					return nil, err
 				}
-				id := specs[i].ID.Value.(int64)
-				nodes[i].ID = int(id)
+				mutation.id = &nodes[i].ID
+				mutation.done = true
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				return nodes[i], nil
 			})
 			for i := len(builder.hooks) - 1; i >= 0; i-- {
@@ -291,4 +623,199 @@ func (cscb *CamSettingCreateBulk) SaveX(ctx context.Context) []*CamSetting {
 		panic(err)
 	}
 	return v
+}
+
+// Exec executes the query.
+func (cscb *CamSettingCreateBulk) Exec(ctx context.Context) error {
+	_, err := cscb.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (cscb *CamSettingCreateBulk) ExecX(ctx context.Context) {
+	if err := cscb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.CamSetting.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CamSettingUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (cscb *CamSettingCreateBulk) OnConflict(opts ...sql.ConflictOption) *CamSettingUpsertBulk {
+	cscb.conflict = opts
+	return &CamSettingUpsertBulk{
+		create: cscb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.CamSetting.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (cscb *CamSettingCreateBulk) OnConflictColumns(columns ...string) *CamSettingUpsertBulk {
+	cscb.conflict = append(cscb.conflict, sql.ConflictColumns(columns...))
+	return &CamSettingUpsertBulk{
+		create: cscb,
+	}
+}
+
+// CamSettingUpsertBulk is the builder for "upsert"-ing
+// a bulk of CamSetting nodes.
+type CamSettingUpsertBulk struct {
+	create *CamSettingCreateBulk
+}
+
+// UpdateNewValues updates the fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.CamSetting.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *CamSettingUpsertBulk) UpdateNewValues() *CamSettingUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.CamSetting.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+//
+func (u *CamSettingUpsertBulk) Ignore() *CamSettingUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CamSettingUpsertBulk) DoNothing() *CamSettingUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CamSettingCreateBulk.OnConflict
+// documentation for more info.
+func (u *CamSettingUpsertBulk) Update(set func(*CamSettingUpsert)) *CamSettingUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CamSettingUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *CamSettingUpsertBulk) SetName(v string) *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *CamSettingUpsertBulk) UpdateName() *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetLaneID sets the "lane_id" field.
+func (u *CamSettingUpsertBulk) SetLaneID(v int) *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetLaneID(v)
+	})
+}
+
+// UpdateLaneID sets the "lane_id" field to the value that was provided on create.
+func (u *CamSettingUpsertBulk) UpdateLaneID() *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateLaneID()
+	})
+}
+
+// ClearLaneID clears the value of the "lane_id" field.
+func (u *CamSettingUpsertBulk) ClearLaneID() *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.ClearLaneID()
+	})
+}
+
+// SetRtspURL sets the "rtsp_url" field.
+func (u *CamSettingUpsertBulk) SetRtspURL(v string) *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetRtspURL(v)
+	})
+}
+
+// UpdateRtspURL sets the "rtsp_url" field to the value that was provided on create.
+func (u *CamSettingUpsertBulk) UpdateRtspURL() *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateRtspURL()
+	})
+}
+
+// SetWebrtcURL sets the "webrtc_url" field.
+func (u *CamSettingUpsertBulk) SetWebrtcURL(v string) *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetWebrtcURL(v)
+	})
+}
+
+// UpdateWebrtcURL sets the "webrtc_url" field to the value that was provided on create.
+func (u *CamSettingUpsertBulk) UpdateWebrtcURL() *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateWebrtcURL()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *CamSettingUpsertBulk) SetCreatedAt(v time.Time) *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *CamSettingUpsertBulk) UpdateCreatedAt() *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *CamSettingUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the CamSettingCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for CamSettingCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CamSettingUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

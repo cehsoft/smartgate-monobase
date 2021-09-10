@@ -13,13 +13,15 @@ const (
 	FieldID = "id"
 	// FieldContainerID holds the string denoting the container_id field in the database.
 	FieldContainerID = "container_id"
+	// FieldSessionID holds the string denoting the session_id field in the database.
+	FieldSessionID = "session_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// EdgeSuggestions holds the string denoting the suggestions edge name in mutations.
 	EdgeSuggestions = "suggestions"
 	// Table holds the table name of the containertracking in the database.
 	Table = "container_trackings"
-	// SuggestionsTable is the table the holds the suggestions relation/edge.
+	// SuggestionsTable is the table that holds the suggestions relation/edge.
 	SuggestionsTable = "container_tracking_suggestions"
 	// SuggestionsInverseTable is the table name for the ContainerTrackingSuggestion entity.
 	// It exists in this package in order to avoid circular dependency with the "containertrackingsuggestion" package.
@@ -32,6 +34,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldContainerID,
+	FieldSessionID,
 	FieldCreatedAt,
 }
 

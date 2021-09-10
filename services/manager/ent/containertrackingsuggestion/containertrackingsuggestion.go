@@ -11,10 +11,16 @@ const (
 	Label = "container_tracking_suggestion"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldTrackingID holds the string denoting the tracking_id field in the database.
-	FieldTrackingID = "tracking_id"
 	// FieldContainerID holds the string denoting the container_id field in the database.
 	FieldContainerID = "container_id"
+	// FieldResult holds the string denoting the result field in the database.
+	FieldResult = "result"
+	// FieldCamID holds the string denoting the cam_id field in the database.
+	FieldCamID = "cam_id"
+	// FieldTrackingID holds the string denoting the tracking_id field in the database.
+	FieldTrackingID = "tracking_id"
+	// FieldTrackingType holds the string denoting the tracking_type field in the database.
+	FieldTrackingType = "tracking_type"
 	// FieldBic holds the string denoting the bic field in the database.
 	FieldBic = "bic"
 	// FieldSerial holds the string denoting the serial field in the database.
@@ -27,11 +33,20 @@ const (
 	FieldScore = "score"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// EdgeCam holds the string denoting the cam edge name in mutations.
+	EdgeCam = "cam"
 	// EdgeTracking holds the string denoting the tracking edge name in mutations.
 	EdgeTracking = "tracking"
 	// Table holds the table name of the containertrackingsuggestion in the database.
 	Table = "container_tracking_suggestions"
-	// TrackingTable is the table the holds the tracking relation/edge.
+	// CamTable is the table that holds the cam relation/edge.
+	CamTable = "container_tracking_suggestions"
+	// CamInverseTable is the table name for the CamSetting entity.
+	// It exists in this package in order to avoid circular dependency with the "camsetting" package.
+	CamInverseTable = "cam_settings"
+	// CamColumn is the table column denoting the cam relation/edge.
+	CamColumn = "cam_id"
+	// TrackingTable is the table that holds the tracking relation/edge.
 	TrackingTable = "container_tracking_suggestions"
 	// TrackingInverseTable is the table name for the ContainerTracking entity.
 	// It exists in this package in order to avoid circular dependency with the "containertracking" package.
@@ -43,8 +58,11 @@ const (
 // Columns holds all SQL columns for containertrackingsuggestion fields.
 var Columns = []string{
 	FieldID,
-	FieldTrackingID,
 	FieldContainerID,
+	FieldResult,
+	FieldCamID,
+	FieldTrackingID,
+	FieldTrackingType,
 	FieldBic,
 	FieldSerial,
 	FieldChecksum,

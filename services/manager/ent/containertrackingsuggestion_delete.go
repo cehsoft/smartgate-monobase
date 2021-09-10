@@ -20,9 +20,9 @@ type ContainerTrackingSuggestionDelete struct {
 	mutation *ContainerTrackingSuggestionMutation
 }
 
-// Where adds a new predicate to the ContainerTrackingSuggestionDelete builder.
+// Where appends a list predicates to the ContainerTrackingSuggestionDelete builder.
 func (ctsd *ContainerTrackingSuggestionDelete) Where(ps ...predicate.ContainerTrackingSuggestion) *ContainerTrackingSuggestionDelete {
-	ctsd.mutation.predicates = append(ctsd.mutation.predicates, ps...)
+	ctsd.mutation.Where(ps...)
 	return ctsd
 }
 
@@ -46,6 +46,9 @@ func (ctsd *ContainerTrackingSuggestionDelete) Exec(ctx context.Context) (int, e
 			return affected, err
 		})
 		for i := len(ctsd.hooks) - 1; i >= 0; i-- {
+			if ctsd.hooks[i] == nil {
+				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = ctsd.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, ctsd.mutation); err != nil {

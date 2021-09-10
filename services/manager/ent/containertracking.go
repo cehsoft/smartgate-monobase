@@ -18,6 +18,8 @@ type ContainerTracking struct {
 	ID int `json:"id,omitempty"`
 	// ContainerID holds the value of the "container_id" field.
 	ContainerID string `json:"container_id,omitempty"`
+	// SessionID holds the value of the "session_id" field.
+	SessionID string `json:"session_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -50,7 +52,7 @@ func (*ContainerTracking) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case containertracking.FieldID:
 			values[i] = new(sql.NullInt64)
-		case containertracking.FieldContainerID:
+		case containertracking.FieldContainerID, containertracking.FieldSessionID:
 			values[i] = new(sql.NullString)
 		case containertracking.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -80,6 +82,12 @@ func (ct *ContainerTracking) assignValues(columns []string, values []interface{}
 				return fmt.Errorf("unexpected type %T for field container_id", values[i])
 			} else if value.Valid {
 				ct.ContainerID = value.String
+			}
+		case containertracking.FieldSessionID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field session_id", values[i])
+			} else if value.Valid {
+				ct.SessionID = value.String
 			}
 		case containertracking.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -122,6 +130,8 @@ func (ct *ContainerTracking) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", ct.ID))
 	builder.WriteString(", container_id=")
 	builder.WriteString(ct.ContainerID)
+	builder.WriteString(", session_id=")
+	builder.WriteString(ct.SessionID)
 	builder.WriteString(", created_at=")
 	builder.WriteString(ct.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')

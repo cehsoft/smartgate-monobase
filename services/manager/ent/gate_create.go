@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/gate"
@@ -19,6 +20,7 @@ type GateCreate struct {
 	config
 	mutation *GateMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetName sets the "name" field.
@@ -83,11 +85,17 @@ func (gc *GateCreate) Save(ctx context.Context) (*Gate, error) {
 				return nil, err
 			}
 			gc.mutation = mutation
-			node, err = gc.sqlSave(ctx)
+			if node, err = gc.sqlSave(ctx); err != nil {
+				return nil, err
+			}
+			mutation.id = &node.ID
 			mutation.done = true
 			return node, err
 		})
 		for i := len(gc.hooks) - 1; i >= 0; i-- {
+			if gc.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = gc.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, gc.mutation); err != nil {
@@ -106,6 +114,19 @@ func (gc *GateCreate) SaveX(ctx context.Context) *Gate {
 	return v
 }
 
+// Exec executes the query.
+func (gc *GateCreate) Exec(ctx context.Context) error {
+	_, err := gc.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (gc *GateCreate) ExecX(ctx context.Context) {
+	if err := gc.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
 // defaults sets the default values of the builder before save.
 func (gc *GateCreate) defaults() {
 	if _, ok := gc.mutation.CreatedAt(); !ok {
@@ -117,10 +138,10 @@ func (gc *GateCreate) defaults() {
 // check runs all checks and user-defined validators on the builder.
 func (gc *GateCreate) check() error {
 	if _, ok := gc.mutation.Name(); !ok {
-		return &ValidationError{Name: "name", err: errors.New("ent: missing required field \"name\"")}
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "name"`)}
 	}
 	if _, ok := gc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
 	}
 	return nil
 }
@@ -128,8 +149,8 @@ func (gc *GateCreate) check() error {
 func (gc *GateCreate) sqlSave(ctx context.Context) (*Gate, error) {
 	_node, _spec := gc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, gc.driver, _spec); err != nil {
-		if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}
@@ -149,6 +170,7 @@ func (gc *GateCreate) createSpec() (*Gate, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	_spec.OnConflict = gc.conflict
 	if value, ok := gc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -187,10 +209,189 @@ func (gc *GateCreate) createSpec() (*Gate, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Gate.Create().
+//		SetName(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.GateUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (gc *GateCreate) OnConflict(opts ...sql.ConflictOption) *GateUpsertOne {
+	gc.conflict = opts
+	return &GateUpsertOne{
+		create: gc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Gate.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (gc *GateCreate) OnConflictColumns(columns ...string) *GateUpsertOne {
+	gc.conflict = append(gc.conflict, sql.ConflictColumns(columns...))
+	return &GateUpsertOne{
+		create: gc,
+	}
+}
+
+type (
+	// GateUpsertOne is the builder for "upsert"-ing
+	//  one Gate node.
+	GateUpsertOne struct {
+		create *GateCreate
+	}
+
+	// GateUpsert is the "OnConflict" setter.
+	GateUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetName sets the "name" field.
+func (u *GateUpsert) SetName(v string) *GateUpsert {
+	u.Set(gate.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *GateUpsert) UpdateName() *GateUpsert {
+	u.SetExcluded(gate.FieldName)
+	return u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *GateUpsert) SetCreatedAt(v time.Time) *GateUpsert {
+	u.Set(gate.FieldCreatedAt, v)
+	return u
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *GateUpsert) UpdateCreatedAt() *GateUpsert {
+	u.SetExcluded(gate.FieldCreatedAt)
+	return u
+}
+
+// UpdateNewValues updates the fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.Gate.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *GateUpsertOne) UpdateNewValues() *GateUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//  client.Gate.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
+func (u *GateUpsertOne) Ignore() *GateUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *GateUpsertOne) DoNothing() *GateUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the GateCreate.OnConflict
+// documentation for more info.
+func (u *GateUpsertOne) Update(set func(*GateUpsert)) *GateUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&GateUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *GateUpsertOne) SetName(v string) *GateUpsertOne {
+	return u.Update(func(s *GateUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *GateUpsertOne) UpdateName() *GateUpsertOne {
+	return u.Update(func(s *GateUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *GateUpsertOne) SetCreatedAt(v time.Time) *GateUpsertOne {
+	return u.Update(func(s *GateUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *GateUpsertOne) UpdateCreatedAt() *GateUpsertOne {
+	return u.Update(func(s *GateUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *GateUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for GateCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *GateUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *GateUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *GateUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // GateCreateBulk is the builder for creating many Gate entities in bulk.
 type GateCreateBulk struct {
 	config
 	builders []*GateCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Gate entities in the database.
@@ -216,19 +417,24 @@ func (gcb *GateCreateBulk) Save(ctx context.Context) ([]*Gate, error) {
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, gcb.builders[i+1].mutation)
 				} else {
+					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = gcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, gcb.driver, &sqlgraph.BatchCreateSpec{Nodes: specs}); err != nil {
-						if cerr, ok := isSQLConstraintError(err); ok {
-							err = cerr
+					if err = sqlgraph.BatchCreate(ctx, gcb.driver, spec); err != nil {
+						if sqlgraph.IsConstraintError(err) {
+							err = &ConstraintError{err.Error(), err}
 						}
 					}
 				}
-				mutation.done = true
 				if err != nil {
 					return nil, err
 				}
-				id := specs[i].ID.Value.(int64)
-				nodes[i].ID = int(id)
+				mutation.id = &nodes[i].ID
+				mutation.done = true
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				return nodes[i], nil
 			})
 			for i := len(builder.hooks) - 1; i >= 0; i-- {
@@ -252,4 +458,150 @@ func (gcb *GateCreateBulk) SaveX(ctx context.Context) []*Gate {
 		panic(err)
 	}
 	return v
+}
+
+// Exec executes the query.
+func (gcb *GateCreateBulk) Exec(ctx context.Context) error {
+	_, err := gcb.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (gcb *GateCreateBulk) ExecX(ctx context.Context) {
+	if err := gcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Gate.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.GateUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (gcb *GateCreateBulk) OnConflict(opts ...sql.ConflictOption) *GateUpsertBulk {
+	gcb.conflict = opts
+	return &GateUpsertBulk{
+		create: gcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Gate.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (gcb *GateCreateBulk) OnConflictColumns(columns ...string) *GateUpsertBulk {
+	gcb.conflict = append(gcb.conflict, sql.ConflictColumns(columns...))
+	return &GateUpsertBulk{
+		create: gcb,
+	}
+}
+
+// GateUpsertBulk is the builder for "upsert"-ing
+// a bulk of Gate nodes.
+type GateUpsertBulk struct {
+	create *GateCreateBulk
+}
+
+// UpdateNewValues updates the fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Gate.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *GateUpsertBulk) UpdateNewValues() *GateUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Gate.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+//
+func (u *GateUpsertBulk) Ignore() *GateUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *GateUpsertBulk) DoNothing() *GateUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the GateCreateBulk.OnConflict
+// documentation for more info.
+func (u *GateUpsertBulk) Update(set func(*GateUpsert)) *GateUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&GateUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *GateUpsertBulk) SetName(v string) *GateUpsertBulk {
+	return u.Update(func(s *GateUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *GateUpsertBulk) UpdateName() *GateUpsertBulk {
+	return u.Update(func(s *GateUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *GateUpsertBulk) SetCreatedAt(v time.Time) *GateUpsertBulk {
+	return u.Update(func(s *GateUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *GateUpsertBulk) UpdateCreatedAt() *GateUpsertBulk {
+	return u.Update(func(s *GateUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *GateUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the GateCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for GateCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *GateUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

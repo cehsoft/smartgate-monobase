@@ -93,6 +93,27 @@ func IDLTE(id int) predicate.ContainerTrackingSuggestion {
 	})
 }
 
+// ContainerID applies equality check predicate on the "container_id" field. It's identical to ContainerIDEQ.
+func ContainerID(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldContainerID), v))
+	})
+}
+
+// Result applies equality check predicate on the "result" field. It's identical to ResultEQ.
+func Result(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResult), v))
+	})
+}
+
+// CamID applies equality check predicate on the "cam_id" field. It's identical to CamIDEQ.
+func CamID(v int) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCamID), v))
+	})
+}
+
 // TrackingID applies equality check predicate on the "tracking_id" field. It's identical to TrackingIDEQ.
 func TrackingID(v int) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
@@ -100,10 +121,10 @@ func TrackingID(v int) predicate.ContainerTrackingSuggestion {
 	})
 }
 
-// ContainerID applies equality check predicate on the "container_id" field. It's identical to ContainerIDEQ.
-func ContainerID(v string) predicate.ContainerTrackingSuggestion {
+// TrackingType applies equality check predicate on the "tracking_type" field. It's identical to TrackingTypeEQ.
+func TrackingType(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldContainerID), v))
+		s.Where(sql.EQ(s.C(FieldTrackingType), v))
 	})
 }
 
@@ -146,68 +167,6 @@ func Score(v float32) predicate.ContainerTrackingSuggestion {
 func CreatedAt(v time.Time) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
-	})
-}
-
-// TrackingIDEQ applies the EQ predicate on the "tracking_id" field.
-func TrackingIDEQ(v int) predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTrackingID), v))
-	})
-}
-
-// TrackingIDNEQ applies the NEQ predicate on the "tracking_id" field.
-func TrackingIDNEQ(v int) predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldTrackingID), v))
-	})
-}
-
-// TrackingIDIn applies the In predicate on the "tracking_id" field.
-func TrackingIDIn(vs ...int) predicate.ContainerTrackingSuggestion {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldTrackingID), v...))
-	})
-}
-
-// TrackingIDNotIn applies the NotIn predicate on the "tracking_id" field.
-func TrackingIDNotIn(vs ...int) predicate.ContainerTrackingSuggestion {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldTrackingID), v...))
-	})
-}
-
-// TrackingIDIsNil applies the IsNil predicate on the "tracking_id" field.
-func TrackingIDIsNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldTrackingID)))
-	})
-}
-
-// TrackingIDNotNil applies the NotNil predicate on the "tracking_id" field.
-func TrackingIDNotNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldTrackingID)))
 	})
 }
 
@@ -319,6 +278,366 @@ func ContainerIDEqualFold(v string) predicate.ContainerTrackingSuggestion {
 func ContainerIDContainsFold(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldContainerID), v))
+	})
+}
+
+// ResultEQ applies the EQ predicate on the "result" field.
+func ResultEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResult), v))
+	})
+}
+
+// ResultNEQ applies the NEQ predicate on the "result" field.
+func ResultNEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldResult), v))
+	})
+}
+
+// ResultIn applies the In predicate on the "result" field.
+func ResultIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldResult), v...))
+	})
+}
+
+// ResultNotIn applies the NotIn predicate on the "result" field.
+func ResultNotIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldResult), v...))
+	})
+}
+
+// ResultGT applies the GT predicate on the "result" field.
+func ResultGT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldResult), v))
+	})
+}
+
+// ResultGTE applies the GTE predicate on the "result" field.
+func ResultGTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldResult), v))
+	})
+}
+
+// ResultLT applies the LT predicate on the "result" field.
+func ResultLT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldResult), v))
+	})
+}
+
+// ResultLTE applies the LTE predicate on the "result" field.
+func ResultLTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldResult), v))
+	})
+}
+
+// ResultContains applies the Contains predicate on the "result" field.
+func ResultContains(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldResult), v))
+	})
+}
+
+// ResultHasPrefix applies the HasPrefix predicate on the "result" field.
+func ResultHasPrefix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldResult), v))
+	})
+}
+
+// ResultHasSuffix applies the HasSuffix predicate on the "result" field.
+func ResultHasSuffix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldResult), v))
+	})
+}
+
+// ResultEqualFold applies the EqualFold predicate on the "result" field.
+func ResultEqualFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldResult), v))
+	})
+}
+
+// ResultContainsFold applies the ContainsFold predicate on the "result" field.
+func ResultContainsFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldResult), v))
+	})
+}
+
+// CamIDEQ applies the EQ predicate on the "cam_id" field.
+func CamIDEQ(v int) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCamID), v))
+	})
+}
+
+// CamIDNEQ applies the NEQ predicate on the "cam_id" field.
+func CamIDNEQ(v int) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCamID), v))
+	})
+}
+
+// CamIDIn applies the In predicate on the "cam_id" field.
+func CamIDIn(vs ...int) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldCamID), v...))
+	})
+}
+
+// CamIDNotIn applies the NotIn predicate on the "cam_id" field.
+func CamIDNotIn(vs ...int) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldCamID), v...))
+	})
+}
+
+// CamIDIsNil applies the IsNil predicate on the "cam_id" field.
+func CamIDIsNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldCamID)))
+	})
+}
+
+// CamIDNotNil applies the NotNil predicate on the "cam_id" field.
+func CamIDNotNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldCamID)))
+	})
+}
+
+// TrackingIDEQ applies the EQ predicate on the "tracking_id" field.
+func TrackingIDEQ(v int) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTrackingID), v))
+	})
+}
+
+// TrackingIDNEQ applies the NEQ predicate on the "tracking_id" field.
+func TrackingIDNEQ(v int) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldTrackingID), v))
+	})
+}
+
+// TrackingIDIn applies the In predicate on the "tracking_id" field.
+func TrackingIDIn(vs ...int) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldTrackingID), v...))
+	})
+}
+
+// TrackingIDNotIn applies the NotIn predicate on the "tracking_id" field.
+func TrackingIDNotIn(vs ...int) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldTrackingID), v...))
+	})
+}
+
+// TrackingIDIsNil applies the IsNil predicate on the "tracking_id" field.
+func TrackingIDIsNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldTrackingID)))
+	})
+}
+
+// TrackingIDNotNil applies the NotNil predicate on the "tracking_id" field.
+func TrackingIDNotNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldTrackingID)))
+	})
+}
+
+// TrackingTypeEQ applies the EQ predicate on the "tracking_type" field.
+func TrackingTypeEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeNEQ applies the NEQ predicate on the "tracking_type" field.
+func TrackingTypeNEQ(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeIn applies the In predicate on the "tracking_type" field.
+func TrackingTypeIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldTrackingType), v...))
+	})
+}
+
+// TrackingTypeNotIn applies the NotIn predicate on the "tracking_type" field.
+func TrackingTypeNotIn(vs ...string) predicate.ContainerTrackingSuggestion {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldTrackingType), v...))
+	})
+}
+
+// TrackingTypeGT applies the GT predicate on the "tracking_type" field.
+func TrackingTypeGT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeGTE applies the GTE predicate on the "tracking_type" field.
+func TrackingTypeGTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeLT applies the LT predicate on the "tracking_type" field.
+func TrackingTypeLT(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeLTE applies the LTE predicate on the "tracking_type" field.
+func TrackingTypeLTE(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeContains applies the Contains predicate on the "tracking_type" field.
+func TrackingTypeContains(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeHasPrefix applies the HasPrefix predicate on the "tracking_type" field.
+func TrackingTypeHasPrefix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeHasSuffix applies the HasSuffix predicate on the "tracking_type" field.
+func TrackingTypeHasSuffix(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeIsNil applies the IsNil predicate on the "tracking_type" field.
+func TrackingTypeIsNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldTrackingType)))
+	})
+}
+
+// TrackingTypeNotNil applies the NotNil predicate on the "tracking_type" field.
+func TrackingTypeNotNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldTrackingType)))
+	})
+}
+
+// TrackingTypeEqualFold applies the EqualFold predicate on the "tracking_type" field.
+func TrackingTypeEqualFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldTrackingType), v))
+	})
+}
+
+// TrackingTypeContainsFold applies the ContainsFold predicate on the "tracking_type" field.
+func TrackingTypeContainsFold(v string) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldTrackingType), v))
 	})
 }
 
@@ -971,6 +1290,34 @@ func CreatedAtLT(v time.Time) predicate.ContainerTrackingSuggestion {
 func CreatedAtLTE(v time.Time) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldCreatedAt), v))
+	})
+}
+
+// HasCam applies the HasEdge predicate on the "cam" edge.
+func HasCam() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(CamTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CamTable, CamColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCamWith applies the HasEdge predicate on the "cam" edge with a given conditions (other predicates).
+func HasCamWith(preds ...predicate.CamSetting) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(CamInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CamTable, CamColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

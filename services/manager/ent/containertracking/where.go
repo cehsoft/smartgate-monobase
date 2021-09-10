@@ -100,6 +100,13 @@ func ContainerID(v string) predicate.ContainerTracking {
 	})
 }
 
+// SessionID applies equality check predicate on the "session_id" field. It's identical to SessionIDEQ.
+func SessionID(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSessionID), v))
+	})
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.ContainerTracking {
 	return predicate.ContainerTracking(func(s *sql.Selector) {
@@ -215,6 +222,131 @@ func ContainerIDEqualFold(v string) predicate.ContainerTracking {
 func ContainerIDContainsFold(v string) predicate.ContainerTracking {
 	return predicate.ContainerTracking(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldContainerID), v))
+	})
+}
+
+// SessionIDEQ applies the EQ predicate on the "session_id" field.
+func SessionIDEQ(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDNEQ applies the NEQ predicate on the "session_id" field.
+func SessionIDNEQ(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDIn applies the In predicate on the "session_id" field.
+func SessionIDIn(vs ...string) predicate.ContainerTracking {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldSessionID), v...))
+	})
+}
+
+// SessionIDNotIn applies the NotIn predicate on the "session_id" field.
+func SessionIDNotIn(vs ...string) predicate.ContainerTracking {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldSessionID), v...))
+	})
+}
+
+// SessionIDGT applies the GT predicate on the "session_id" field.
+func SessionIDGT(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDGTE applies the GTE predicate on the "session_id" field.
+func SessionIDGTE(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDLT applies the LT predicate on the "session_id" field.
+func SessionIDLT(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDLTE applies the LTE predicate on the "session_id" field.
+func SessionIDLTE(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDContains applies the Contains predicate on the "session_id" field.
+func SessionIDContains(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDHasPrefix applies the HasPrefix predicate on the "session_id" field.
+func SessionIDHasPrefix(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDHasSuffix applies the HasSuffix predicate on the "session_id" field.
+func SessionIDHasSuffix(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDIsNil applies the IsNil predicate on the "session_id" field.
+func SessionIDIsNil() predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldSessionID)))
+	})
+}
+
+// SessionIDNotNil applies the NotNil predicate on the "session_id" field.
+func SessionIDNotNil() predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldSessionID)))
+	})
+}
+
+// SessionIDEqualFold applies the EqualFold predicate on the "session_id" field.
+func SessionIDEqualFold(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldSessionID), v))
+	})
+}
+
+// SessionIDContainsFold applies the ContainsFold predicate on the "session_id" field.
+func SessionIDContainsFold(v string) predicate.ContainerTracking {
+	return predicate.ContainerTracking(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldSessionID), v))
 	})
 }
 

@@ -20,9 +20,9 @@ type GateDelete struct {
 	mutation *GateMutation
 }
 
-// Where adds a new predicate to the GateDelete builder.
+// Where appends a list predicates to the GateDelete builder.
 func (gd *GateDelete) Where(ps ...predicate.Gate) *GateDelete {
-	gd.mutation.predicates = append(gd.mutation.predicates, ps...)
+	gd.mutation.Where(ps...)
 	return gd
 }
 
@@ -46,6 +46,9 @@ func (gd *GateDelete) Exec(ctx context.Context) (int, error) {
 			return affected, err
 		})
 		for i := len(gd.hooks) - 1; i >= 0; i-- {
+			if gd.hooks[i] == nil {
+				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = gd.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, gd.mutation); err != nil {

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
@@ -26,6 +27,7 @@ type ContainerTrackingSuggestionQuery struct {
 	fields     []string
 	predicates []predicate.ContainerTrackingSuggestion
 	// eager-loading edges.
+	withCam      *CamSettingQuery
 	withTracking *ContainerTrackingQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -61,6 +63,28 @@ func (ctsq *ContainerTrackingSuggestionQuery) Unique(unique bool) *ContainerTrac
 func (ctsq *ContainerTrackingSuggestionQuery) Order(o ...OrderFunc) *ContainerTrackingSuggestionQuery {
 	ctsq.order = append(ctsq.order, o...)
 	return ctsq
+}
+
+// QueryCam chains the current query on the "cam" edge.
+func (ctsq *ContainerTrackingSuggestionQuery) QueryCam() *CamSettingQuery {
+	query := &CamSettingQuery{config: ctsq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := ctsq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := ctsq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(containertrackingsuggestion.Table, containertrackingsuggestion.FieldID, selector),
+			sqlgraph.To(camsetting.Table, camsetting.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, containertrackingsuggestion.CamTable, containertrackingsuggestion.CamColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(ctsq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryTracking chains the current query on the "tracking" edge.
@@ -266,11 +290,23 @@ func (ctsq *ContainerTrackingSuggestionQuery) Clone() *ContainerTrackingSuggesti
 		offset:       ctsq.offset,
 		order:        append([]OrderFunc{}, ctsq.order...),
 		predicates:   append([]predicate.ContainerTrackingSuggestion{}, ctsq.predicates...),
+		withCam:      ctsq.withCam.Clone(),
 		withTracking: ctsq.withTracking.Clone(),
 		// clone intermediate query.
 		sql:  ctsq.sql.Clone(),
 		path: ctsq.path,
 	}
+}
+
+// WithCam tells the query-builder to eager-load the nodes that are connected to
+// the "cam" edge. The optional arguments are used to configure the query builder of the edge.
+func (ctsq *ContainerTrackingSuggestionQuery) WithCam(opts ...func(*CamSettingQuery)) *ContainerTrackingSuggestionQuery {
+	query := &CamSettingQuery{config: ctsq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	ctsq.withCam = query
+	return ctsq
 }
 
 // WithTracking tells the query-builder to eager-load the nodes that are connected to
@@ -290,12 +326,12 @@ func (ctsq *ContainerTrackingSuggestionQuery) WithTracking(opts ...func(*Contain
 // Example:
 //
 //	var v []struct {
-//		TrackingID int `json:"tracking_id,omitempty"`
+//		ContainerID string `json:"container_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.ContainerTrackingSuggestion.Query().
-//		GroupBy(containertrackingsuggestion.FieldTrackingID).
+//		GroupBy(containertrackingsuggestion.FieldContainerID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
@@ -317,15 +353,15 @@ func (ctsq *ContainerTrackingSuggestionQuery) GroupBy(field string, fields ...st
 // Example:
 //
 //	var v []struct {
-//		TrackingID int `json:"tracking_id,omitempty"`
+//		ContainerID string `json:"container_id,omitempty"`
 //	}
 //
 //	client.ContainerTrackingSuggestion.Query().
-//		Select(containertrackingsuggestion.FieldTrackingID).
+//		Select(containertrackingsuggestion.FieldContainerID).
 //		Scan(ctx, &v)
 //
-func (ctsq *ContainerTrackingSuggestionQuery) Select(field string, fields ...string) *ContainerTrackingSuggestionSelect {
-	ctsq.fields = append([]string{field}, fields...)
+func (ctsq *ContainerTrackingSuggestionQuery) Select(fields ...string) *ContainerTrackingSuggestionSelect {
+	ctsq.fields = append(ctsq.fields, fields...)
 	return &ContainerTrackingSuggestionSelect{ContainerTrackingSuggestionQuery: ctsq}
 }
 
@@ -349,7 +385,8 @@ func (ctsq *ContainerTrackingSuggestionQuery) sqlAll(ctx context.Context) ([]*Co
 	var (
 		nodes       = []*ContainerTrackingSuggestion{}
 		_spec       = ctsq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
+			ctsq.withCam != nil,
 			ctsq.withTracking != nil,
 		}
 	)
@@ -371,6 +408,32 @@ func (ctsq *ContainerTrackingSuggestionQuery) sqlAll(ctx context.Context) ([]*Co
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
+	}
+
+	if query := ctsq.withCam; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*ContainerTrackingSuggestion)
+		for i := range nodes {
+			fk := nodes[i].CamID
+			if _, ok := nodeids[fk]; !ok {
+				ids = append(ids, fk)
+			}
+			nodeids[fk] = append(nodeids[fk], nodes[i])
+		}
+		query.Where(camsetting.IDIn(ids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := nodeids[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "cam_id" returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Cam = n
+			}
+		}
 	}
 
 	if query := ctsq.withTracking; query != nil {
@@ -466,10 +529,14 @@ func (ctsq *ContainerTrackingSuggestionQuery) querySpec() *sqlgraph.QuerySpec {
 func (ctsq *ContainerTrackingSuggestionQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(ctsq.driver.Dialect())
 	t1 := builder.Table(containertrackingsuggestion.Table)
-	selector := builder.Select(t1.Columns(containertrackingsuggestion.Columns...)...).From(t1)
+	columns := ctsq.fields
+	if len(columns) == 0 {
+		columns = containertrackingsuggestion.Columns
+	}
+	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if ctsq.sql != nil {
 		selector = ctsq.sql
-		selector.Select(selector.Columns(containertrackingsuggestion.Columns...)...)
+		selector.Select(selector.Columns(columns...)...)
 	}
 	for _, p := range ctsq.predicates {
 		p(selector)
@@ -737,13 +804,24 @@ func (ctsgb *ContainerTrackingSuggestionGroupBy) sqlScan(ctx context.Context, v 
 }
 
 func (ctsgb *ContainerTrackingSuggestionGroupBy) sqlQuery() *sql.Selector {
-	selector := ctsgb.sql
-	columns := make([]string, 0, len(ctsgb.fields)+len(ctsgb.fns))
-	columns = append(columns, ctsgb.fields...)
+	selector := ctsgb.sql.Select()
+	aggregation := make([]string, 0, len(ctsgb.fns))
 	for _, fn := range ctsgb.fns {
-		columns = append(columns, fn(selector))
+		aggregation = append(aggregation, fn(selector))
 	}
-	return selector.Select(columns...).GroupBy(ctsgb.fields...)
+	// If no columns were selected in a custom aggregation function, the default
+	// selection is the fields used for "group-by", and the aggregation functions.
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(ctsgb.fields)+len(ctsgb.fns))
+		for _, f := range ctsgb.fields {
+			columns = append(columns, selector.C(f))
+		}
+		for _, c := range aggregation {
+			columns = append(columns, c)
+		}
+		selector.Select(columns...)
+	}
+	return selector.GroupBy(selector.Columns(ctsgb.fields...)...)
 }
 
 // ContainerTrackingSuggestionSelect is the builder for selecting fields of ContainerTrackingSuggestion entities.
@@ -959,16 +1037,10 @@ func (ctss *ContainerTrackingSuggestionSelect) BoolX(ctx context.Context) bool {
 
 func (ctss *ContainerTrackingSuggestionSelect) sqlScan(ctx context.Context, v interface{}) error {
 	rows := &sql.Rows{}
-	query, args := ctss.sqlQuery().Query()
+	query, args := ctss.sql.Query()
 	if err := ctss.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
-}
-
-func (ctss *ContainerTrackingSuggestionSelect) sqlQuery() sql.Querier {
-	selector := ctss.sql
-	selector.Select(selector.Columns(ctss.fields...)...)
-	return selector
 }

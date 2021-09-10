@@ -28,5 +28,6 @@ func (CamSetting) Fields() []ent.Field {
 func (CamSetting) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("lane", Lane.Type).Ref("cams").Field("lane_id").Unique(),
+		edge.To("suggestions", ContainerTrackingSuggestion.Type), // One Tracking has many Suggestions
 	}
 }

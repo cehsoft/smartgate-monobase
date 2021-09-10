@@ -26,13 +26,13 @@ func init() {
 	containertrackingFields := schema.ContainerTracking{}.Fields()
 	_ = containertrackingFields
 	// containertrackingDescCreatedAt is the schema descriptor for created_at field.
-	containertrackingDescCreatedAt := containertrackingFields[1].Descriptor()
+	containertrackingDescCreatedAt := containertrackingFields[2].Descriptor()
 	// containertracking.DefaultCreatedAt holds the default value on creation for the created_at field.
 	containertracking.DefaultCreatedAt = containertrackingDescCreatedAt.Default.(func() time.Time)
 	containertrackingsuggestionFields := schema.ContainerTrackingSuggestion{}.Fields()
 	_ = containertrackingsuggestionFields
 	// containertrackingsuggestionDescCreatedAt is the schema descriptor for created_at field.
-	containertrackingsuggestionDescCreatedAt := containertrackingsuggestionFields[7].Descriptor()
+	containertrackingsuggestionDescCreatedAt := containertrackingsuggestionFields[10].Descriptor()
 	// containertrackingsuggestion.DefaultCreatedAt holds the default value on creation for the created_at field.
 	containertrackingsuggestion.DefaultCreatedAt = containertrackingsuggestionDescCreatedAt.Default.(func() time.Time)
 	gateFields := schema.Gate{}.Fields()

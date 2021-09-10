@@ -325,8 +325,8 @@ func (ctq *ContainerTrackingQuery) GroupBy(field string, fields ...string) *Cont
 //		Select(containertracking.FieldContainerID).
 //		Scan(ctx, &v)
 //
-func (ctq *ContainerTrackingQuery) Select(field string, fields ...string) *ContainerTrackingSelect {
-	ctq.fields = append([]string{field}, fields...)
+func (ctq *ContainerTrackingQuery) Select(fields ...string) *ContainerTrackingSelect {
+	ctq.fields = append(ctq.fields, fields...)
 	return &ContainerTrackingSelect{ContainerTrackingQuery: ctq}
 }
 
@@ -466,10 +466,14 @@ func (ctq *ContainerTrackingQuery) querySpec() *sqlgraph.QuerySpec {
 func (ctq *ContainerTrackingQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(ctq.driver.Dialect())
 	t1 := builder.Table(containertracking.Table)
-	selector := builder.Select(t1.Columns(containertracking.Columns...)...).From(t1)
+	columns := ctq.fields
+	if len(columns) == 0 {
+		columns = containertracking.Columns
+	}
+	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if ctq.sql != nil {
 		selector = ctq.sql
-		selector.Select(selector.Columns(containertracking.Columns...)...)
+		selector.Select(selector.Columns(columns...)...)
 	}
 	for _, p := range ctq.predicates {
 		p(selector)
@@ -737,13 +741,24 @@ func (ctgb *ContainerTrackingGroupBy) sqlScan(ctx context.Context, v interface{}
 }
 
 func (ctgb *ContainerTrackingGroupBy) sqlQuery() *sql.Selector {
-	selector := ctgb.sql
-	columns := make([]string, 0, len(ctgb.fields)+len(ctgb.fns))
-	columns = append(columns, ctgb.fields...)
+	selector := ctgb.sql.Select()
+	aggregation := make([]string, 0, len(ctgb.fns))
 	for _, fn := range ctgb.fns {
-		columns = append(columns, fn(selector))
+		aggregation = append(aggregation, fn(selector))
 	}
-	return selector.Select(columns...).GroupBy(ctgb.fields...)
+	// If no columns were selected in a custom aggregation function, the default
+	// selection is the fields used for "group-by", and the aggregation functions.
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(ctgb.fields)+len(ctgb.fns))
+		for _, f := range ctgb.fields {
+			columns = append(columns, selector.C(f))
+		}
+		for _, c := range aggregation {
+			columns = append(columns, c)
+		}
+		selector.Select(columns...)
+	}
+	return selector.GroupBy(selector.Columns(ctgb.fields...)...)
 }
 
 // ContainerTrackingSelect is the builder for selecting fields of ContainerTracking entities.
@@ -959,16 +974,10 @@ func (cts *ContainerTrackingSelect) BoolX(ctx context.Context) bool {
 
 func (cts *ContainerTrackingSelect) sqlScan(ctx context.Context, v interface{}) error {
 	rows := &sql.Rows{}
-	query, args := cts.sqlQuery().Query()
+	query, args := cts.sql.Query()
 	if err := cts.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
-}
-
-func (cts *ContainerTrackingSelect) sqlQuery() sql.Querier {
-	selector := cts.sql
-	selector.Select(selector.Columns(cts.fields...)...)
-	return selector
 }

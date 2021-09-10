@@ -35,14 +35,14 @@ var (
 	ContainerTrackingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "container_id", Type: field.TypeString},
+		{Name: "session_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// ContainerTrackingsTable holds the schema information for the "container_trackings" table.
 	ContainerTrackingsTable = &schema.Table{
-		Name:        "container_trackings",
-		Columns:     ContainerTrackingsColumns,
-		PrimaryKey:  []*schema.Column{ContainerTrackingsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
+		Name:       "container_trackings",
+		Columns:    ContainerTrackingsColumns,
+		PrimaryKey: []*schema.Column{ContainerTrackingsColumns[0]},
 		Indexes: []*schema.Index{
 			{
 				Name:    "containertracking_container_id",
@@ -55,12 +55,15 @@ var (
 	ContainerTrackingSuggestionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "container_id", Type: field.TypeString},
+		{Name: "result", Type: field.TypeString},
+		{Name: "tracking_type", Type: field.TypeString, Nullable: true},
 		{Name: "bic", Type: field.TypeString, Nullable: true},
 		{Name: "serial", Type: field.TypeString, Nullable: true},
 		{Name: "checksum", Type: field.TypeString, Nullable: true},
 		{Name: "image_url", Type: field.TypeString, Nullable: true},
 		{Name: "score", Type: field.TypeFloat32},
 		{Name: "created_at", Type: field.TypeTime},
+		{Name: "cam_id", Type: field.TypeInt, Nullable: true},
 		{Name: "tracking_id", Type: field.TypeInt, Nullable: true},
 	}
 	// ContainerTrackingSuggestionsTable holds the schema information for the "container_tracking_suggestions" table.
@@ -70,8 +73,14 @@ var (
 		PrimaryKey: []*schema.Column{ContainerTrackingSuggestionsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
+				Symbol:     "container_tracking_suggestions_cam_settings_suggestions",
+				Columns:    []*schema.Column{ContainerTrackingSuggestionsColumns[10]},
+				RefColumns: []*schema.Column{CamSettingsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
 				Symbol:     "container_tracking_suggestions_container_trackings_suggestions",
-				Columns:    []*schema.Column{ContainerTrackingSuggestionsColumns[8]},
+				Columns:    []*schema.Column{ContainerTrackingSuggestionsColumns[11]},
 				RefColumns: []*schema.Column{ContainerTrackingsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -92,10 +101,9 @@ var (
 	}
 	// GatesTable holds the schema information for the "gates" table.
 	GatesTable = &schema.Table{
-		Name:        "gates",
-		Columns:     GatesColumns,
-		PrimaryKey:  []*schema.Column{GatesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
+		Name:       "gates",
+		Columns:    GatesColumns,
+		PrimaryKey: []*schema.Column{GatesColumns[0]},
 	}
 	// LanesColumns holds the columns for the "lanes" table.
 	LanesColumns = []*schema.Column{
@@ -124,10 +132,9 @@ var (
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
-		Name:        "users",
-		Columns:     UsersColumns,
-		PrimaryKey:  []*schema.Column{UsersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
+		Name:       "users",
+		Columns:    UsersColumns,
+		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
@@ -142,6 +149,7 @@ var (
 
 func init() {
 	CamSettingsTable.ForeignKeys[0].RefTable = LanesTable
-	ContainerTrackingSuggestionsTable.ForeignKeys[0].RefTable = ContainerTrackingsTable
+	ContainerTrackingSuggestionsTable.ForeignKeys[0].RefTable = CamSettingsTable
+	ContainerTrackingSuggestionsTable.ForeignKeys[1].RefTable = ContainerTrackingsTable
 	LanesTable.ForeignKeys[0].RefTable = GatesTable
 }

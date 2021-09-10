@@ -23,15 +23,24 @@ const (
 	FieldCreatedAt = "created_at"
 	// EdgeLane holds the string denoting the lane edge name in mutations.
 	EdgeLane = "lane"
+	// EdgeSuggestions holds the string denoting the suggestions edge name in mutations.
+	EdgeSuggestions = "suggestions"
 	// Table holds the table name of the camsetting in the database.
 	Table = "cam_settings"
-	// LaneTable is the table the holds the lane relation/edge.
+	// LaneTable is the table that holds the lane relation/edge.
 	LaneTable = "cam_settings"
 	// LaneInverseTable is the table name for the Lane entity.
 	// It exists in this package in order to avoid circular dependency with the "lane" package.
 	LaneInverseTable = "lanes"
 	// LaneColumn is the table column denoting the lane relation/edge.
 	LaneColumn = "lane_id"
+	// SuggestionsTable is the table that holds the suggestions relation/edge.
+	SuggestionsTable = "container_tracking_suggestions"
+	// SuggestionsInverseTable is the table name for the ContainerTrackingSuggestion entity.
+	// It exists in this package in order to avoid circular dependency with the "containertrackingsuggestion" package.
+	SuggestionsInverseTable = "container_tracking_suggestions"
+	// SuggestionsColumn is the table column denoting the suggestions relation/edge.
+	SuggestionsColumn = "cam_id"
 )
 
 // Columns holds all SQL columns for camsetting fields.

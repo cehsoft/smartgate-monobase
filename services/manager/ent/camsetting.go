@@ -36,9 +36,11 @@ type CamSetting struct {
 type CamSettingEdges struct {
 	// Lane holds the value of the lane edge.
 	Lane *Lane `json:"lane,omitempty"`
+	// Suggestions holds the value of the suggestions edge.
+	Suggestions []*ContainerTrackingSuggestion `json:"suggestions,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // LaneOrErr returns the Lane value or an error if the edge
@@ -53,6 +55,15 @@ func (e CamSettingEdges) LaneOrErr() (*Lane, error) {
 		return e.Lane, nil
 	}
 	return nil, &NotLoadedError{edge: "lane"}
+}
+
+// SuggestionsOrErr returns the Suggestions value or an error if the edge
+// was not loaded in eager-loading.
+func (e CamSettingEdges) SuggestionsOrErr() ([]*ContainerTrackingSuggestion, error) {
+	if e.loadedTypes[1] {
+		return e.Suggestions, nil
+	}
+	return nil, &NotLoadedError{edge: "suggestions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -125,6 +136,11 @@ func (cs *CamSetting) assignValues(columns []string, values []interface{}) error
 // QueryLane queries the "lane" edge of the CamSetting entity.
 func (cs *CamSetting) QueryLane() *LaneQuery {
 	return (&CamSettingClient{config: cs.config}).QueryLane(cs)
+}
+
+// QuerySuggestions queries the "suggestions" edge of the CamSetting entity.
+func (cs *CamSetting) QuerySuggestions() *ContainerTrackingSuggestionQuery {
+	return (&CamSettingClient{config: cs.config}).QuerySuggestions(cs)
 }
 
 // Update returns a builder for updating this CamSetting.

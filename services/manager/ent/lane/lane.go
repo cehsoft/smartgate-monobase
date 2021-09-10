@@ -23,14 +23,14 @@ const (
 	EdgeGate = "gate"
 	// Table holds the table name of the lane in the database.
 	Table = "lanes"
-	// CamsTable is the table the holds the cams relation/edge.
+	// CamsTable is the table that holds the cams relation/edge.
 	CamsTable = "cam_settings"
 	// CamsInverseTable is the table name for the CamSetting entity.
 	// It exists in this package in order to avoid circular dependency with the "camsetting" package.
 	CamsInverseTable = "cam_settings"
 	// CamsColumn is the table column denoting the cams relation/edge.
 	CamsColumn = "lane_id"
-	// GateTable is the table the holds the gate relation/edge.
+	// GateTable is the table that holds the gate relation/edge.
 	GateTable = "lanes"
 	// GateInverseTable is the table name for the Gate entity.
 	// It exists in this package in order to avoid circular dependency with the "gate" package.

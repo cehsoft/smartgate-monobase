@@ -22,15 +22,35 @@ type ContainerTrackingUpdate struct {
 	mutation *ContainerTrackingMutation
 }
 
-// Where adds a new predicate for the ContainerTrackingUpdate builder.
+// Where appends a list predicates to the ContainerTrackingUpdate builder.
 func (ctu *ContainerTrackingUpdate) Where(ps ...predicate.ContainerTracking) *ContainerTrackingUpdate {
-	ctu.mutation.predicates = append(ctu.mutation.predicates, ps...)
+	ctu.mutation.Where(ps...)
 	return ctu
 }
 
 // SetContainerID sets the "container_id" field.
 func (ctu *ContainerTrackingUpdate) SetContainerID(s string) *ContainerTrackingUpdate {
 	ctu.mutation.SetContainerID(s)
+	return ctu
+}
+
+// SetSessionID sets the "session_id" field.
+func (ctu *ContainerTrackingUpdate) SetSessionID(s string) *ContainerTrackingUpdate {
+	ctu.mutation.SetSessionID(s)
+	return ctu
+}
+
+// SetNillableSessionID sets the "session_id" field if the given value is not nil.
+func (ctu *ContainerTrackingUpdate) SetNillableSessionID(s *string) *ContainerTrackingUpdate {
+	if s != nil {
+		ctu.SetSessionID(*s)
+	}
+	return ctu
+}
+
+// ClearSessionID clears the value of the "session_id" field.
+func (ctu *ContainerTrackingUpdate) ClearSessionID() *ContainerTrackingUpdate {
+	ctu.mutation.ClearSessionID()
 	return ctu
 }
 
@@ -109,6 +129,9 @@ func (ctu *ContainerTrackingUpdate) Save(ctx context.Context) (int, error) {
 			return affected, err
 		})
 		for i := len(ctu.hooks) - 1; i >= 0; i-- {
+			if ctu.hooks[i] == nil {
+				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = ctu.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, ctu.mutation); err != nil {
@@ -163,6 +186,19 @@ func (ctu *ContainerTrackingUpdate) sqlSave(ctx context.Context) (n int, err err
 			Type:   field.TypeString,
 			Value:  value,
 			Column: containertracking.FieldContainerID,
+		})
+	}
+	if value, ok := ctu.mutation.SessionID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertracking.FieldSessionID,
+		})
+	}
+	if ctu.mutation.SessionIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: containertracking.FieldSessionID,
 		})
 	}
 	if value, ok := ctu.mutation.CreatedAt(); ok {
@@ -229,8 +265,8 @@ func (ctu *ContainerTrackingUpdate) sqlSave(ctx context.Context) (n int, err err
 	if n, err = sqlgraph.UpdateNodes(ctx, ctu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{containertracking.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return 0, err
 	}
@@ -248,6 +284,26 @@ type ContainerTrackingUpdateOne struct {
 // SetContainerID sets the "container_id" field.
 func (ctuo *ContainerTrackingUpdateOne) SetContainerID(s string) *ContainerTrackingUpdateOne {
 	ctuo.mutation.SetContainerID(s)
+	return ctuo
+}
+
+// SetSessionID sets the "session_id" field.
+func (ctuo *ContainerTrackingUpdateOne) SetSessionID(s string) *ContainerTrackingUpdateOne {
+	ctuo.mutation.SetSessionID(s)
+	return ctuo
+}
+
+// SetNillableSessionID sets the "session_id" field if the given value is not nil.
+func (ctuo *ContainerTrackingUpdateOne) SetNillableSessionID(s *string) *ContainerTrackingUpdateOne {
+	if s != nil {
+		ctuo.SetSessionID(*s)
+	}
+	return ctuo
+}
+
+// ClearSessionID clears the value of the "session_id" field.
+func (ctuo *ContainerTrackingUpdateOne) ClearSessionID() *ContainerTrackingUpdateOne {
+	ctuo.mutation.ClearSessionID()
 	return ctuo
 }
 
@@ -333,6 +389,9 @@ func (ctuo *ContainerTrackingUpdateOne) Save(ctx context.Context) (*ContainerTra
 			return node, err
 		})
 		for i := len(ctuo.hooks) - 1; i >= 0; i-- {
+			if ctuo.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = ctuo.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, ctuo.mutation); err != nil {
@@ -406,6 +465,19 @@ func (ctuo *ContainerTrackingUpdateOne) sqlSave(ctx context.Context) (_node *Con
 			Column: containertracking.FieldContainerID,
 		})
 	}
+	if value, ok := ctuo.mutation.SessionID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertracking.FieldSessionID,
+		})
+	}
+	if ctuo.mutation.SessionIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: containertracking.FieldSessionID,
+		})
+	}
 	if value, ok := ctuo.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -473,8 +545,8 @@ func (ctuo *ContainerTrackingUpdateOne) sqlSave(ctx context.Context) (_node *Con
 	if err = sqlgraph.UpdateNode(ctx, ctuo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{containertracking.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}

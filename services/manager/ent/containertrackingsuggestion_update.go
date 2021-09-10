@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
@@ -22,15 +23,46 @@ type ContainerTrackingSuggestionUpdate struct {
 	mutation *ContainerTrackingSuggestionMutation
 }
 
-// Where adds a new predicate for the ContainerTrackingSuggestionUpdate builder.
+// Where appends a list predicates to the ContainerTrackingSuggestionUpdate builder.
 func (ctsu *ContainerTrackingSuggestionUpdate) Where(ps ...predicate.ContainerTrackingSuggestion) *ContainerTrackingSuggestionUpdate {
-	ctsu.mutation.predicates = append(ctsu.mutation.predicates, ps...)
+	ctsu.mutation.Where(ps...)
+	return ctsu
+}
+
+// SetContainerID sets the "container_id" field.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetContainerID(s string) *ContainerTrackingSuggestionUpdate {
+	ctsu.mutation.SetContainerID(s)
+	return ctsu
+}
+
+// SetResult sets the "result" field.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetResult(s string) *ContainerTrackingSuggestionUpdate {
+	ctsu.mutation.SetResult(s)
+	return ctsu
+}
+
+// SetCamID sets the "cam_id" field.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetCamID(i int) *ContainerTrackingSuggestionUpdate {
+	ctsu.mutation.SetCamID(i)
+	return ctsu
+}
+
+// SetNillableCamID sets the "cam_id" field if the given value is not nil.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetNillableCamID(i *int) *ContainerTrackingSuggestionUpdate {
+	if i != nil {
+		ctsu.SetCamID(*i)
+	}
+	return ctsu
+}
+
+// ClearCamID clears the value of the "cam_id" field.
+func (ctsu *ContainerTrackingSuggestionUpdate) ClearCamID() *ContainerTrackingSuggestionUpdate {
+	ctsu.mutation.ClearCamID()
 	return ctsu
 }
 
 // SetTrackingID sets the "tracking_id" field.
 func (ctsu *ContainerTrackingSuggestionUpdate) SetTrackingID(i int) *ContainerTrackingSuggestionUpdate {
-	ctsu.mutation.ResetTrackingID()
 	ctsu.mutation.SetTrackingID(i)
 	return ctsu
 }
@@ -49,9 +81,23 @@ func (ctsu *ContainerTrackingSuggestionUpdate) ClearTrackingID() *ContainerTrack
 	return ctsu
 }
 
-// SetContainerID sets the "container_id" field.
-func (ctsu *ContainerTrackingSuggestionUpdate) SetContainerID(s string) *ContainerTrackingSuggestionUpdate {
-	ctsu.mutation.SetContainerID(s)
+// SetTrackingType sets the "tracking_type" field.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetTrackingType(s string) *ContainerTrackingSuggestionUpdate {
+	ctsu.mutation.SetTrackingType(s)
+	return ctsu
+}
+
+// SetNillableTrackingType sets the "tracking_type" field if the given value is not nil.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetNillableTrackingType(s *string) *ContainerTrackingSuggestionUpdate {
+	if s != nil {
+		ctsu.SetTrackingType(*s)
+	}
+	return ctsu
+}
+
+// ClearTrackingType clears the value of the "tracking_type" field.
+func (ctsu *ContainerTrackingSuggestionUpdate) ClearTrackingType() *ContainerTrackingSuggestionUpdate {
+	ctsu.mutation.ClearTrackingType()
 	return ctsu
 }
 
@@ -162,6 +208,11 @@ func (ctsu *ContainerTrackingSuggestionUpdate) SetNillableCreatedAt(t *time.Time
 	return ctsu
 }
 
+// SetCam sets the "cam" edge to the CamSetting entity.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetCam(c *CamSetting) *ContainerTrackingSuggestionUpdate {
+	return ctsu.SetCamID(c.ID)
+}
+
 // SetTracking sets the "tracking" edge to the ContainerTracking entity.
 func (ctsu *ContainerTrackingSuggestionUpdate) SetTracking(c *ContainerTracking) *ContainerTrackingSuggestionUpdate {
 	return ctsu.SetTrackingID(c.ID)
@@ -170,6 +221,12 @@ func (ctsu *ContainerTrackingSuggestionUpdate) SetTracking(c *ContainerTracking)
 // Mutation returns the ContainerTrackingSuggestionMutation object of the builder.
 func (ctsu *ContainerTrackingSuggestionUpdate) Mutation() *ContainerTrackingSuggestionMutation {
 	return ctsu.mutation
+}
+
+// ClearCam clears the "cam" edge to the CamSetting entity.
+func (ctsu *ContainerTrackingSuggestionUpdate) ClearCam() *ContainerTrackingSuggestionUpdate {
+	ctsu.mutation.ClearCam()
+	return ctsu
 }
 
 // ClearTracking clears the "tracking" edge to the ContainerTracking entity.
@@ -198,6 +255,9 @@ func (ctsu *ContainerTrackingSuggestionUpdate) Save(ctx context.Context) (int, e
 			return affected, err
 		})
 		for i := len(ctsu.hooks) - 1; i >= 0; i-- {
+			if ctsu.hooks[i] == nil {
+				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = ctsu.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, ctsu.mutation); err != nil {
@@ -252,6 +312,26 @@ func (ctsu *ContainerTrackingSuggestionUpdate) sqlSave(ctx context.Context) (n i
 			Type:   field.TypeString,
 			Value:  value,
 			Column: containertrackingsuggestion.FieldContainerID,
+		})
+	}
+	if value, ok := ctsu.mutation.Result(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldResult,
+		})
+	}
+	if value, ok := ctsu.mutation.TrackingType(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldTrackingType,
+		})
+	}
+	if ctsu.mutation.TrackingTypeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: containertrackingsuggestion.FieldTrackingType,
 		})
 	}
 	if value, ok := ctsu.mutation.Bic(); ok {
@@ -327,6 +407,41 @@ func (ctsu *ContainerTrackingSuggestionUpdate) sqlSave(ctx context.Context) (n i
 			Column: containertrackingsuggestion.FieldCreatedAt,
 		})
 	}
+	if ctsu.mutation.CamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   containertrackingsuggestion.CamTable,
+			Columns: []string{containertrackingsuggestion.CamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: camsetting.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ctsu.mutation.CamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   containertrackingsuggestion.CamTable,
+			Columns: []string{containertrackingsuggestion.CamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: camsetting.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if ctsu.mutation.TrackingCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -365,8 +480,8 @@ func (ctsu *ContainerTrackingSuggestionUpdate) sqlSave(ctx context.Context) (n i
 	if n, err = sqlgraph.UpdateNodes(ctx, ctsu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{containertrackingsuggestion.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return 0, err
 	}
@@ -381,9 +496,40 @@ type ContainerTrackingSuggestionUpdateOne struct {
 	mutation *ContainerTrackingSuggestionMutation
 }
 
+// SetContainerID sets the "container_id" field.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetContainerID(s string) *ContainerTrackingSuggestionUpdateOne {
+	ctsuo.mutation.SetContainerID(s)
+	return ctsuo
+}
+
+// SetResult sets the "result" field.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetResult(s string) *ContainerTrackingSuggestionUpdateOne {
+	ctsuo.mutation.SetResult(s)
+	return ctsuo
+}
+
+// SetCamID sets the "cam_id" field.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetCamID(i int) *ContainerTrackingSuggestionUpdateOne {
+	ctsuo.mutation.SetCamID(i)
+	return ctsuo
+}
+
+// SetNillableCamID sets the "cam_id" field if the given value is not nil.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableCamID(i *int) *ContainerTrackingSuggestionUpdateOne {
+	if i != nil {
+		ctsuo.SetCamID(*i)
+	}
+	return ctsuo
+}
+
+// ClearCamID clears the value of the "cam_id" field.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearCamID() *ContainerTrackingSuggestionUpdateOne {
+	ctsuo.mutation.ClearCamID()
+	return ctsuo
+}
+
 // SetTrackingID sets the "tracking_id" field.
 func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetTrackingID(i int) *ContainerTrackingSuggestionUpdateOne {
-	ctsuo.mutation.ResetTrackingID()
 	ctsuo.mutation.SetTrackingID(i)
 	return ctsuo
 }
@@ -402,9 +548,23 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearTrackingID() *ContainerT
 	return ctsuo
 }
 
-// SetContainerID sets the "container_id" field.
-func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetContainerID(s string) *ContainerTrackingSuggestionUpdateOne {
-	ctsuo.mutation.SetContainerID(s)
+// SetTrackingType sets the "tracking_type" field.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetTrackingType(s string) *ContainerTrackingSuggestionUpdateOne {
+	ctsuo.mutation.SetTrackingType(s)
+	return ctsuo
+}
+
+// SetNillableTrackingType sets the "tracking_type" field if the given value is not nil.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableTrackingType(s *string) *ContainerTrackingSuggestionUpdateOne {
+	if s != nil {
+		ctsuo.SetTrackingType(*s)
+	}
+	return ctsuo
+}
+
+// ClearTrackingType clears the value of the "tracking_type" field.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearTrackingType() *ContainerTrackingSuggestionUpdateOne {
+	ctsuo.mutation.ClearTrackingType()
 	return ctsuo
 }
 
@@ -515,6 +675,11 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableCreatedAt(t *time.
 	return ctsuo
 }
 
+// SetCam sets the "cam" edge to the CamSetting entity.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetCam(c *CamSetting) *ContainerTrackingSuggestionUpdateOne {
+	return ctsuo.SetCamID(c.ID)
+}
+
 // SetTracking sets the "tracking" edge to the ContainerTracking entity.
 func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetTracking(c *ContainerTracking) *ContainerTrackingSuggestionUpdateOne {
 	return ctsuo.SetTrackingID(c.ID)
@@ -523,6 +688,12 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetTracking(c *ContainerTrack
 // Mutation returns the ContainerTrackingSuggestionMutation object of the builder.
 func (ctsuo *ContainerTrackingSuggestionUpdateOne) Mutation() *ContainerTrackingSuggestionMutation {
 	return ctsuo.mutation
+}
+
+// ClearCam clears the "cam" edge to the CamSetting entity.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearCam() *ContainerTrackingSuggestionUpdateOne {
+	ctsuo.mutation.ClearCam()
+	return ctsuo
 }
 
 // ClearTracking clears the "tracking" edge to the ContainerTracking entity.
@@ -558,6 +729,9 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) Save(ctx context.Context) (*C
 			return node, err
 		})
 		for i := len(ctsuo.hooks) - 1; i >= 0; i-- {
+			if ctsuo.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = ctsuo.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, ctsuo.mutation); err != nil {
@@ -629,6 +803,26 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) sqlSave(ctx context.Context) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: containertrackingsuggestion.FieldContainerID,
+		})
+	}
+	if value, ok := ctsuo.mutation.Result(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldResult,
+		})
+	}
+	if value, ok := ctsuo.mutation.TrackingType(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldTrackingType,
+		})
+	}
+	if ctsuo.mutation.TrackingTypeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: containertrackingsuggestion.FieldTrackingType,
 		})
 	}
 	if value, ok := ctsuo.mutation.Bic(); ok {
@@ -704,6 +898,41 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) sqlSave(ctx context.Context) 
 			Column: containertrackingsuggestion.FieldCreatedAt,
 		})
 	}
+	if ctsuo.mutation.CamCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   containertrackingsuggestion.CamTable,
+			Columns: []string{containertrackingsuggestion.CamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: camsetting.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ctsuo.mutation.CamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   containertrackingsuggestion.CamTable,
+			Columns: []string{containertrackingsuggestion.CamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: camsetting.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if ctsuo.mutation.TrackingCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -745,8 +974,8 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) sqlSave(ctx context.Context) 
 	if err = sqlgraph.UpdateNode(ctx, ctsuo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{containertrackingsuggestion.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}

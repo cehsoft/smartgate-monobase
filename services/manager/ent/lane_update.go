@@ -23,9 +23,9 @@ type LaneUpdate struct {
 	mutation *LaneMutation
 }
 
-// Where adds a new predicate for the LaneUpdate builder.
+// Where appends a list predicates to the LaneUpdate builder.
 func (lu *LaneUpdate) Where(ps ...predicate.Lane) *LaneUpdate {
-	lu.mutation.predicates = append(lu.mutation.predicates, ps...)
+	lu.mutation.Where(ps...)
 	return lu
 }
 
@@ -37,7 +37,6 @@ func (lu *LaneUpdate) SetName(s string) *LaneUpdate {
 
 // SetGateID sets the "gate_id" field.
 func (lu *LaneUpdate) SetGateID(i int) *LaneUpdate {
-	lu.mutation.ResetGateID()
 	lu.mutation.SetGateID(i)
 	return lu
 }
@@ -142,6 +141,9 @@ func (lu *LaneUpdate) Save(ctx context.Context) (int, error) {
 			return affected, err
 		})
 		for i := len(lu.hooks) - 1; i >= 0; i-- {
+			if lu.hooks[i] == nil {
+				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = lu.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, lu.mutation); err != nil {
@@ -297,8 +299,8 @@ func (lu *LaneUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if n, err = sqlgraph.UpdateNodes(ctx, lu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{lane.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return 0, err
 	}
@@ -321,7 +323,6 @@ func (luo *LaneUpdateOne) SetName(s string) *LaneUpdateOne {
 
 // SetGateID sets the "gate_id" field.
 func (luo *LaneUpdateOne) SetGateID(i int) *LaneUpdateOne {
-	luo.mutation.ResetGateID()
 	luo.mutation.SetGateID(i)
 	return luo
 }
@@ -433,6 +434,9 @@ func (luo *LaneUpdateOne) Save(ctx context.Context) (*Lane, error) {
 			return node, err
 		})
 		for i := len(luo.hooks) - 1; i >= 0; i-- {
+			if luo.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = luo.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, luo.mutation); err != nil {
@@ -608,8 +612,8 @@ func (luo *LaneUpdateOne) sqlSave(ctx context.Context) (_node *Lane, err error) 
 	if err = sqlgraph.UpdateNode(ctx, luo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{lane.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}

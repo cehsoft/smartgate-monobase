@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/lane"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
 )
@@ -22,9 +23,9 @@ type CamSettingUpdate struct {
 	mutation *CamSettingMutation
 }
 
-// Where adds a new predicate for the CamSettingUpdate builder.
+// Where appends a list predicates to the CamSettingUpdate builder.
 func (csu *CamSettingUpdate) Where(ps ...predicate.CamSetting) *CamSettingUpdate {
-	csu.mutation.predicates = append(csu.mutation.predicates, ps...)
+	csu.mutation.Where(ps...)
 	return csu
 }
 
@@ -36,7 +37,6 @@ func (csu *CamSettingUpdate) SetName(s string) *CamSettingUpdate {
 
 // SetLaneID sets the "lane_id" field.
 func (csu *CamSettingUpdate) SetLaneID(i int) *CamSettingUpdate {
-	csu.mutation.ResetLaneID()
 	csu.mutation.SetLaneID(i)
 	return csu
 }
@@ -86,6 +86,21 @@ func (csu *CamSettingUpdate) SetLane(l *Lane) *CamSettingUpdate {
 	return csu.SetLaneID(l.ID)
 }
 
+// AddSuggestionIDs adds the "suggestions" edge to the ContainerTrackingSuggestion entity by IDs.
+func (csu *CamSettingUpdate) AddSuggestionIDs(ids ...int) *CamSettingUpdate {
+	csu.mutation.AddSuggestionIDs(ids...)
+	return csu
+}
+
+// AddSuggestions adds the "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (csu *CamSettingUpdate) AddSuggestions(c ...*ContainerTrackingSuggestion) *CamSettingUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csu.AddSuggestionIDs(ids...)
+}
+
 // Mutation returns the CamSettingMutation object of the builder.
 func (csu *CamSettingUpdate) Mutation() *CamSettingMutation {
 	return csu.mutation
@@ -95,6 +110,27 @@ func (csu *CamSettingUpdate) Mutation() *CamSettingMutation {
 func (csu *CamSettingUpdate) ClearLane() *CamSettingUpdate {
 	csu.mutation.ClearLane()
 	return csu
+}
+
+// ClearSuggestions clears all "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (csu *CamSettingUpdate) ClearSuggestions() *CamSettingUpdate {
+	csu.mutation.ClearSuggestions()
+	return csu
+}
+
+// RemoveSuggestionIDs removes the "suggestions" edge to ContainerTrackingSuggestion entities by IDs.
+func (csu *CamSettingUpdate) RemoveSuggestionIDs(ids ...int) *CamSettingUpdate {
+	csu.mutation.RemoveSuggestionIDs(ids...)
+	return csu
+}
+
+// RemoveSuggestions removes "suggestions" edges to ContainerTrackingSuggestion entities.
+func (csu *CamSettingUpdate) RemoveSuggestions(c ...*ContainerTrackingSuggestion) *CamSettingUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csu.RemoveSuggestionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -117,6 +153,9 @@ func (csu *CamSettingUpdate) Save(ctx context.Context) (int, error) {
 			return affected, err
 		})
 		for i := len(csu.hooks) - 1; i >= 0; i-- {
+			if csu.hooks[i] == nil {
+				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = csu.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, csu.mutation); err != nil {
@@ -229,11 +268,65 @@ func (csu *CamSettingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if csu.mutation.SuggestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   camsetting.SuggestionsTable,
+			Columns: []string{camsetting.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csu.mutation.RemovedSuggestionsIDs(); len(nodes) > 0 && !csu.mutation.SuggestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   camsetting.SuggestionsTable,
+			Columns: []string{camsetting.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csu.mutation.SuggestionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   camsetting.SuggestionsTable,
+			Columns: []string{camsetting.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, csu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{camsetting.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return 0, err
 	}
@@ -256,7 +349,6 @@ func (csuo *CamSettingUpdateOne) SetName(s string) *CamSettingUpdateOne {
 
 // SetLaneID sets the "lane_id" field.
 func (csuo *CamSettingUpdateOne) SetLaneID(i int) *CamSettingUpdateOne {
-	csuo.mutation.ResetLaneID()
 	csuo.mutation.SetLaneID(i)
 	return csuo
 }
@@ -306,6 +398,21 @@ func (csuo *CamSettingUpdateOne) SetLane(l *Lane) *CamSettingUpdateOne {
 	return csuo.SetLaneID(l.ID)
 }
 
+// AddSuggestionIDs adds the "suggestions" edge to the ContainerTrackingSuggestion entity by IDs.
+func (csuo *CamSettingUpdateOne) AddSuggestionIDs(ids ...int) *CamSettingUpdateOne {
+	csuo.mutation.AddSuggestionIDs(ids...)
+	return csuo
+}
+
+// AddSuggestions adds the "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (csuo *CamSettingUpdateOne) AddSuggestions(c ...*ContainerTrackingSuggestion) *CamSettingUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csuo.AddSuggestionIDs(ids...)
+}
+
 // Mutation returns the CamSettingMutation object of the builder.
 func (csuo *CamSettingUpdateOne) Mutation() *CamSettingMutation {
 	return csuo.mutation
@@ -315,6 +422,27 @@ func (csuo *CamSettingUpdateOne) Mutation() *CamSettingMutation {
 func (csuo *CamSettingUpdateOne) ClearLane() *CamSettingUpdateOne {
 	csuo.mutation.ClearLane()
 	return csuo
+}
+
+// ClearSuggestions clears all "suggestions" edges to the ContainerTrackingSuggestion entity.
+func (csuo *CamSettingUpdateOne) ClearSuggestions() *CamSettingUpdateOne {
+	csuo.mutation.ClearSuggestions()
+	return csuo
+}
+
+// RemoveSuggestionIDs removes the "suggestions" edge to ContainerTrackingSuggestion entities by IDs.
+func (csuo *CamSettingUpdateOne) RemoveSuggestionIDs(ids ...int) *CamSettingUpdateOne {
+	csuo.mutation.RemoveSuggestionIDs(ids...)
+	return csuo
+}
+
+// RemoveSuggestions removes "suggestions" edges to ContainerTrackingSuggestion entities.
+func (csuo *CamSettingUpdateOne) RemoveSuggestions(c ...*ContainerTrackingSuggestion) *CamSettingUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csuo.RemoveSuggestionIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -344,6 +472,9 @@ func (csuo *CamSettingUpdateOne) Save(ctx context.Context) (*CamSetting, error) 
 			return node, err
 		})
 		for i := len(csuo.hooks) - 1; i >= 0; i-- {
+			if csuo.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = csuo.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, csuo.mutation); err != nil {
@@ -473,14 +604,68 @@ func (csuo *CamSettingUpdateOne) sqlSave(ctx context.Context) (_node *CamSetting
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if csuo.mutation.SuggestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   camsetting.SuggestionsTable,
+			Columns: []string{camsetting.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csuo.mutation.RemovedSuggestionsIDs(); len(nodes) > 0 && !csuo.mutation.SuggestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   camsetting.SuggestionsTable,
+			Columns: []string{camsetting.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csuo.mutation.SuggestionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   camsetting.SuggestionsTable,
+			Columns: []string{camsetting.SuggestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: containertrackingsuggestion.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_node = &CamSetting{config: csuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, csuo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{camsetting.Label}
-		} else if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		} else if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}

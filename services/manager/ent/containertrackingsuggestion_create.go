@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 )
@@ -19,6 +21,33 @@ type ContainerTrackingSuggestionCreate struct {
 	config
 	mutation *ContainerTrackingSuggestionMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
+}
+
+// SetContainerID sets the "container_id" field.
+func (ctsc *ContainerTrackingSuggestionCreate) SetContainerID(s string) *ContainerTrackingSuggestionCreate {
+	ctsc.mutation.SetContainerID(s)
+	return ctsc
+}
+
+// SetResult sets the "result" field.
+func (ctsc *ContainerTrackingSuggestionCreate) SetResult(s string) *ContainerTrackingSuggestionCreate {
+	ctsc.mutation.SetResult(s)
+	return ctsc
+}
+
+// SetCamID sets the "cam_id" field.
+func (ctsc *ContainerTrackingSuggestionCreate) SetCamID(i int) *ContainerTrackingSuggestionCreate {
+	ctsc.mutation.SetCamID(i)
+	return ctsc
+}
+
+// SetNillableCamID sets the "cam_id" field if the given value is not nil.
+func (ctsc *ContainerTrackingSuggestionCreate) SetNillableCamID(i *int) *ContainerTrackingSuggestionCreate {
+	if i != nil {
+		ctsc.SetCamID(*i)
+	}
+	return ctsc
 }
 
 // SetTrackingID sets the "tracking_id" field.
@@ -35,9 +64,17 @@ func (ctsc *ContainerTrackingSuggestionCreate) SetNillableTrackingID(i *int) *Co
 	return ctsc
 }
 
-// SetContainerID sets the "container_id" field.
-func (ctsc *ContainerTrackingSuggestionCreate) SetContainerID(s string) *ContainerTrackingSuggestionCreate {
-	ctsc.mutation.SetContainerID(s)
+// SetTrackingType sets the "tracking_type" field.
+func (ctsc *ContainerTrackingSuggestionCreate) SetTrackingType(s string) *ContainerTrackingSuggestionCreate {
+	ctsc.mutation.SetTrackingType(s)
+	return ctsc
+}
+
+// SetNillableTrackingType sets the "tracking_type" field if the given value is not nil.
+func (ctsc *ContainerTrackingSuggestionCreate) SetNillableTrackingType(s *string) *ContainerTrackingSuggestionCreate {
+	if s != nil {
+		ctsc.SetTrackingType(*s)
+	}
 	return ctsc
 }
 
@@ -117,6 +154,11 @@ func (ctsc *ContainerTrackingSuggestionCreate) SetNillableCreatedAt(t *time.Time
 	return ctsc
 }
 
+// SetCam sets the "cam" edge to the CamSetting entity.
+func (ctsc *ContainerTrackingSuggestionCreate) SetCam(c *CamSetting) *ContainerTrackingSuggestionCreate {
+	return ctsc.SetCamID(c.ID)
+}
+
 // SetTracking sets the "tracking" edge to the ContainerTracking entity.
 func (ctsc *ContainerTrackingSuggestionCreate) SetTracking(c *ContainerTracking) *ContainerTrackingSuggestionCreate {
 	return ctsc.SetTrackingID(c.ID)
@@ -149,11 +191,17 @@ func (ctsc *ContainerTrackingSuggestionCreate) Save(ctx context.Context) (*Conta
 				return nil, err
 			}
 			ctsc.mutation = mutation
-			node, err = ctsc.sqlSave(ctx)
+			if node, err = ctsc.sqlSave(ctx); err != nil {
+				return nil, err
+			}
+			mutation.id = &node.ID
 			mutation.done = true
 			return node, err
 		})
 		for i := len(ctsc.hooks) - 1; i >= 0; i-- {
+			if ctsc.hooks[i] == nil {
+				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
+			}
 			mut = ctsc.hooks[i](mut)
 		}
 		if _, err := mut.Mutate(ctx, ctsc.mutation); err != nil {
@@ -172,6 +220,19 @@ func (ctsc *ContainerTrackingSuggestionCreate) SaveX(ctx context.Context) *Conta
 	return v
 }
 
+// Exec executes the query.
+func (ctsc *ContainerTrackingSuggestionCreate) Exec(ctx context.Context) error {
+	_, err := ctsc.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (ctsc *ContainerTrackingSuggestionCreate) ExecX(ctx context.Context) {
+	if err := ctsc.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
 // defaults sets the default values of the builder before save.
 func (ctsc *ContainerTrackingSuggestionCreate) defaults() {
 	if _, ok := ctsc.mutation.CreatedAt(); !ok {
@@ -183,13 +244,16 @@ func (ctsc *ContainerTrackingSuggestionCreate) defaults() {
 // check runs all checks and user-defined validators on the builder.
 func (ctsc *ContainerTrackingSuggestionCreate) check() error {
 	if _, ok := ctsc.mutation.ContainerID(); !ok {
-		return &ValidationError{Name: "container_id", err: errors.New("ent: missing required field \"container_id\"")}
+		return &ValidationError{Name: "container_id", err: errors.New(`ent: missing required field "container_id"`)}
+	}
+	if _, ok := ctsc.mutation.Result(); !ok {
+		return &ValidationError{Name: "result", err: errors.New(`ent: missing required field "result"`)}
 	}
 	if _, ok := ctsc.mutation.Score(); !ok {
-		return &ValidationError{Name: "score", err: errors.New("ent: missing required field \"score\"")}
+		return &ValidationError{Name: "score", err: errors.New(`ent: missing required field "score"`)}
 	}
 	if _, ok := ctsc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
 	}
 	return nil
 }
@@ -197,8 +261,8 @@ func (ctsc *ContainerTrackingSuggestionCreate) check() error {
 func (ctsc *ContainerTrackingSuggestionCreate) sqlSave(ctx context.Context) (*ContainerTrackingSuggestion, error) {
 	_node, _spec := ctsc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, ctsc.driver, _spec); err != nil {
-		if cerr, ok := isSQLConstraintError(err); ok {
-			err = cerr
+		if sqlgraph.IsConstraintError(err) {
+			err = &ConstraintError{err.Error(), err}
 		}
 		return nil, err
 	}
@@ -218,6 +282,7 @@ func (ctsc *ContainerTrackingSuggestionCreate) createSpec() (*ContainerTrackingS
 			},
 		}
 	)
+	_spec.OnConflict = ctsc.conflict
 	if value, ok := ctsc.mutation.ContainerID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -225,6 +290,22 @@ func (ctsc *ContainerTrackingSuggestionCreate) createSpec() (*ContainerTrackingS
 			Column: containertrackingsuggestion.FieldContainerID,
 		})
 		_node.ContainerID = value
+	}
+	if value, ok := ctsc.mutation.Result(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldResult,
+		})
+		_node.Result = value
+	}
+	if value, ok := ctsc.mutation.TrackingType(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldTrackingType,
+		})
+		_node.TrackingType = value
 	}
 	if value, ok := ctsc.mutation.Bic(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -274,6 +355,26 @@ func (ctsc *ContainerTrackingSuggestionCreate) createSpec() (*ContainerTrackingS
 		})
 		_node.CreatedAt = value
 	}
+	if nodes := ctsc.mutation.CamIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   containertrackingsuggestion.CamTable,
+			Columns: []string{containertrackingsuggestion.CamColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: camsetting.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CamID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := ctsc.mutation.TrackingIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -297,10 +398,514 @@ func (ctsc *ContainerTrackingSuggestionCreate) createSpec() (*ContainerTrackingS
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.ContainerTrackingSuggestion.Create().
+//		SetContainerID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ContainerTrackingSuggestionUpsert) {
+//			SetContainerID(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (ctsc *ContainerTrackingSuggestionCreate) OnConflict(opts ...sql.ConflictOption) *ContainerTrackingSuggestionUpsertOne {
+	ctsc.conflict = opts
+	return &ContainerTrackingSuggestionUpsertOne{
+		create: ctsc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.ContainerTrackingSuggestion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (ctsc *ContainerTrackingSuggestionCreate) OnConflictColumns(columns ...string) *ContainerTrackingSuggestionUpsertOne {
+	ctsc.conflict = append(ctsc.conflict, sql.ConflictColumns(columns...))
+	return &ContainerTrackingSuggestionUpsertOne{
+		create: ctsc,
+	}
+}
+
+type (
+	// ContainerTrackingSuggestionUpsertOne is the builder for "upsert"-ing
+	//  one ContainerTrackingSuggestion node.
+	ContainerTrackingSuggestionUpsertOne struct {
+		create *ContainerTrackingSuggestionCreate
+	}
+
+	// ContainerTrackingSuggestionUpsert is the "OnConflict" setter.
+	ContainerTrackingSuggestionUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetContainerID sets the "container_id" field.
+func (u *ContainerTrackingSuggestionUpsert) SetContainerID(v string) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldContainerID, v)
+	return u
+}
+
+// UpdateContainerID sets the "container_id" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateContainerID() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldContainerID)
+	return u
+}
+
+// SetResult sets the "result" field.
+func (u *ContainerTrackingSuggestionUpsert) SetResult(v string) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldResult, v)
+	return u
+}
+
+// UpdateResult sets the "result" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateResult() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldResult)
+	return u
+}
+
+// SetCamID sets the "cam_id" field.
+func (u *ContainerTrackingSuggestionUpsert) SetCamID(v int) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldCamID, v)
+	return u
+}
+
+// UpdateCamID sets the "cam_id" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateCamID() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldCamID)
+	return u
+}
+
+// ClearCamID clears the value of the "cam_id" field.
+func (u *ContainerTrackingSuggestionUpsert) ClearCamID() *ContainerTrackingSuggestionUpsert {
+	u.SetNull(containertrackingsuggestion.FieldCamID)
+	return u
+}
+
+// SetTrackingID sets the "tracking_id" field.
+func (u *ContainerTrackingSuggestionUpsert) SetTrackingID(v int) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldTrackingID, v)
+	return u
+}
+
+// UpdateTrackingID sets the "tracking_id" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateTrackingID() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldTrackingID)
+	return u
+}
+
+// ClearTrackingID clears the value of the "tracking_id" field.
+func (u *ContainerTrackingSuggestionUpsert) ClearTrackingID() *ContainerTrackingSuggestionUpsert {
+	u.SetNull(containertrackingsuggestion.FieldTrackingID)
+	return u
+}
+
+// SetTrackingType sets the "tracking_type" field.
+func (u *ContainerTrackingSuggestionUpsert) SetTrackingType(v string) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldTrackingType, v)
+	return u
+}
+
+// UpdateTrackingType sets the "tracking_type" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateTrackingType() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldTrackingType)
+	return u
+}
+
+// ClearTrackingType clears the value of the "tracking_type" field.
+func (u *ContainerTrackingSuggestionUpsert) ClearTrackingType() *ContainerTrackingSuggestionUpsert {
+	u.SetNull(containertrackingsuggestion.FieldTrackingType)
+	return u
+}
+
+// SetBic sets the "bic" field.
+func (u *ContainerTrackingSuggestionUpsert) SetBic(v string) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldBic, v)
+	return u
+}
+
+// UpdateBic sets the "bic" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateBic() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldBic)
+	return u
+}
+
+// ClearBic clears the value of the "bic" field.
+func (u *ContainerTrackingSuggestionUpsert) ClearBic() *ContainerTrackingSuggestionUpsert {
+	u.SetNull(containertrackingsuggestion.FieldBic)
+	return u
+}
+
+// SetSerial sets the "serial" field.
+func (u *ContainerTrackingSuggestionUpsert) SetSerial(v string) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldSerial, v)
+	return u
+}
+
+// UpdateSerial sets the "serial" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateSerial() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldSerial)
+	return u
+}
+
+// ClearSerial clears the value of the "serial" field.
+func (u *ContainerTrackingSuggestionUpsert) ClearSerial() *ContainerTrackingSuggestionUpsert {
+	u.SetNull(containertrackingsuggestion.FieldSerial)
+	return u
+}
+
+// SetChecksum sets the "checksum" field.
+func (u *ContainerTrackingSuggestionUpsert) SetChecksum(v string) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldChecksum, v)
+	return u
+}
+
+// UpdateChecksum sets the "checksum" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateChecksum() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldChecksum)
+	return u
+}
+
+// ClearChecksum clears the value of the "checksum" field.
+func (u *ContainerTrackingSuggestionUpsert) ClearChecksum() *ContainerTrackingSuggestionUpsert {
+	u.SetNull(containertrackingsuggestion.FieldChecksum)
+	return u
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *ContainerTrackingSuggestionUpsert) SetImageURL(v string) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldImageURL, v)
+	return u
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateImageURL() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldImageURL)
+	return u
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *ContainerTrackingSuggestionUpsert) ClearImageURL() *ContainerTrackingSuggestionUpsert {
+	u.SetNull(containertrackingsuggestion.FieldImageURL)
+	return u
+}
+
+// SetScore sets the "score" field.
+func (u *ContainerTrackingSuggestionUpsert) SetScore(v float32) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldScore, v)
+	return u
+}
+
+// UpdateScore sets the "score" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateScore() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldScore)
+	return u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *ContainerTrackingSuggestionUpsert) SetCreatedAt(v time.Time) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldCreatedAt, v)
+	return u
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateCreatedAt() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldCreatedAt)
+	return u
+}
+
+// UpdateNewValues updates the fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.ContainerTrackingSuggestion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateNewValues() *ContainerTrackingSuggestionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//  client.ContainerTrackingSuggestion.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
+func (u *ContainerTrackingSuggestionUpsertOne) Ignore() *ContainerTrackingSuggestionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ContainerTrackingSuggestionUpsertOne) DoNothing() *ContainerTrackingSuggestionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ContainerTrackingSuggestionCreate.OnConflict
+// documentation for more info.
+func (u *ContainerTrackingSuggestionUpsertOne) Update(set func(*ContainerTrackingSuggestionUpsert)) *ContainerTrackingSuggestionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ContainerTrackingSuggestionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetContainerID sets the "container_id" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetContainerID(v string) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetContainerID(v)
+	})
+}
+
+// UpdateContainerID sets the "container_id" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateContainerID() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateContainerID()
+	})
+}
+
+// SetResult sets the "result" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetResult(v string) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetResult(v)
+	})
+}
+
+// UpdateResult sets the "result" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateResult() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateResult()
+	})
+}
+
+// SetCamID sets the "cam_id" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetCamID(v int) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetCamID(v)
+	})
+}
+
+// UpdateCamID sets the "cam_id" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateCamID() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateCamID()
+	})
+}
+
+// ClearCamID clears the value of the "cam_id" field.
+func (u *ContainerTrackingSuggestionUpsertOne) ClearCamID() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearCamID()
+	})
+}
+
+// SetTrackingID sets the "tracking_id" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetTrackingID(v int) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetTrackingID(v)
+	})
+}
+
+// UpdateTrackingID sets the "tracking_id" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateTrackingID() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateTrackingID()
+	})
+}
+
+// ClearTrackingID clears the value of the "tracking_id" field.
+func (u *ContainerTrackingSuggestionUpsertOne) ClearTrackingID() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearTrackingID()
+	})
+}
+
+// SetTrackingType sets the "tracking_type" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetTrackingType(v string) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetTrackingType(v)
+	})
+}
+
+// UpdateTrackingType sets the "tracking_type" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateTrackingType() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateTrackingType()
+	})
+}
+
+// ClearTrackingType clears the value of the "tracking_type" field.
+func (u *ContainerTrackingSuggestionUpsertOne) ClearTrackingType() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearTrackingType()
+	})
+}
+
+// SetBic sets the "bic" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetBic(v string) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetBic(v)
+	})
+}
+
+// UpdateBic sets the "bic" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateBic() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateBic()
+	})
+}
+
+// ClearBic clears the value of the "bic" field.
+func (u *ContainerTrackingSuggestionUpsertOne) ClearBic() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearBic()
+	})
+}
+
+// SetSerial sets the "serial" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetSerial(v string) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetSerial(v)
+	})
+}
+
+// UpdateSerial sets the "serial" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateSerial() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateSerial()
+	})
+}
+
+// ClearSerial clears the value of the "serial" field.
+func (u *ContainerTrackingSuggestionUpsertOne) ClearSerial() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearSerial()
+	})
+}
+
+// SetChecksum sets the "checksum" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetChecksum(v string) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetChecksum(v)
+	})
+}
+
+// UpdateChecksum sets the "checksum" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateChecksum() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateChecksum()
+	})
+}
+
+// ClearChecksum clears the value of the "checksum" field.
+func (u *ContainerTrackingSuggestionUpsertOne) ClearChecksum() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearChecksum()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetImageURL(v string) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateImageURL() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *ContainerTrackingSuggestionUpsertOne) ClearImageURL() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearImageURL()
+	})
+}
+
+// SetScore sets the "score" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetScore(v float32) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetScore(v)
+	})
+}
+
+// UpdateScore sets the "score" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateScore() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateScore()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetCreatedAt(v time.Time) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateCreatedAt() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *ContainerTrackingSuggestionUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ContainerTrackingSuggestionCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ContainerTrackingSuggestionUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *ContainerTrackingSuggestionUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *ContainerTrackingSuggestionUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // ContainerTrackingSuggestionCreateBulk is the builder for creating many ContainerTrackingSuggestion entities in bulk.
 type ContainerTrackingSuggestionCreateBulk struct {
 	config
 	builders []*ContainerTrackingSuggestionCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the ContainerTrackingSuggestion entities in the database.
@@ -326,19 +931,24 @@ func (ctscb *ContainerTrackingSuggestionCreateBulk) Save(ctx context.Context) ([
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, ctscb.builders[i+1].mutation)
 				} else {
+					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = ctscb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ctscb.driver, &sqlgraph.BatchCreateSpec{Nodes: specs}); err != nil {
-						if cerr, ok := isSQLConstraintError(err); ok {
-							err = cerr
+					if err = sqlgraph.BatchCreate(ctx, ctscb.driver, spec); err != nil {
+						if sqlgraph.IsConstraintError(err) {
+							err = &ConstraintError{err.Error(), err}
 						}
 					}
 				}
-				mutation.done = true
 				if err != nil {
 					return nil, err
 				}
-				id := specs[i].ID.Value.(int64)
-				nodes[i].ID = int(id)
+				mutation.id = &nodes[i].ID
+				mutation.done = true
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				return nodes[i], nil
 			})
 			for i := len(builder.hooks) - 1; i >= 0; i-- {
@@ -362,4 +972,325 @@ func (ctscb *ContainerTrackingSuggestionCreateBulk) SaveX(ctx context.Context) [
 		panic(err)
 	}
 	return v
+}
+
+// Exec executes the query.
+func (ctscb *ContainerTrackingSuggestionCreateBulk) Exec(ctx context.Context) error {
+	_, err := ctscb.Save(ctx)
+	return err
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (ctscb *ContainerTrackingSuggestionCreateBulk) ExecX(ctx context.Context) {
+	if err := ctscb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.ContainerTrackingSuggestion.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ContainerTrackingSuggestionUpsert) {
+//			SetContainerID(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (ctscb *ContainerTrackingSuggestionCreateBulk) OnConflict(opts ...sql.ConflictOption) *ContainerTrackingSuggestionUpsertBulk {
+	ctscb.conflict = opts
+	return &ContainerTrackingSuggestionUpsertBulk{
+		create: ctscb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.ContainerTrackingSuggestion.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (ctscb *ContainerTrackingSuggestionCreateBulk) OnConflictColumns(columns ...string) *ContainerTrackingSuggestionUpsertBulk {
+	ctscb.conflict = append(ctscb.conflict, sql.ConflictColumns(columns...))
+	return &ContainerTrackingSuggestionUpsertBulk{
+		create: ctscb,
+	}
+}
+
+// ContainerTrackingSuggestionUpsertBulk is the builder for "upsert"-ing
+// a bulk of ContainerTrackingSuggestion nodes.
+type ContainerTrackingSuggestionUpsertBulk struct {
+	create *ContainerTrackingSuggestionCreateBulk
+}
+
+// UpdateNewValues updates the fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.ContainerTrackingSuggestion.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateNewValues() *ContainerTrackingSuggestionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.ContainerTrackingSuggestion.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+//
+func (u *ContainerTrackingSuggestionUpsertBulk) Ignore() *ContainerTrackingSuggestionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ContainerTrackingSuggestionUpsertBulk) DoNothing() *ContainerTrackingSuggestionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ContainerTrackingSuggestionCreateBulk.OnConflict
+// documentation for more info.
+func (u *ContainerTrackingSuggestionUpsertBulk) Update(set func(*ContainerTrackingSuggestionUpsert)) *ContainerTrackingSuggestionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ContainerTrackingSuggestionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetContainerID sets the "container_id" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetContainerID(v string) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetContainerID(v)
+	})
+}
+
+// UpdateContainerID sets the "container_id" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateContainerID() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateContainerID()
+	})
+}
+
+// SetResult sets the "result" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetResult(v string) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetResult(v)
+	})
+}
+
+// UpdateResult sets the "result" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateResult() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateResult()
+	})
+}
+
+// SetCamID sets the "cam_id" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetCamID(v int) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetCamID(v)
+	})
+}
+
+// UpdateCamID sets the "cam_id" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateCamID() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateCamID()
+	})
+}
+
+// ClearCamID clears the value of the "cam_id" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) ClearCamID() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearCamID()
+	})
+}
+
+// SetTrackingID sets the "tracking_id" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetTrackingID(v int) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetTrackingID(v)
+	})
+}
+
+// UpdateTrackingID sets the "tracking_id" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateTrackingID() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateTrackingID()
+	})
+}
+
+// ClearTrackingID clears the value of the "tracking_id" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) ClearTrackingID() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearTrackingID()
+	})
+}
+
+// SetTrackingType sets the "tracking_type" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetTrackingType(v string) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetTrackingType(v)
+	})
+}
+
+// UpdateTrackingType sets the "tracking_type" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateTrackingType() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateTrackingType()
+	})
+}
+
+// ClearTrackingType clears the value of the "tracking_type" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) ClearTrackingType() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearTrackingType()
+	})
+}
+
+// SetBic sets the "bic" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetBic(v string) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetBic(v)
+	})
+}
+
+// UpdateBic sets the "bic" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateBic() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateBic()
+	})
+}
+
+// ClearBic clears the value of the "bic" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) ClearBic() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearBic()
+	})
+}
+
+// SetSerial sets the "serial" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetSerial(v string) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetSerial(v)
+	})
+}
+
+// UpdateSerial sets the "serial" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateSerial() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateSerial()
+	})
+}
+
+// ClearSerial clears the value of the "serial" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) ClearSerial() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearSerial()
+	})
+}
+
+// SetChecksum sets the "checksum" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetChecksum(v string) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetChecksum(v)
+	})
+}
+
+// UpdateChecksum sets the "checksum" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateChecksum() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateChecksum()
+	})
+}
+
+// ClearChecksum clears the value of the "checksum" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) ClearChecksum() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearChecksum()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetImageURL(v string) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateImageURL() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) ClearImageURL() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearImageURL()
+	})
+}
+
+// SetScore sets the "score" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetScore(v float32) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetScore(v)
+	})
+}
+
+// UpdateScore sets the "score" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateScore() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateScore()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetCreatedAt(v time.Time) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateCreatedAt() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateCreatedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *ContainerTrackingSuggestionUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ContainerTrackingSuggestionCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ContainerTrackingSuggestionCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ContainerTrackingSuggestionUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

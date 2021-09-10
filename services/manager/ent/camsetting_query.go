@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -12,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/lane"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
 )
@@ -26,7 +28,8 @@ type CamSettingQuery struct {
 	fields     []string
 	predicates []predicate.CamSetting
 	// eager-loading edges.
-	withLane *LaneQuery
+	withLane        *LaneQuery
+	withSuggestions *ContainerTrackingSuggestionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,6 +81,28 @@ func (csq *CamSettingQuery) QueryLane() *LaneQuery {
 			sqlgraph.From(camsetting.Table, camsetting.FieldID, selector),
 			sqlgraph.To(lane.Table, lane.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, camsetting.LaneTable, camsetting.LaneColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySuggestions chains the current query on the "suggestions" edge.
+func (csq *CamSettingQuery) QuerySuggestions() *ContainerTrackingSuggestionQuery {
+	query := &ContainerTrackingSuggestionQuery{config: csq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := csq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := csq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(camsetting.Table, camsetting.FieldID, selector),
+			sqlgraph.To(containertrackingsuggestion.Table, containertrackingsuggestion.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, camsetting.SuggestionsTable, camsetting.SuggestionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
 		return fromU, nil
@@ -261,12 +286,13 @@ func (csq *CamSettingQuery) Clone() *CamSettingQuery {
 		return nil
 	}
 	return &CamSettingQuery{
-		config:     csq.config,
-		limit:      csq.limit,
-		offset:     csq.offset,
-		order:      append([]OrderFunc{}, csq.order...),
-		predicates: append([]predicate.CamSetting{}, csq.predicates...),
-		withLane:   csq.withLane.Clone(),
+		config:          csq.config,
+		limit:           csq.limit,
+		offset:          csq.offset,
+		order:           append([]OrderFunc{}, csq.order...),
+		predicates:      append([]predicate.CamSetting{}, csq.predicates...),
+		withLane:        csq.withLane.Clone(),
+		withSuggestions: csq.withSuggestions.Clone(),
 		// clone intermediate query.
 		sql:  csq.sql.Clone(),
 		path: csq.path,
@@ -281,6 +307,17 @@ func (csq *CamSettingQuery) WithLane(opts ...func(*LaneQuery)) *CamSettingQuery 
 		opt(query)
 	}
 	csq.withLane = query
+	return csq
+}
+
+// WithSuggestions tells the query-builder to eager-load the nodes that are connected to
+// the "suggestions" edge. The optional arguments are used to configure the query builder of the edge.
+func (csq *CamSettingQuery) WithSuggestions(opts ...func(*ContainerTrackingSuggestionQuery)) *CamSettingQuery {
+	query := &ContainerTrackingSuggestionQuery{config: csq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	csq.withSuggestions = query
 	return csq
 }
 
@@ -324,8 +361,8 @@ func (csq *CamSettingQuery) GroupBy(field string, fields ...string) *CamSettingG
 //		Select(camsetting.FieldName).
 //		Scan(ctx, &v)
 //
-func (csq *CamSettingQuery) Select(field string, fields ...string) *CamSettingSelect {
-	csq.fields = append([]string{field}, fields...)
+func (csq *CamSettingQuery) Select(fields ...string) *CamSettingSelect {
+	csq.fields = append(csq.fields, fields...)
 	return &CamSettingSelect{CamSettingQuery: csq}
 }
 
@@ -349,8 +386,9 @@ func (csq *CamSettingQuery) sqlAll(ctx context.Context) ([]*CamSetting, error) {
 	var (
 		nodes       = []*CamSetting{}
 		_spec       = csq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			csq.withLane != nil,
+			csq.withSuggestions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -396,6 +434,31 @@ func (csq *CamSettingQuery) sqlAll(ctx context.Context) ([]*CamSetting, error) {
 			for i := range nodes {
 				nodes[i].Edges.Lane = n
 			}
+		}
+	}
+
+	if query := csq.withSuggestions; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*CamSetting)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Suggestions = []*ContainerTrackingSuggestion{}
+		}
+		query.Where(predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+			s.Where(sql.InValues(camsetting.SuggestionsColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.CamID
+			node, ok := nodeids[fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "cam_id" returned %v for node %v`, fk, n.ID)
+			}
+			node.Edges.Suggestions = append(node.Edges.Suggestions, n)
 		}
 	}
 
@@ -466,10 +529,14 @@ func (csq *CamSettingQuery) querySpec() *sqlgraph.QuerySpec {
 func (csq *CamSettingQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(csq.driver.Dialect())
 	t1 := builder.Table(camsetting.Table)
-	selector := builder.Select(t1.Columns(camsetting.Columns...)...).From(t1)
+	columns := csq.fields
+	if len(columns) == 0 {
+		columns = camsetting.Columns
+	}
+	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if csq.sql != nil {
 		selector = csq.sql
-		selector.Select(selector.Columns(camsetting.Columns...)...)
+		selector.Select(selector.Columns(columns...)...)
 	}
 	for _, p := range csq.predicates {
 		p(selector)
@@ -737,13 +804,24 @@ func (csgb *CamSettingGroupBy) sqlScan(ctx context.Context, v interface{}) error
 }
 
 func (csgb *CamSettingGroupBy) sqlQuery() *sql.Selector {
-	selector := csgb.sql
-	columns := make([]string, 0, len(csgb.fields)+len(csgb.fns))
-	columns = append(columns, csgb.fields...)
+	selector := csgb.sql.Select()
+	aggregation := make([]string, 0, len(csgb.fns))
 	for _, fn := range csgb.fns {
-		columns = append(columns, fn(selector))
+		aggregation = append(aggregation, fn(selector))
 	}
-	return selector.Select(columns...).GroupBy(csgb.fields...)
+	// If no columns were selected in a custom aggregation function, the default
+	// selection is the fields used for "group-by", and the aggregation functions.
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(csgb.fields)+len(csgb.fns))
+		for _, f := range csgb.fields {
+			columns = append(columns, selector.C(f))
+		}
+		for _, c := range aggregation {
+			columns = append(columns, c)
+		}
+		selector.Select(columns...)
+	}
+	return selector.GroupBy(selector.Columns(csgb.fields...)...)
 }
 
 // CamSettingSelect is the builder for selecting fields of CamSetting entities.
@@ -959,16 +1037,10 @@ func (css *CamSettingSelect) BoolX(ctx context.Context) bool {
 
 func (css *CamSettingSelect) sqlScan(ctx context.Context, v interface{}) error {
 	rows := &sql.Rows{}
-	query, args := css.sqlQuery().Query()
+	query, args := css.sql.Query()
 	if err := css.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
-}
-
-func (css *CamSettingSelect) sqlQuery() sql.Querier {
-	selector := css.sql
-	selector.Select(selector.Columns(css.fields...)...)
-	return selector
 }

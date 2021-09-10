@@ -258,6 +258,22 @@ func (c *CamSettingClient) QueryLane(cs *CamSetting) *LaneQuery {
 	return query
 }
 
+// QuerySuggestions queries the suggestions edge of a CamSetting.
+func (c *CamSettingClient) QuerySuggestions(cs *CamSetting) *ContainerTrackingSuggestionQuery {
+	query := &ContainerTrackingSuggestionQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := cs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(camsetting.Table, camsetting.FieldID, id),
+			sqlgraph.To(containertrackingsuggestion.Table, containertrackingsuggestion.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, camsetting.SuggestionsTable, camsetting.SuggestionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *CamSettingClient) Hooks() []Hook {
 	return c.hooks.CamSetting
@@ -452,6 +468,22 @@ func (c *ContainerTrackingSuggestionClient) GetX(ctx context.Context, id int) *C
 		panic(err)
 	}
 	return obj
+}
+
+// QueryCam queries the cam edge of a ContainerTrackingSuggestion.
+func (c *ContainerTrackingSuggestionClient) QueryCam(cts *ContainerTrackingSuggestion) *CamSettingQuery {
+	query := &CamSettingQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := cts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(containertrackingsuggestion.Table, containertrackingsuggestion.FieldID, id),
+			sqlgraph.To(camsetting.Table, camsetting.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, containertrackingsuggestion.CamTable, containertrackingsuggestion.CamColumn),
+		)
+		fromV = sqlgraph.Neighbors(cts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryTracking queries the tracking edge of a ContainerTrackingSuggestion.

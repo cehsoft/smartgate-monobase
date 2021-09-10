@@ -19,7 +19,7 @@ const (
 	EdgeLanes = "lanes"
 	// Table holds the table name of the gate in the database.
 	Table = "gates"
-	// LanesTable is the table the holds the lanes relation/edge.
+	// LanesTable is the table that holds the lanes relation/edge.
 	LanesTable = "lanes"
 	// LanesInverseTable is the table name for the Lane entity.
 	// It exists in this package in order to avoid circular dependency with the "lane" package.
