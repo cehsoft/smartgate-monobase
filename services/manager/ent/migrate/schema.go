@@ -55,7 +55,7 @@ var (
 	ContainerTrackingSuggestionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "container_id", Type: field.TypeString},
-		{Name: "result", Type: field.TypeString},
+		{Name: "result", Type: field.TypeString, Nullable: true},
 		{Name: "tracking_type", Type: field.TypeString, Nullable: true},
 		{Name: "bic", Type: field.TypeString, Nullable: true},
 		{Name: "serial", Type: field.TypeString, Nullable: true},

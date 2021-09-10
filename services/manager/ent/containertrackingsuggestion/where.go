@@ -378,6 +378,20 @@ func ResultHasSuffix(v string) predicate.ContainerTrackingSuggestion {
 	})
 }
 
+// ResultIsNil applies the IsNil predicate on the "result" field.
+func ResultIsNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldResult)))
+	})
+}
+
+// ResultNotNil applies the NotNil predicate on the "result" field.
+func ResultNotNil() predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldResult)))
+	})
+}
+
 // ResultEqualFold applies the EqualFold predicate on the "result" field.
 func ResultEqualFold(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {

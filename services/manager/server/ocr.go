@@ -2,6 +2,7 @@ package server
 
 import (
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/agnivade/levenshtein"
@@ -18,6 +19,20 @@ func splitContainerID(containerID string) []string {
 	serial := containerID[4 : len(containerID)-1]
 	checksum := containerID[len(containerID)-1:]
 	return []string{bic, serial, checksum}
+}
+
+// extractTrackingMetaFromImgURL returns trackingType, trackingSession
+func extractTrackingMetaFromImgURL(imgURL string) (string, string) {
+	urlPaths := strings.Split(imgURL, "/")
+	if len(urlPaths) < 2 {
+		return "", ""
+	}
+	fileName := urlPaths[len(urlPaths)-1]
+	nameParts := strings.Split(fileName, "_")
+	if len(nameParts) < 2 {
+		return urlPaths[len(urlPaths)-2], ""
+	}
+	return urlPaths[len(urlPaths)-2], nameParts[0]
 }
 
 func dedupOCRs(inputOCRs []*ent.ContainerTrackingSuggestion) ([]*ent.ContainerTrackingSuggestion, error) {

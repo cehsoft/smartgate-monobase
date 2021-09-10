@@ -36,6 +36,14 @@ func (ctsc *ContainerTrackingSuggestionCreate) SetResult(s string) *ContainerTra
 	return ctsc
 }
 
+// SetNillableResult sets the "result" field if the given value is not nil.
+func (ctsc *ContainerTrackingSuggestionCreate) SetNillableResult(s *string) *ContainerTrackingSuggestionCreate {
+	if s != nil {
+		ctsc.SetResult(*s)
+	}
+	return ctsc
+}
+
 // SetCamID sets the "cam_id" field.
 func (ctsc *ContainerTrackingSuggestionCreate) SetCamID(i int) *ContainerTrackingSuggestionCreate {
 	ctsc.mutation.SetCamID(i)
@@ -245,9 +253,6 @@ func (ctsc *ContainerTrackingSuggestionCreate) defaults() {
 func (ctsc *ContainerTrackingSuggestionCreate) check() error {
 	if _, ok := ctsc.mutation.ContainerID(); !ok {
 		return &ValidationError{Name: "container_id", err: errors.New(`ent: missing required field "container_id"`)}
-	}
-	if _, ok := ctsc.mutation.Result(); !ok {
-		return &ValidationError{Name: "result", err: errors.New(`ent: missing required field "result"`)}
 	}
 	if _, ok := ctsc.mutation.Score(); !ok {
 		return &ValidationError{Name: "score", err: errors.New(`ent: missing required field "score"`)}
@@ -473,6 +478,12 @@ func (u *ContainerTrackingSuggestionUpsert) UpdateResult() *ContainerTrackingSug
 	return u
 }
 
+// ClearResult clears the value of the "result" field.
+func (u *ContainerTrackingSuggestionUpsert) ClearResult() *ContainerTrackingSuggestionUpsert {
+	u.SetNull(containertrackingsuggestion.FieldResult)
+	return u
+}
+
 // SetCamID sets the "cam_id" field.
 func (u *ContainerTrackingSuggestionUpsert) SetCamID(v int) *ContainerTrackingSuggestionUpsert {
 	u.Set(containertrackingsuggestion.FieldCamID, v)
@@ -690,6 +701,13 @@ func (u *ContainerTrackingSuggestionUpsertOne) SetResult(v string) *ContainerTra
 func (u *ContainerTrackingSuggestionUpsertOne) UpdateResult() *ContainerTrackingSuggestionUpsertOne {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.UpdateResult()
+	})
+}
+
+// ClearResult clears the value of the "result" field.
+func (u *ContainerTrackingSuggestionUpsertOne) ClearResult() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearResult()
 	})
 }
 
@@ -1097,6 +1115,13 @@ func (u *ContainerTrackingSuggestionUpsertBulk) SetResult(v string) *ContainerTr
 func (u *ContainerTrackingSuggestionUpsertBulk) UpdateResult() *ContainerTrackingSuggestionUpsertBulk {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.UpdateResult()
+	})
+}
+
+// ClearResult clears the value of the "result" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) ClearResult() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearResult()
 	})
 }
 

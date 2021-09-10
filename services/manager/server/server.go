@@ -11,7 +11,6 @@ import (
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
-	"github.com/init-tech-solution/service-spitc-stream/services/manager/model"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 )
 
@@ -19,21 +18,16 @@ type Server struct {
 	db    *ent.Client
 	rawdb *sql.DB
 
-	clients map[string]chan *ContainerTrackingSuggestion
+	clients map[string]chan *ent.ContainerTrackingSuggestion
 
 	mygrpc.UnimplementedMyGRPCServer
-}
-
-type ContainerTrackingSuggestion struct {
-	ID int32
-	model.ContainerTracking
 }
 
 func CreateServer(db *ent.Client, rawdb *sql.DB) *Server {
 	return &Server{
 		db:      db,
 		rawdb:   rawdb,
-		clients: map[string]chan *ContainerTrackingSuggestion{},
+		clients: map[string]chan *ent.ContainerTrackingSuggestion{},
 	}
 }
 
@@ -61,34 +55,41 @@ func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*m
 		return nil, fmt.Errorf("result is not valid")
 	}
 
+	trackingType, trackingSession := extractTrackingMetaFromImgURL(req.ImageURL)
+	trackingId := new(int)
+	if trackingSession != "" {
+		id, err := svc.db.ContainerTracking.Create().
+			SetSessionID(trackingSession).
+			OnConflict().
+			Ignore().ID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		trackingId = &id
+	}
+
 	suggestRrd, err := svc.db.ContainerTrackingSuggestion.Create().
-		SetContainerID(req.ContainerID).
+		SetContainerID(req.ContainerID). // ! DEPRECATED in favor of Result
+		SetResult(req.ContainerID).
 		SetBic(splittedIDs[0]).
 		SetSerial(splittedIDs[1]).
 		SetChecksum(splittedIDs[2]).
 		SetImageURL(req.ImageURL).
+		SetTrackingType(trackingType).
+		SetNillableTrackingID(trackingId).
 		SetScore(req.Score).
 		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	suggest := ContainerTrackingSuggestion{
-		ID: int32(suggestRrd.ID),
-		ContainerTracking: model.ContainerTracking{
-			ContainerID: req.ContainerID,
-			ImageURL:    req.ImageURL,
-			Score:       req.Score,
-		},
-	}
-
 	// Send to subscribed clients
 	for uuid, trackingC := range svc.clients {
-		go func(uuid string, trackingC chan *ContainerTrackingSuggestion) {
+		go func(uuid string, trackingC chan *ent.ContainerTrackingSuggestion) {
 			timeout := time.NewTimer(10 * time.Second)
 
 			select {
-			case trackingC <- &suggest:
+			case trackingC <- suggestRrd:
 				log.Println(">>>> sent:", uuid)
 			case <-timeout.C:
 				log.Println("!!! timeout:", uuid)
@@ -207,7 +208,7 @@ func (svc *Server) PullMLResult(req *mygrpc.ReqEmpty, resp mygrpc.MyGRPC_PullMLR
 	clientId := uuid.UUID(0)
 
 	// Create client's data channel
-	svc.clients[clientId] = make(chan *ContainerTrackingSuggestion, 10)
+	svc.clients[clientId] = make(chan *ent.ContainerTrackingSuggestion, 10)
 	defer func() {
 		delete(svc.clients, clientId)
 	}()
@@ -215,7 +216,7 @@ func (svc *Server) PullMLResult(req *mygrpc.ReqEmpty, resp mygrpc.MyGRPC_PullMLR
 	// Send to browser
 	for suggest := range svc.clients[clientId] {
 		err := resp.Send(&mygrpc.ResMLResult{
-			SuggestID:   suggest.ID,
+			SuggestID:   int32(suggest.ID),
 			ContainerID: suggest.ContainerID,
 			ImageURL:    suggest.ImageURL,
 			Score:       suggest.Score,
