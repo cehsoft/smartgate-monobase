@@ -7,10 +7,12 @@ require (
 	github.com/agnivade/levenshtein v1.1.1
 	github.com/deepch/vdk v0.0.0-20210523103705-5b25bda1a000
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
+	github.com/doug-martin/goqu/v9 v9.16.0
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/jackc/pgx/v4 v4.11.0
+	github.com/jmoiron/sqlx v1.3.4
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.3.0

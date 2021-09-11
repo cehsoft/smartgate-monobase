@@ -4,6 +4,7 @@ package ocr_main;
 message ReqNewDetectedImage {    
     string ImageURL = 1;
     string CamID = 2;
+    string CamName = 7;
     string CaptureTime = 3;
     string DataType = 5;
     string TrackingID = 6;

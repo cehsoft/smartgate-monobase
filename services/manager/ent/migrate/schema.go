@@ -34,7 +34,7 @@ var (
 	// ContainerTrackingsColumns holds the columns for the "container_trackings" table.
 	ContainerTrackingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "container_id", Type: field.TypeString},
+		{Name: "container_id", Type: field.TypeString, Nullable: true},
 		{Name: "session_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 	}
@@ -54,7 +54,7 @@ var (
 	// ContainerTrackingSuggestionsColumns holds the columns for the "container_tracking_suggestions" table.
 	ContainerTrackingSuggestionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "container_id", Type: field.TypeString},
+		{Name: "container_id", Type: field.TypeString, Nullable: true},
 		{Name: "result", Type: field.TypeString, Nullable: true},
 		{Name: "tracking_type", Type: field.TypeString, Nullable: true},
 		{Name: "bic", Type: field.TypeString, Nullable: true},

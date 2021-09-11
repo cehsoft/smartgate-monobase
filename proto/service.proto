@@ -13,15 +13,35 @@ message ResEmpty {
     ResStatus status = 1;
 }
 
-message ReqEmpty {
+message RequestPaging {
     optional int32 offset = 1;
     optional int32 limit = 2;
 }
 
+message ReqEmpty {
+    optional RequestPaging paging = 3;
+    optional int32 offset = 1; // deprecated in favor of paging
+    optional int32 limit = 2; // deprecated in favor of paging
+}
+
 message ReqMLResult {
-    string ContainerID = 1;
+    string ContainerID = 1; // deprecated in favor of Result
+    string Result = 5;
+    string CamName = 4;
     string ImageURL = 2;
     float Score = 3;
+}
+
+message ReqPullMLResult {
+    optional RequestPaging paging = 1;    
+    // int32 gateID = 2;
+    int32 laneID = 3;
+}
+
+message ReqListContainerOCRs {
+    optional RequestPaging paging = 1;
+    // int32 gateID = 2;
+    int32 laneID = 3;
 }
 
 message ResMLResult {
@@ -33,10 +53,10 @@ message ResMLResult {
     float Score = 4;
 }
 
-message ReqConfirmContainerID {
-    optional int32 SuggestID = 1;
-    string ContainerID = 2;
-}
+// message ReqConfirmContainerID {
+//     optional int32 SuggestID = 1;
+//     string ContainerID = 2;
+// }
 
 message ContainerOCR {
     int32 ID = 1;
@@ -61,11 +81,11 @@ message ContainerTracking {
     int32 CreatedAt = 4;
 }
 
-message ResListContainerTrackings {
-    ResStatus status = 1;
-    int32 total = 3;
-    repeated ContainerTracking trackings = 2;
-}
+// message ResListContainerTrackings {
+//     ResStatus status = 1;
+//     int32 total = 3;
+//     repeated ContainerTracking trackings = 2;
+// }
 
 message ResListContainerOCRs {
     ResStatus status = 1;
@@ -75,8 +95,8 @@ message ResListContainerOCRs {
 
 service MyGRPC {
     rpc newMLResult(ReqMLResult) returns (ResEmpty);
-    rpc pullMLResult(ReqEmpty) returns (stream ResMLResult);
-    rpc listContainerTrackings(ReqEmpty) returns (ResListContainerTrackings);
-    rpc listContainerOCRs(ReqEmpty) returns (ResListContainerOCRs);
-    rpc confirmContainerID(ReqConfirmContainerID) returns (ResEmpty);
+    rpc pullMLResult(ReqPullMLResult) returns (stream ResMLResult);
+    rpc listContainerOCRs(ReqListContainerOCRs) returns (ResListContainerOCRs);
+    // rpc listContainerTrackings(ReqEmpty) returns (ResListContainerTrackings);
+    // rpc confirmContainerID(ReqConfirmContainerID) returns (ResEmpty);
 }

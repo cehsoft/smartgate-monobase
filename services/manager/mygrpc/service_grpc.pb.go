@@ -19,10 +19,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MyGRPCClient interface {
 	NewMLResult(ctx context.Context, in *ReqMLResult, opts ...grpc.CallOption) (*ResEmpty, error)
-	PullMLResult(ctx context.Context, in *ReqEmpty, opts ...grpc.CallOption) (MyGRPC_PullMLResultClient, error)
-	ListContainerTrackings(ctx context.Context, in *ReqEmpty, opts ...grpc.CallOption) (*ResListContainerTrackings, error)
-	ListContainerOCRs(ctx context.Context, in *ReqEmpty, opts ...grpc.CallOption) (*ResListContainerOCRs, error)
-	ConfirmContainerID(ctx context.Context, in *ReqConfirmContainerID, opts ...grpc.CallOption) (*ResEmpty, error)
+	PullMLResult(ctx context.Context, in *ReqPullMLResult, opts ...grpc.CallOption) (MyGRPC_PullMLResultClient, error)
+	ListContainerOCRs(ctx context.Context, in *ReqListContainerOCRs, opts ...grpc.CallOption) (*ResListContainerOCRs, error)
 }
 
 type myGRPCClient struct {
@@ -42,7 +40,7 @@ func (c *myGRPCClient) NewMLResult(ctx context.Context, in *ReqMLResult, opts ..
 	return out, nil
 }
 
-func (c *myGRPCClient) PullMLResult(ctx context.Context, in *ReqEmpty, opts ...grpc.CallOption) (MyGRPC_PullMLResultClient, error) {
+func (c *myGRPCClient) PullMLResult(ctx context.Context, in *ReqPullMLResult, opts ...grpc.CallOption) (MyGRPC_PullMLResultClient, error) {
 	stream, err := c.cc.NewStream(ctx, &MyGRPC_ServiceDesc.Streams[0], "/main.MyGRPC/pullMLResult", opts...)
 	if err != nil {
 		return nil, err
@@ -74,27 +72,9 @@ func (x *myGRPCPullMLResultClient) Recv() (*ResMLResult, error) {
 	return m, nil
 }
 
-func (c *myGRPCClient) ListContainerTrackings(ctx context.Context, in *ReqEmpty, opts ...grpc.CallOption) (*ResListContainerTrackings, error) {
-	out := new(ResListContainerTrackings)
-	err := c.cc.Invoke(ctx, "/main.MyGRPC/listContainerTrackings", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *myGRPCClient) ListContainerOCRs(ctx context.Context, in *ReqEmpty, opts ...grpc.CallOption) (*ResListContainerOCRs, error) {
+func (c *myGRPCClient) ListContainerOCRs(ctx context.Context, in *ReqListContainerOCRs, opts ...grpc.CallOption) (*ResListContainerOCRs, error) {
 	out := new(ResListContainerOCRs)
 	err := c.cc.Invoke(ctx, "/main.MyGRPC/listContainerOCRs", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *myGRPCClient) ConfirmContainerID(ctx context.Context, in *ReqConfirmContainerID, opts ...grpc.CallOption) (*ResEmpty, error) {
-	out := new(ResEmpty)
-	err := c.cc.Invoke(ctx, "/main.MyGRPC/confirmContainerID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -106,10 +86,8 @@ func (c *myGRPCClient) ConfirmContainerID(ctx context.Context, in *ReqConfirmCon
 // for forward compatibility
 type MyGRPCServer interface {
 	NewMLResult(context.Context, *ReqMLResult) (*ResEmpty, error)
-	PullMLResult(*ReqEmpty, MyGRPC_PullMLResultServer) error
-	ListContainerTrackings(context.Context, *ReqEmpty) (*ResListContainerTrackings, error)
-	ListContainerOCRs(context.Context, *ReqEmpty) (*ResListContainerOCRs, error)
-	ConfirmContainerID(context.Context, *ReqConfirmContainerID) (*ResEmpty, error)
+	PullMLResult(*ReqPullMLResult, MyGRPC_PullMLResultServer) error
+	ListContainerOCRs(context.Context, *ReqListContainerOCRs) (*ResListContainerOCRs, error)
 	mustEmbedUnimplementedMyGRPCServer()
 }
 
@@ -120,17 +98,11 @@ type UnimplementedMyGRPCServer struct {
 func (UnimplementedMyGRPCServer) NewMLResult(context.Context, *ReqMLResult) (*ResEmpty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NewMLResult not implemented")
 }
-func (UnimplementedMyGRPCServer) PullMLResult(*ReqEmpty, MyGRPC_PullMLResultServer) error {
+func (UnimplementedMyGRPCServer) PullMLResult(*ReqPullMLResult, MyGRPC_PullMLResultServer) error {
 	return status.Errorf(codes.Unimplemented, "method PullMLResult not implemented")
 }
-func (UnimplementedMyGRPCServer) ListContainerTrackings(context.Context, *ReqEmpty) (*ResListContainerTrackings, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListContainerTrackings not implemented")
-}
-func (UnimplementedMyGRPCServer) ListContainerOCRs(context.Context, *ReqEmpty) (*ResListContainerOCRs, error) {
+func (UnimplementedMyGRPCServer) ListContainerOCRs(context.Context, *ReqListContainerOCRs) (*ResListContainerOCRs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListContainerOCRs not implemented")
-}
-func (UnimplementedMyGRPCServer) ConfirmContainerID(context.Context, *ReqConfirmContainerID) (*ResEmpty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConfirmContainerID not implemented")
 }
 func (UnimplementedMyGRPCServer) mustEmbedUnimplementedMyGRPCServer() {}
 
@@ -164,7 +136,7 @@ func _MyGRPC_NewMLResult_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _MyGRPC_PullMLResult_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ReqEmpty)
+	m := new(ReqPullMLResult)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -184,26 +156,8 @@ func (x *myGRPCPullMLResultServer) Send(m *ResMLResult) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _MyGRPC_ListContainerTrackings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReqEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MyGRPCServer).ListContainerTrackings(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/main.MyGRPC/listContainerTrackings",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MyGRPCServer).ListContainerTrackings(ctx, req.(*ReqEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _MyGRPC_ListContainerOCRs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReqEmpty)
+	in := new(ReqListContainerOCRs)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -215,25 +169,7 @@ func _MyGRPC_ListContainerOCRs_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/main.MyGRPC/listContainerOCRs",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MyGRPCServer).ListContainerOCRs(ctx, req.(*ReqEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MyGRPC_ConfirmContainerID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReqConfirmContainerID)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MyGRPCServer).ConfirmContainerID(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/main.MyGRPC/confirmContainerID",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MyGRPCServer).ConfirmContainerID(ctx, req.(*ReqConfirmContainerID))
+		return srv.(MyGRPCServer).ListContainerOCRs(ctx, req.(*ReqListContainerOCRs))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -250,16 +186,8 @@ var MyGRPC_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MyGRPC_NewMLResult_Handler,
 		},
 		{
-			MethodName: "listContainerTrackings",
-			Handler:    _MyGRPC_ListContainerTrackings_Handler,
-		},
-		{
 			MethodName: "listContainerOCRs",
 			Handler:    _MyGRPC_ListContainerOCRs_Handler,
-		},
-		{
-			MethodName: "confirmContainerID",
-			Handler:    _MyGRPC_ConfirmContainerID_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

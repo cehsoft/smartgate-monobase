@@ -15,19 +15,19 @@ import (
 
 // ContainerTrackingSuggestion is the model entity for the ContainerTrackingSuggestion schema.
 type ContainerTrackingSuggestion struct {
-	config `json:"-"`
+	config `db:"-" json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// ContainerID holds the value of the "container_id" field.
-	ContainerID string `json:"container_id,omitempty"`
+	ContainerID string `json:"container_id,omitempty" db:"container_id"`
 	// Result holds the value of the "result" field.
 	Result string `json:"result,omitempty"`
 	// CamID holds the value of the "cam_id" field.
-	CamID int `json:"cam_id,omitempty"`
+	CamID int `json:"cam_id,omitempty" db:"cam_id"`
 	// TrackingID holds the value of the "tracking_id" field.
-	TrackingID int `json:"tracking_id,omitempty"`
+	TrackingID int `json:"tracking_id,omitempty" db:"tracking_id"`
 	// TrackingType holds the value of the "tracking_type" field.
-	TrackingType string `json:"tracking_type,omitempty"`
+	TrackingType string `json:"tracking_type,omitempty" db:"tracking_type"`
 	// Bic holds the value of the "bic" field.
 	Bic string `json:"bic,omitempty"`
 	// Serial holds the value of the "serial" field.
@@ -35,11 +35,11 @@ type ContainerTrackingSuggestion struct {
 	// Checksum holds the value of the "checksum" field.
 	Checksum string `json:"checksum,omitempty"`
 	// ImageURL holds the value of the "image_url" field.
-	ImageURL string `json:"image_url,omitempty"`
+	ImageURL string `json:"image_url,omitempty" db:"image_url"`
 	// Score holds the value of the "score" field.
 	Score float32 `json:"score,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"created_at,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty" db:"created_at"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ContainerTrackingSuggestionQuery when eager-loading is set.
 	Edges ContainerTrackingSuggestionEdges `json:"edges"`

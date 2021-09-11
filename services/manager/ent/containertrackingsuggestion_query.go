@@ -326,7 +326,7 @@ func (ctsq *ContainerTrackingSuggestionQuery) WithTracking(opts ...func(*Contain
 // Example:
 //
 //	var v []struct {
-//		ContainerID string `json:"container_id,omitempty"`
+//		ContainerID string `json:"container_id,omitempty" db:"container_id"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -353,7 +353,7 @@ func (ctsq *ContainerTrackingSuggestionQuery) GroupBy(field string, fields ...st
 // Example:
 //
 //	var v []struct {
-//		ContainerID string `json:"container_id,omitempty"`
+//		ContainerID string `json:"container_id,omitempty" db:"container_id"`
 //	}
 //
 //	client.ContainerTrackingSuggestion.Query().

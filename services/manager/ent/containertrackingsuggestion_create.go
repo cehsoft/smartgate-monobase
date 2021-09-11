@@ -30,6 +30,14 @@ func (ctsc *ContainerTrackingSuggestionCreate) SetContainerID(s string) *Contain
 	return ctsc
 }
 
+// SetNillableContainerID sets the "container_id" field if the given value is not nil.
+func (ctsc *ContainerTrackingSuggestionCreate) SetNillableContainerID(s *string) *ContainerTrackingSuggestionCreate {
+	if s != nil {
+		ctsc.SetContainerID(*s)
+	}
+	return ctsc
+}
+
 // SetResult sets the "result" field.
 func (ctsc *ContainerTrackingSuggestionCreate) SetResult(s string) *ContainerTrackingSuggestionCreate {
 	ctsc.mutation.SetResult(s)
@@ -251,9 +259,6 @@ func (ctsc *ContainerTrackingSuggestionCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (ctsc *ContainerTrackingSuggestionCreate) check() error {
-	if _, ok := ctsc.mutation.ContainerID(); !ok {
-		return &ValidationError{Name: "container_id", err: errors.New(`ent: missing required field "container_id"`)}
-	}
 	if _, ok := ctsc.mutation.Score(); !ok {
 		return &ValidationError{Name: "score", err: errors.New(`ent: missing required field "score"`)}
 	}
@@ -463,6 +468,12 @@ func (u *ContainerTrackingSuggestionUpsert) SetContainerID(v string) *ContainerT
 // UpdateContainerID sets the "container_id" field to the value that was provided on create.
 func (u *ContainerTrackingSuggestionUpsert) UpdateContainerID() *ContainerTrackingSuggestionUpsert {
 	u.SetExcluded(containertrackingsuggestion.FieldContainerID)
+	return u
+}
+
+// ClearContainerID clears the value of the "container_id" field.
+func (u *ContainerTrackingSuggestionUpsert) ClearContainerID() *ContainerTrackingSuggestionUpsert {
+	u.SetNull(containertrackingsuggestion.FieldContainerID)
 	return u
 }
 
@@ -687,6 +698,13 @@ func (u *ContainerTrackingSuggestionUpsertOne) SetContainerID(v string) *Contain
 func (u *ContainerTrackingSuggestionUpsertOne) UpdateContainerID() *ContainerTrackingSuggestionUpsertOne {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.UpdateContainerID()
+	})
+}
+
+// ClearContainerID clears the value of the "container_id" field.
+func (u *ContainerTrackingSuggestionUpsertOne) ClearContainerID() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearContainerID()
 	})
 }
 
@@ -1101,6 +1119,13 @@ func (u *ContainerTrackingSuggestionUpsertBulk) SetContainerID(v string) *Contai
 func (u *ContainerTrackingSuggestionUpsertBulk) UpdateContainerID() *ContainerTrackingSuggestionUpsertBulk {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.UpdateContainerID()
+	})
+}
+
+// ClearContainerID clears the value of the "container_id" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) ClearContainerID() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.ClearContainerID()
 	})
 }
 

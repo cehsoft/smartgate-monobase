@@ -17,17 +17,17 @@ type ContainerTrackingSuggestion struct {
 // Fields of the ContainerTracking.
 func (ContainerTrackingSuggestion) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("container_id"), // deprecated in favor of result
+		field.String("container_id").Optional().StructTag(`db:"container_id"`), // deprecated in favor of result
 		field.String("result").Optional(),
-		field.Int("cam_id").Optional(),
-		field.Int("tracking_id").Optional(),
-		field.String("tracking_type").Optional(),
+		field.Int("cam_id").Optional().StructTag(`db:"cam_id"`),
+		field.Int("tracking_id").Optional().StructTag(`db:"tracking_id"`),
+		field.String("tracking_type").Optional().StructTag(`db:"tracking_type"`),
 		field.String("bic").Optional(),
 		field.String("serial").Optional(),
 		field.String("checksum").Optional(),
-		field.String("image_url").Optional(),
+		field.String("image_url").Optional().StructTag(`db:"image_url"`),
 		field.Float32("score"),
-		field.Time("created_at").Default(time.Now),
+		field.Time("created_at").Default(time.Now).StructTag(`db:"created_at"`),
 	}
 }
 

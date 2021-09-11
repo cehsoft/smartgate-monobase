@@ -53,6 +53,10 @@ func dedupOCRs(inputOCRs []*ent.ContainerTrackingSuggestion) ([]*ent.ContainerTr
 
 	prev := &ent.ContainerTrackingSuggestion{}
 	for _, ocr := range ocrs {
+		if ocr.TrackingType != "contID" && ocr.TrackingType != "" {
+			serialOCRs[ocr.Result] = []*ent.ContainerTrackingSuggestion{ocr}
+		}
+
 		label := ocr.Serial
 		distance := levenshtein.ComputeDistance(prev.Serial, label)
 		if distance < 3 {

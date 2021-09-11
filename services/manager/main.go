@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	"context"
-	"database/sql"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/sethvargo/go-envconfig"
 
@@ -86,12 +86,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db, err := sql.Open("pgx", config.DB)
+	db, err := sqlx.Open("pgx", config.DB)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	client := ent.NewClient(ent.Driver(entsql.OpenDB(dialect.Postgres, db)))
+	client := ent.NewClient(ent.Driver(entsql.OpenDB(dialect.Postgres, db.DB)))
 	if err != nil {
 		log.Fatal("opening ent client", err)
 	}

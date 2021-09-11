@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z\t./;mygrpc',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x13proto/service.proto\x12\x04main\"D\n\tResStatus\x12\x12\n\nstatusCode\x18\x01 \x01(\x05\x12\x0f\n\x07\x65rrCode\x18\x02 \x01(\t\x12\x12\n\nerrMessage\x18\x03 \x01(\t\"+\n\x08ResEmpty\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\"H\n\x08ReqEmpty\x12\x13\n\x06offset\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x12\n\x05limit\x18\x02 \x01(\x05H\x01\x88\x01\x01\x42\t\n\x07_offsetB\x08\n\x06_limit\"C\n\x0bReqMLResult\x12\x13\n\x0b\x43ontainerID\x18\x01 \x01(\t\x12\x10\n\x08ImageURL\x18\x02 \x01(\t\x12\r\n\x05Score\x18\x03 \x01(\x02\"w\n\x0bResMLResult\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\x11\n\tSuggestID\x18\x05 \x01(\x05\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\r\n\x05Score\x18\x04 \x01(\x02\"R\n\x15ReqConfirmContainerID\x12\x16\n\tSuggestID\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\tB\x0c\n\n_SuggestID\"\x92\x01\n\x0c\x43ontainerOCR\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\r\n\x05Score\x18\x05 \x01(\x02\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\x0b\n\x03\x42IC\x18\x06 \x01(\t\x12\x0e\n\x06Serial\x18\x07 \x01(\t\x12\x10\n\x08\x43hecksum\x18\x08 \x01(\t\x12\x11\n\tCreatedAt\x18\x04 \x01(\x05\"\xa6\x01\n\x11\x43ontainerTracking\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\r\n\x05OCRID\x18\t \x01(\x05\x12\r\n\x05Score\x18\x05 \x01(\x02\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\x0b\n\x03\x42IC\x18\x06 \x01(\t\x12\x0e\n\x06Serial\x18\x07 \x01(\t\x12\x10\n\x08\x43hecksum\x18\x08 \x01(\t\x12\x11\n\tCreatedAt\x18\x04 \x01(\x05\"w\n\x19ResListContainerTrackings\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\r\n\x05total\x18\x03 \x01(\x05\x12*\n\ttrackings\x18\x02 \x03(\x0b\x32\x17.main.ContainerTracking\"h\n\x14ResListContainerOCRs\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\r\n\x05total\x18\x03 \x01(\x05\x12 \n\x04ocrs\x18\x02 \x03(\x0b\x32\x12.main.ContainerOCR2\xbe\x02\n\x06MyGRPC\x12\x30\n\x0bnewMLResult\x12\x11.main.ReqMLResult\x1a\x0e.main.ResEmpty\x12\x33\n\x0cpullMLResult\x12\x0e.main.ReqEmpty\x1a\x11.main.ResMLResult0\x01\x12I\n\x16listContainerTrackings\x12\x0e.main.ReqEmpty\x1a\x1f.main.ResListContainerTrackings\x12?\n\x11listContainerOCRs\x12\x0e.main.ReqEmpty\x1a\x1a.main.ResListContainerOCRs\x12\x41\n\x12\x63onfirmContainerID\x12\x1b.main.ReqConfirmContainerID\x1a\x0e.main.ResEmptyB\x0bZ\t./;mygrpcb\x06proto3'
+  serialized_pb=b'\n\x13proto/service.proto\x12\x04main\"D\n\tResStatus\x12\x12\n\nstatusCode\x18\x01 \x01(\x05\x12\x0f\n\x07\x65rrCode\x18\x02 \x01(\t\x12\x12\n\nerrMessage\x18\x03 \x01(\t\"+\n\x08ResEmpty\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\"M\n\rRequestPaging\x12\x13\n\x06offset\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x12\n\x05limit\x18\x02 \x01(\x05H\x01\x88\x01\x01\x42\t\n\x07_offsetB\x08\n\x06_limit\"}\n\x08ReqEmpty\x12(\n\x06paging\x18\x03 \x01(\x0b\x32\x13.main.RequestPagingH\x00\x88\x01\x01\x12\x13\n\x06offset\x18\x01 \x01(\x05H\x01\x88\x01\x01\x12\x12\n\x05limit\x18\x02 \x01(\x05H\x02\x88\x01\x01\x42\t\n\x07_pagingB\t\n\x07_offsetB\x08\n\x06_limit\"d\n\x0bReqMLResult\x12\x13\n\x0b\x43ontainerID\x18\x01 \x01(\t\x12\x0e\n\x06Result\x18\x05 \x01(\t\x12\x0f\n\x07\x43\x61mName\x18\x04 \x01(\t\x12\x10\n\x08ImageURL\x18\x02 \x01(\t\x12\r\n\x05Score\x18\x03 \x01(\x02\"V\n\x0fReqPullMLResult\x12(\n\x06paging\x18\x01 \x01(\x0b\x32\x13.main.RequestPagingH\x00\x88\x01\x01\x12\x0e\n\x06laneID\x18\x03 \x01(\x05\x42\t\n\x07_paging\"[\n\x14ReqListContainerOCRs\x12(\n\x06paging\x18\x01 \x01(\x0b\x32\x13.main.RequestPagingH\x00\x88\x01\x01\x12\x0e\n\x06laneID\x18\x03 \x01(\x05\x42\t\n\x07_paging\"w\n\x0bResMLResult\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\x11\n\tSuggestID\x18\x05 \x01(\x05\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\r\n\x05Score\x18\x04 \x01(\x02\"\x92\x01\n\x0c\x43ontainerOCR\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\r\n\x05Score\x18\x05 \x01(\x02\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\x0b\n\x03\x42IC\x18\x06 \x01(\t\x12\x0e\n\x06Serial\x18\x07 \x01(\t\x12\x10\n\x08\x43hecksum\x18\x08 \x01(\t\x12\x11\n\tCreatedAt\x18\x04 \x01(\x05\"\xa6\x01\n\x11\x43ontainerTracking\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\r\n\x05OCRID\x18\t \x01(\x05\x12\r\n\x05Score\x18\x05 \x01(\x02\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\x0b\n\x03\x42IC\x18\x06 \x01(\t\x12\x0e\n\x06Serial\x18\x07 \x01(\t\x12\x10\n\x08\x43hecksum\x18\x08 \x01(\t\x12\x11\n\tCreatedAt\x18\x04 \x01(\x05\"h\n\x14ResListContainerOCRs\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\r\n\x05total\x18\x03 \x01(\x05\x12 \n\x04ocrs\x18\x02 \x03(\x0b\x32\x12.main.ContainerOCR2\xc3\x01\n\x06MyGRPC\x12\x30\n\x0bnewMLResult\x12\x11.main.ReqMLResult\x1a\x0e.main.ResEmpty\x12:\n\x0cpullMLResult\x12\x15.main.ReqPullMLResult\x1a\x11.main.ResMLResult0\x01\x12K\n\x11listContainerOCRs\x12\x1a.main.ReqListContainerOCRs\x1a\x1a.main.ResListContainerOCRsB\x0bZ\t./;mygrpcb\x06proto3'
 )
 
 
@@ -103,23 +103,23 @@ _RESEMPTY = _descriptor.Descriptor(
 )
 
 
-_REQEMPTY = _descriptor.Descriptor(
-  name='ReqEmpty',
-  full_name='main.ReqEmpty',
+_REQUESTPAGING = _descriptor.Descriptor(
+  name='RequestPaging',
+  full_name='main.RequestPaging',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='offset', full_name='main.ReqEmpty.offset', index=0,
+      name='offset', full_name='main.RequestPaging.offset', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='limit', full_name='main.ReqEmpty.limit', index=1,
+      name='limit', full_name='main.RequestPaging.limit', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -137,18 +137,79 @@ _REQEMPTY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='_offset', full_name='main.ReqEmpty._offset',
+      name='_offset', full_name='main.RequestPaging._offset',
       index=0, containing_type=None,
       create_key=_descriptor._internal_create_key,
     fields=[]),
     _descriptor.OneofDescriptor(
-      name='_limit', full_name='main.ReqEmpty._limit',
+      name='_limit', full_name='main.RequestPaging._limit',
       index=1, containing_type=None,
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
   serialized_start=144,
-  serialized_end=216,
+  serialized_end=221,
+)
+
+
+_REQEMPTY = _descriptor.Descriptor(
+  name='ReqEmpty',
+  full_name='main.ReqEmpty',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='paging', full_name='main.ReqEmpty.paging', index=0,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='offset', full_name='main.ReqEmpty.offset', index=1,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='limit', full_name='main.ReqEmpty.limit', index=2,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='_paging', full_name='main.ReqEmpty._paging',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+    _descriptor.OneofDescriptor(
+      name='_offset', full_name='main.ReqEmpty._offset',
+      index=1, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+    _descriptor.OneofDescriptor(
+      name='_limit', full_name='main.ReqEmpty._limit',
+      index=2, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+  ],
+  serialized_start=223,
+  serialized_end=348,
 )
 
 
@@ -168,14 +229,28 @@ _REQMLRESULT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ImageURL', full_name='main.ReqMLResult.ImageURL', index=1,
+      name='Result', full_name='main.ReqMLResult.Result', index=1,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='CamName', full_name='main.ReqMLResult.CamName', index=2,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ImageURL', full_name='main.ReqMLResult.ImageURL', index=3,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='Score', full_name='main.ReqMLResult.Score', index=2,
+      name='Score', full_name='main.ReqMLResult.Score', index=4,
       number=3, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -193,8 +268,96 @@ _REQMLRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=218,
-  serialized_end=285,
+  serialized_start=350,
+  serialized_end=450,
+)
+
+
+_REQPULLMLRESULT = _descriptor.Descriptor(
+  name='ReqPullMLResult',
+  full_name='main.ReqPullMLResult',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='paging', full_name='main.ReqPullMLResult.paging', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='laneID', full_name='main.ReqPullMLResult.laneID', index=1,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='_paging', full_name='main.ReqPullMLResult._paging',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+  ],
+  serialized_start=452,
+  serialized_end=538,
+)
+
+
+_REQLISTCONTAINEROCRS = _descriptor.Descriptor(
+  name='ReqListContainerOCRs',
+  full_name='main.ReqListContainerOCRs',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='paging', full_name='main.ReqListContainerOCRs.paging', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='laneID', full_name='main.ReqListContainerOCRs.laneID', index=1,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='_paging', full_name='main.ReqListContainerOCRs._paging',
+      index=0, containing_type=None,
+      create_key=_descriptor._internal_create_key,
+    fields=[]),
+  ],
+  serialized_start=540,
+  serialized_end=631,
 )
 
 
@@ -253,52 +416,8 @@ _RESMLRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=287,
-  serialized_end=406,
-)
-
-
-_REQCONFIRMCONTAINERID = _descriptor.Descriptor(
-  name='ReqConfirmContainerID',
-  full_name='main.ReqConfirmContainerID',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='SuggestID', full_name='main.ReqConfirmContainerID.SuggestID', index=0,
-      number=1, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='ContainerID', full_name='main.ReqConfirmContainerID.ContainerID', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-    _descriptor.OneofDescriptor(
-      name='_SuggestID', full_name='main.ReqConfirmContainerID._SuggestID',
-      index=0, containing_type=None,
-      create_key=_descriptor._internal_create_key,
-    fields=[]),
-  ],
-  serialized_start=408,
-  serialized_end=490,
+  serialized_start=633,
+  serialized_end=752,
 )
 
 
@@ -378,8 +497,8 @@ _CONTAINEROCR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=493,
-  serialized_end=639,
+  serialized_start=755,
+  serialized_end=901,
 )
 
 
@@ -466,54 +585,8 @@ _CONTAINERTRACKING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=642,
-  serialized_end=808,
-)
-
-
-_RESLISTCONTAINERTRACKINGS = _descriptor.Descriptor(
-  name='ResListContainerTrackings',
-  full_name='main.ResListContainerTrackings',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='status', full_name='main.ResListContainerTrackings.status', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='total', full_name='main.ResListContainerTrackings.total', index=1,
-      number=3, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='trackings', full_name='main.ResListContainerTrackings.trackings', index=2,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=810,
-  serialized_end=929,
+  serialized_start=904,
+  serialized_end=1070,
 )
 
 
@@ -558,34 +631,48 @@ _RESLISTCONTAINEROCRS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=931,
-  serialized_end=1035,
+  serialized_start=1072,
+  serialized_end=1176,
 )
 
 _RESEMPTY.fields_by_name['status'].message_type = _RESSTATUS
+_REQUESTPAGING.oneofs_by_name['_offset'].fields.append(
+  _REQUESTPAGING.fields_by_name['offset'])
+_REQUESTPAGING.fields_by_name['offset'].containing_oneof = _REQUESTPAGING.oneofs_by_name['_offset']
+_REQUESTPAGING.oneofs_by_name['_limit'].fields.append(
+  _REQUESTPAGING.fields_by_name['limit'])
+_REQUESTPAGING.fields_by_name['limit'].containing_oneof = _REQUESTPAGING.oneofs_by_name['_limit']
+_REQEMPTY.fields_by_name['paging'].message_type = _REQUESTPAGING
+_REQEMPTY.oneofs_by_name['_paging'].fields.append(
+  _REQEMPTY.fields_by_name['paging'])
+_REQEMPTY.fields_by_name['paging'].containing_oneof = _REQEMPTY.oneofs_by_name['_paging']
 _REQEMPTY.oneofs_by_name['_offset'].fields.append(
   _REQEMPTY.fields_by_name['offset'])
 _REQEMPTY.fields_by_name['offset'].containing_oneof = _REQEMPTY.oneofs_by_name['_offset']
 _REQEMPTY.oneofs_by_name['_limit'].fields.append(
   _REQEMPTY.fields_by_name['limit'])
 _REQEMPTY.fields_by_name['limit'].containing_oneof = _REQEMPTY.oneofs_by_name['_limit']
+_REQPULLMLRESULT.fields_by_name['paging'].message_type = _REQUESTPAGING
+_REQPULLMLRESULT.oneofs_by_name['_paging'].fields.append(
+  _REQPULLMLRESULT.fields_by_name['paging'])
+_REQPULLMLRESULT.fields_by_name['paging'].containing_oneof = _REQPULLMLRESULT.oneofs_by_name['_paging']
+_REQLISTCONTAINEROCRS.fields_by_name['paging'].message_type = _REQUESTPAGING
+_REQLISTCONTAINEROCRS.oneofs_by_name['_paging'].fields.append(
+  _REQLISTCONTAINEROCRS.fields_by_name['paging'])
+_REQLISTCONTAINEROCRS.fields_by_name['paging'].containing_oneof = _REQLISTCONTAINEROCRS.oneofs_by_name['_paging']
 _RESMLRESULT.fields_by_name['status'].message_type = _RESSTATUS
-_REQCONFIRMCONTAINERID.oneofs_by_name['_SuggestID'].fields.append(
-  _REQCONFIRMCONTAINERID.fields_by_name['SuggestID'])
-_REQCONFIRMCONTAINERID.fields_by_name['SuggestID'].containing_oneof = _REQCONFIRMCONTAINERID.oneofs_by_name['_SuggestID']
-_RESLISTCONTAINERTRACKINGS.fields_by_name['status'].message_type = _RESSTATUS
-_RESLISTCONTAINERTRACKINGS.fields_by_name['trackings'].message_type = _CONTAINERTRACKING
 _RESLISTCONTAINEROCRS.fields_by_name['status'].message_type = _RESSTATUS
 _RESLISTCONTAINEROCRS.fields_by_name['ocrs'].message_type = _CONTAINEROCR
 DESCRIPTOR.message_types_by_name['ResStatus'] = _RESSTATUS
 DESCRIPTOR.message_types_by_name['ResEmpty'] = _RESEMPTY
+DESCRIPTOR.message_types_by_name['RequestPaging'] = _REQUESTPAGING
 DESCRIPTOR.message_types_by_name['ReqEmpty'] = _REQEMPTY
 DESCRIPTOR.message_types_by_name['ReqMLResult'] = _REQMLRESULT
+DESCRIPTOR.message_types_by_name['ReqPullMLResult'] = _REQPULLMLRESULT
+DESCRIPTOR.message_types_by_name['ReqListContainerOCRs'] = _REQLISTCONTAINEROCRS
 DESCRIPTOR.message_types_by_name['ResMLResult'] = _RESMLRESULT
-DESCRIPTOR.message_types_by_name['ReqConfirmContainerID'] = _REQCONFIRMCONTAINERID
 DESCRIPTOR.message_types_by_name['ContainerOCR'] = _CONTAINEROCR
 DESCRIPTOR.message_types_by_name['ContainerTracking'] = _CONTAINERTRACKING
-DESCRIPTOR.message_types_by_name['ResListContainerTrackings'] = _RESLISTCONTAINERTRACKINGS
 DESCRIPTOR.message_types_by_name['ResListContainerOCRs'] = _RESLISTCONTAINEROCRS
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -603,6 +690,13 @@ ResEmpty = _reflection.GeneratedProtocolMessageType('ResEmpty', (_message.Messag
   })
 _sym_db.RegisterMessage(ResEmpty)
 
+RequestPaging = _reflection.GeneratedProtocolMessageType('RequestPaging', (_message.Message,), {
+  'DESCRIPTOR' : _REQUESTPAGING,
+  '__module__' : 'proto.service_pb2'
+  # @@protoc_insertion_point(class_scope:main.RequestPaging)
+  })
+_sym_db.RegisterMessage(RequestPaging)
+
 ReqEmpty = _reflection.GeneratedProtocolMessageType('ReqEmpty', (_message.Message,), {
   'DESCRIPTOR' : _REQEMPTY,
   '__module__' : 'proto.service_pb2'
@@ -617,19 +711,26 @@ ReqMLResult = _reflection.GeneratedProtocolMessageType('ReqMLResult', (_message.
   })
 _sym_db.RegisterMessage(ReqMLResult)
 
+ReqPullMLResult = _reflection.GeneratedProtocolMessageType('ReqPullMLResult', (_message.Message,), {
+  'DESCRIPTOR' : _REQPULLMLRESULT,
+  '__module__' : 'proto.service_pb2'
+  # @@protoc_insertion_point(class_scope:main.ReqPullMLResult)
+  })
+_sym_db.RegisterMessage(ReqPullMLResult)
+
+ReqListContainerOCRs = _reflection.GeneratedProtocolMessageType('ReqListContainerOCRs', (_message.Message,), {
+  'DESCRIPTOR' : _REQLISTCONTAINEROCRS,
+  '__module__' : 'proto.service_pb2'
+  # @@protoc_insertion_point(class_scope:main.ReqListContainerOCRs)
+  })
+_sym_db.RegisterMessage(ReqListContainerOCRs)
+
 ResMLResult = _reflection.GeneratedProtocolMessageType('ResMLResult', (_message.Message,), {
   'DESCRIPTOR' : _RESMLRESULT,
   '__module__' : 'proto.service_pb2'
   # @@protoc_insertion_point(class_scope:main.ResMLResult)
   })
 _sym_db.RegisterMessage(ResMLResult)
-
-ReqConfirmContainerID = _reflection.GeneratedProtocolMessageType('ReqConfirmContainerID', (_message.Message,), {
-  'DESCRIPTOR' : _REQCONFIRMCONTAINERID,
-  '__module__' : 'proto.service_pb2'
-  # @@protoc_insertion_point(class_scope:main.ReqConfirmContainerID)
-  })
-_sym_db.RegisterMessage(ReqConfirmContainerID)
 
 ContainerOCR = _reflection.GeneratedProtocolMessageType('ContainerOCR', (_message.Message,), {
   'DESCRIPTOR' : _CONTAINEROCR,
@@ -644,13 +745,6 @@ ContainerTracking = _reflection.GeneratedProtocolMessageType('ContainerTracking'
   # @@protoc_insertion_point(class_scope:main.ContainerTracking)
   })
 _sym_db.RegisterMessage(ContainerTracking)
-
-ResListContainerTrackings = _reflection.GeneratedProtocolMessageType('ResListContainerTrackings', (_message.Message,), {
-  'DESCRIPTOR' : _RESLISTCONTAINERTRACKINGS,
-  '__module__' : 'proto.service_pb2'
-  # @@protoc_insertion_point(class_scope:main.ResListContainerTrackings)
-  })
-_sym_db.RegisterMessage(ResListContainerTrackings)
 
 ResListContainerOCRs = _reflection.GeneratedProtocolMessageType('ResListContainerOCRs', (_message.Message,), {
   'DESCRIPTOR' : _RESLISTCONTAINEROCRS,
@@ -669,8 +763,8 @@ _MYGRPC = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1038,
-  serialized_end=1356,
+  serialized_start=1179,
+  serialized_end=1374,
   methods=[
   _descriptor.MethodDescriptor(
     name='newMLResult',
@@ -687,38 +781,18 @@ _MYGRPC = _descriptor.ServiceDescriptor(
     full_name='main.MyGRPC.pullMLResult',
     index=1,
     containing_service=None,
-    input_type=_REQEMPTY,
+    input_type=_REQPULLMLRESULT,
     output_type=_RESMLRESULT,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='listContainerTrackings',
-    full_name='main.MyGRPC.listContainerTrackings',
-    index=2,
-    containing_service=None,
-    input_type=_REQEMPTY,
-    output_type=_RESLISTCONTAINERTRACKINGS,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
     name='listContainerOCRs',
     full_name='main.MyGRPC.listContainerOCRs',
-    index=3,
+    index=2,
     containing_service=None,
-    input_type=_REQEMPTY,
+    input_type=_REQLISTCONTAINEROCRS,
     output_type=_RESLISTCONTAINEROCRS,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='confirmContainerID',
-    full_name='main.MyGRPC.confirmContainerID',
-    index=4,
-    containing_service=None,
-    input_type=_REQCONFIRMCONTAINERID,
-    output_type=_RESEMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

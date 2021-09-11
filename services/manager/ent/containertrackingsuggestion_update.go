@@ -35,6 +35,20 @@ func (ctsu *ContainerTrackingSuggestionUpdate) SetContainerID(s string) *Contain
 	return ctsu
 }
 
+// SetNillableContainerID sets the "container_id" field if the given value is not nil.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetNillableContainerID(s *string) *ContainerTrackingSuggestionUpdate {
+	if s != nil {
+		ctsu.SetContainerID(*s)
+	}
+	return ctsu
+}
+
+// ClearContainerID clears the value of the "container_id" field.
+func (ctsu *ContainerTrackingSuggestionUpdate) ClearContainerID() *ContainerTrackingSuggestionUpdate {
+	ctsu.mutation.ClearContainerID()
+	return ctsu
+}
+
 // SetResult sets the "result" field.
 func (ctsu *ContainerTrackingSuggestionUpdate) SetResult(s string) *ContainerTrackingSuggestionUpdate {
 	ctsu.mutation.SetResult(s)
@@ -328,6 +342,12 @@ func (ctsu *ContainerTrackingSuggestionUpdate) sqlSave(ctx context.Context) (n i
 			Column: containertrackingsuggestion.FieldContainerID,
 		})
 	}
+	if ctsu.mutation.ContainerIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: containertrackingsuggestion.FieldContainerID,
+		})
+	}
 	if value, ok := ctsu.mutation.Result(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -519,6 +539,20 @@ type ContainerTrackingSuggestionUpdateOne struct {
 // SetContainerID sets the "container_id" field.
 func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetContainerID(s string) *ContainerTrackingSuggestionUpdateOne {
 	ctsuo.mutation.SetContainerID(s)
+	return ctsuo
+}
+
+// SetNillableContainerID sets the "container_id" field if the given value is not nil.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableContainerID(s *string) *ContainerTrackingSuggestionUpdateOne {
+	if s != nil {
+		ctsuo.SetContainerID(*s)
+	}
+	return ctsuo
+}
+
+// ClearContainerID clears the value of the "container_id" field.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearContainerID() *ContainerTrackingSuggestionUpdateOne {
+	ctsuo.mutation.ClearContainerID()
 	return ctsuo
 }
 
@@ -836,6 +870,12 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) sqlSave(ctx context.Context) 
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: containertrackingsuggestion.FieldContainerID,
+		})
+	}
+	if ctsuo.mutation.ContainerIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: containertrackingsuggestion.FieldContainerID,
 		})
 	}

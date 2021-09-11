@@ -834,9 +834,22 @@ func (m *ContainerTrackingMutation) OldContainerID(ctx context.Context) (v strin
 	return oldValue.ContainerID, nil
 }
 
+// ClearContainerID clears the value of the "container_id" field.
+func (m *ContainerTrackingMutation) ClearContainerID() {
+	m.container_id = nil
+	m.clearedFields[containertracking.FieldContainerID] = struct{}{}
+}
+
+// ContainerIDCleared returns if the "container_id" field was cleared in this mutation.
+func (m *ContainerTrackingMutation) ContainerIDCleared() bool {
+	_, ok := m.clearedFields[containertracking.FieldContainerID]
+	return ok
+}
+
 // ResetContainerID resets all changes to the "container_id" field.
 func (m *ContainerTrackingMutation) ResetContainerID() {
 	m.container_id = nil
+	delete(m.clearedFields, containertracking.FieldContainerID)
 }
 
 // SetSessionID sets the "session_id" field.
@@ -1096,6 +1109,9 @@ func (m *ContainerTrackingMutation) AddField(name string, value ent.Value) error
 // mutation.
 func (m *ContainerTrackingMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(containertracking.FieldContainerID) {
+		fields = append(fields, containertracking.FieldContainerID)
+	}
 	if m.FieldCleared(containertracking.FieldSessionID) {
 		fields = append(fields, containertracking.FieldSessionID)
 	}
@@ -1113,6 +1129,9 @@ func (m *ContainerTrackingMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *ContainerTrackingMutation) ClearField(name string) error {
 	switch name {
+	case containertracking.FieldContainerID:
+		m.ClearContainerID()
+		return nil
 	case containertracking.FieldSessionID:
 		m.ClearSessionID()
 		return nil
@@ -1357,9 +1376,22 @@ func (m *ContainerTrackingSuggestionMutation) OldContainerID(ctx context.Context
 	return oldValue.ContainerID, nil
 }
 
+// ClearContainerID clears the value of the "container_id" field.
+func (m *ContainerTrackingSuggestionMutation) ClearContainerID() {
+	m.container_id = nil
+	m.clearedFields[containertrackingsuggestion.FieldContainerID] = struct{}{}
+}
+
+// ContainerIDCleared returns if the "container_id" field was cleared in this mutation.
+func (m *ContainerTrackingSuggestionMutation) ContainerIDCleared() bool {
+	_, ok := m.clearedFields[containertrackingsuggestion.FieldContainerID]
+	return ok
+}
+
 // ResetContainerID resets all changes to the "container_id" field.
 func (m *ContainerTrackingSuggestionMutation) ResetContainerID() {
 	m.container_id = nil
+	delete(m.clearedFields, containertrackingsuggestion.FieldContainerID)
 }
 
 // SetResult sets the "result" field.
@@ -2143,6 +2175,9 @@ func (m *ContainerTrackingSuggestionMutation) AddField(name string, value ent.Va
 // mutation.
 func (m *ContainerTrackingSuggestionMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(containertrackingsuggestion.FieldContainerID) {
+		fields = append(fields, containertrackingsuggestion.FieldContainerID)
+	}
 	if m.FieldCleared(containertrackingsuggestion.FieldResult) {
 		fields = append(fields, containertrackingsuggestion.FieldResult)
 	}
@@ -2181,6 +2216,9 @@ func (m *ContainerTrackingSuggestionMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *ContainerTrackingSuggestionMutation) ClearField(name string) error {
 	switch name {
+	case containertrackingsuggestion.FieldContainerID:
+		m.ClearContainerID()
+		return nil
 	case containertrackingsuggestion.FieldResult:
 		m.ClearResult()
 		return nil

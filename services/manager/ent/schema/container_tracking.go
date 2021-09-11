@@ -17,7 +17,7 @@ type ContainerTracking struct {
 // Fields of the ContainerTracking.
 func (ContainerTracking) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("container_id"),
+		field.String("container_id").Optional(),
 		field.String("session_id").Unique().Optional(),
 		field.Time("created_at").Default(time.Now),
 	}

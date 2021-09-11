@@ -34,6 +34,20 @@ func (ctu *ContainerTrackingUpdate) SetContainerID(s string) *ContainerTrackingU
 	return ctu
 }
 
+// SetNillableContainerID sets the "container_id" field if the given value is not nil.
+func (ctu *ContainerTrackingUpdate) SetNillableContainerID(s *string) *ContainerTrackingUpdate {
+	if s != nil {
+		ctu.SetContainerID(*s)
+	}
+	return ctu
+}
+
+// ClearContainerID clears the value of the "container_id" field.
+func (ctu *ContainerTrackingUpdate) ClearContainerID() *ContainerTrackingUpdate {
+	ctu.mutation.ClearContainerID()
+	return ctu
+}
+
 // SetSessionID sets the "session_id" field.
 func (ctu *ContainerTrackingUpdate) SetSessionID(s string) *ContainerTrackingUpdate {
 	ctu.mutation.SetSessionID(s)
@@ -188,6 +202,12 @@ func (ctu *ContainerTrackingUpdate) sqlSave(ctx context.Context) (n int, err err
 			Column: containertracking.FieldContainerID,
 		})
 	}
+	if ctu.mutation.ContainerIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: containertracking.FieldContainerID,
+		})
+	}
 	if value, ok := ctu.mutation.SessionID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -284,6 +304,20 @@ type ContainerTrackingUpdateOne struct {
 // SetContainerID sets the "container_id" field.
 func (ctuo *ContainerTrackingUpdateOne) SetContainerID(s string) *ContainerTrackingUpdateOne {
 	ctuo.mutation.SetContainerID(s)
+	return ctuo
+}
+
+// SetNillableContainerID sets the "container_id" field if the given value is not nil.
+func (ctuo *ContainerTrackingUpdateOne) SetNillableContainerID(s *string) *ContainerTrackingUpdateOne {
+	if s != nil {
+		ctuo.SetContainerID(*s)
+	}
+	return ctuo
+}
+
+// ClearContainerID clears the value of the "container_id" field.
+func (ctuo *ContainerTrackingUpdateOne) ClearContainerID() *ContainerTrackingUpdateOne {
+	ctuo.mutation.ClearContainerID()
 	return ctuo
 }
 
@@ -462,6 +496,12 @@ func (ctuo *ContainerTrackingUpdateOne) sqlSave(ctx context.Context) (_node *Con
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: containertracking.FieldContainerID,
+		})
+	}
+	if ctuo.mutation.ContainerIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: containertracking.FieldContainerID,
 		})
 	}

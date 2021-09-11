@@ -14,8 +14,10 @@ def run():
 
         while True:
             stub.newMLResult(service_pb2.ReqMLResult(
+                CamName=f"cam1",
+                Result=f"DỮ-LIỆU-GIẢ-XXYY-1994-{count}",
                 ContainerID=f"DỮ-LIỆU-GIẢ-XXYY-1994-{count}",
-                ImageURL="http://localhost:5000/image.jpeg",
+                ImageURL=f"/opt/smartgate-dockerized/minio_data/spitc-dev/20210909/contID/4c55d132-116a-11ec-9f73-ee233eca0a51_1631196588.032566{count}.jpg",
                 Score=random.uniform(0, 1)
             ))
             print(">>> sent: ", count)

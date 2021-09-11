@@ -21,23 +21,13 @@ class MyGRPCStub(object):
                 )
         self.pullMLResult = channel.unary_stream(
                 '/main.MyGRPC/pullMLResult',
-                request_serializer=proto_dot_service__pb2.ReqEmpty.SerializeToString,
+                request_serializer=proto_dot_service__pb2.ReqPullMLResult.SerializeToString,
                 response_deserializer=proto_dot_service__pb2.ResMLResult.FromString,
-                )
-        self.listContainerTrackings = channel.unary_unary(
-                '/main.MyGRPC/listContainerTrackings',
-                request_serializer=proto_dot_service__pb2.ReqEmpty.SerializeToString,
-                response_deserializer=proto_dot_service__pb2.ResListContainerTrackings.FromString,
                 )
         self.listContainerOCRs = channel.unary_unary(
                 '/main.MyGRPC/listContainerOCRs',
-                request_serializer=proto_dot_service__pb2.ReqEmpty.SerializeToString,
+                request_serializer=proto_dot_service__pb2.ReqListContainerOCRs.SerializeToString,
                 response_deserializer=proto_dot_service__pb2.ResListContainerOCRs.FromString,
-                )
-        self.confirmContainerID = channel.unary_unary(
-                '/main.MyGRPC/confirmContainerID',
-                request_serializer=proto_dot_service__pb2.ReqConfirmContainerID.SerializeToString,
-                response_deserializer=proto_dot_service__pb2.ResEmpty.FromString,
                 )
 
 
@@ -56,20 +46,10 @@ class MyGRPCServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def listContainerTrackings(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
     def listContainerOCRs(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def confirmContainerID(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """rpc listContainerTrackings(ReqEmpty) returns (ResListContainerTrackings);
+        rpc confirmContainerID(ReqConfirmContainerID) returns (ResEmpty);
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -84,23 +64,13 @@ def add_MyGRPCServicer_to_server(servicer, server):
             ),
             'pullMLResult': grpc.unary_stream_rpc_method_handler(
                     servicer.pullMLResult,
-                    request_deserializer=proto_dot_service__pb2.ReqEmpty.FromString,
+                    request_deserializer=proto_dot_service__pb2.ReqPullMLResult.FromString,
                     response_serializer=proto_dot_service__pb2.ResMLResult.SerializeToString,
-            ),
-            'listContainerTrackings': grpc.unary_unary_rpc_method_handler(
-                    servicer.listContainerTrackings,
-                    request_deserializer=proto_dot_service__pb2.ReqEmpty.FromString,
-                    response_serializer=proto_dot_service__pb2.ResListContainerTrackings.SerializeToString,
             ),
             'listContainerOCRs': grpc.unary_unary_rpc_method_handler(
                     servicer.listContainerOCRs,
-                    request_deserializer=proto_dot_service__pb2.ReqEmpty.FromString,
+                    request_deserializer=proto_dot_service__pb2.ReqListContainerOCRs.FromString,
                     response_serializer=proto_dot_service__pb2.ResListContainerOCRs.SerializeToString,
-            ),
-            'confirmContainerID': grpc.unary_unary_rpc_method_handler(
-                    servicer.confirmContainerID,
-                    request_deserializer=proto_dot_service__pb2.ReqConfirmContainerID.FromString,
-                    response_serializer=proto_dot_service__pb2.ResEmpty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -141,25 +111,8 @@ class MyGRPC(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_stream(request, target, '/main.MyGRPC/pullMLResult',
-            proto_dot_service__pb2.ReqEmpty.SerializeToString,
+            proto_dot_service__pb2.ReqPullMLResult.SerializeToString,
             proto_dot_service__pb2.ResMLResult.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def listContainerTrackings(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/main.MyGRPC/listContainerTrackings',
-            proto_dot_service__pb2.ReqEmpty.SerializeToString,
-            proto_dot_service__pb2.ResListContainerTrackings.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -175,24 +128,7 @@ class MyGRPC(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/main.MyGRPC/listContainerOCRs',
-            proto_dot_service__pb2.ReqEmpty.SerializeToString,
+            proto_dot_service__pb2.ReqListContainerOCRs.SerializeToString,
             proto_dot_service__pb2.ResListContainerOCRs.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def confirmContainerID(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/main.MyGRPC/confirmContainerID',
-            proto_dot_service__pb2.ReqConfirmContainerID.SerializeToString,
-            proto_dot_service__pb2.ResEmpty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
