@@ -35,6 +35,26 @@ func (csu *CamSettingUpdate) SetName(s string) *CamSettingUpdate {
 	return csu
 }
 
+// SetPosition sets the "position" field.
+func (csu *CamSettingUpdate) SetPosition(s string) *CamSettingUpdate {
+	csu.mutation.SetPosition(s)
+	return csu
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (csu *CamSettingUpdate) SetNillablePosition(s *string) *CamSettingUpdate {
+	if s != nil {
+		csu.SetPosition(*s)
+	}
+	return csu
+}
+
+// ClearPosition clears the value of the "position" field.
+func (csu *CamSettingUpdate) ClearPosition() *CamSettingUpdate {
+	csu.mutation.ClearPosition()
+	return csu
+}
+
 // SetLaneID sets the "lane_id" field.
 func (csu *CamSettingUpdate) SetLaneID(i int) *CamSettingUpdate {
 	csu.mutation.SetLaneID(i)
@@ -212,6 +232,19 @@ func (csu *CamSettingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: camsetting.FieldName,
 		})
 	}
+	if value, ok := csu.mutation.Position(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: camsetting.FieldPosition,
+		})
+	}
+	if csu.mutation.PositionCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: camsetting.FieldPosition,
+		})
+	}
 	if value, ok := csu.mutation.RtspURL(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -344,6 +377,26 @@ type CamSettingUpdateOne struct {
 // SetName sets the "name" field.
 func (csuo *CamSettingUpdateOne) SetName(s string) *CamSettingUpdateOne {
 	csuo.mutation.SetName(s)
+	return csuo
+}
+
+// SetPosition sets the "position" field.
+func (csuo *CamSettingUpdateOne) SetPosition(s string) *CamSettingUpdateOne {
+	csuo.mutation.SetPosition(s)
+	return csuo
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (csuo *CamSettingUpdateOne) SetNillablePosition(s *string) *CamSettingUpdateOne {
+	if s != nil {
+		csuo.SetPosition(*s)
+	}
+	return csuo
+}
+
+// ClearPosition clears the value of the "position" field.
+func (csuo *CamSettingUpdateOne) ClearPosition() *CamSettingUpdateOne {
+	csuo.mutation.ClearPosition()
 	return csuo
 }
 
@@ -546,6 +599,19 @@ func (csuo *CamSettingUpdateOne) sqlSave(ctx context.Context) (_node *CamSetting
 			Type:   field.TypeString,
 			Value:  value,
 			Column: camsetting.FieldName,
+		})
+	}
+	if value, ok := csuo.mutation.Position(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: camsetting.FieldPosition,
+		})
+	}
+	if csuo.mutation.PositionCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: camsetting.FieldPosition,
 		})
 	}
 	if value, ok := csuo.mutation.RtspURL(); ok {

@@ -11,7 +11,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	q "github.com/doug-martin/goqu/v9"
-	"github.com/jmoiron/sqlx"
 
 	"github.com/init-tech-solution/service-spitc-stream/services/lib/uuid"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
@@ -19,23 +18,6 @@ import (
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 )
-
-type Server struct {
-	db    *ent.Client
-	rawdb *sqlx.DB
-
-	clients map[string]chan *ent.ContainerTrackingSuggestion
-
-	mygrpc.UnimplementedMyGRPCServer
-}
-
-func CreateServer(db *ent.Client, rawdb *sqlx.DB) *Server {
-	return &Server{
-		db:      db,
-		rawdb:   rawdb,
-		clients: map[string]chan *ent.ContainerTrackingSuggestion{},
-	}
-}
 
 func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*mygrpc.ResEmpty, error) {
 	log.Println("ML result received", req)
@@ -152,14 +134,16 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListCon
 	resOCRs := []*mygrpc.ContainerOCR{}
 	for _, s := range ocrs {
 		ocr := &mygrpc.ContainerOCR{
-			ID:          int32(s.ID),
-			Score:       s.Score,
-			ImageURL:    s.ImageURL,
-			ContainerID: s.ContainerID,
-			BIC:         s.Bic,
-			Serial:      s.Serial,
-			Checksum:    s.Checksum,
-			CreatedAt:   int32(s.CreatedAt.Unix()),
+			ID:              int32(s.ID),
+			Score:           s.Score,
+			ImageURL:        s.ImageURL,
+			ContainerID:     s.ContainerID,
+			BIC:             s.Bic,
+			Serial:          s.Serial,
+			Checksum:        s.Checksum,
+			TrackingType:    s.TrackingType,
+			TrackingSession: fmt.Sprintf("%d", s.TrackingID),
+			CreatedAt:       int32(s.CreatedAt.Unix()),
 		}
 
 		resOCRs = append(resOCRs, ocr)
@@ -183,7 +167,10 @@ func (svc *Server) PullMLResult(req *mygrpc.ReqPullMLResult, resp mygrpc.MyGRPC_
 
 	ctx := context.Background()
 
-	camIDs, err := svc.db.CamSetting.Query().Order(ent.Asc(camsetting.FieldID)).Where(camsetting.LaneID(int(req.LaneID))).IDs(ctx)
+	camIDs, err := svc.db.CamSetting.Query().
+		Order(ent.Asc(camsetting.FieldID)).
+		Where(camsetting.LaneID(int(req.LaneID))).
+		IDs(ctx)
 	if err != nil {
 		return err
 	}
@@ -207,5 +194,3 @@ func (svc *Server) PullMLResult(req *mygrpc.ReqPullMLResult, resp mygrpc.MyGRPC_
 
 	return nil
 }
-
-var _ mygrpc.MyGRPCServer = &Server{}

@@ -21,6 +21,8 @@ type MyGRPCClient interface {
 	NewMLResult(ctx context.Context, in *ReqMLResult, opts ...grpc.CallOption) (*ResEmpty, error)
 	PullMLResult(ctx context.Context, in *ReqPullMLResult, opts ...grpc.CallOption) (MyGRPC_PullMLResultClient, error)
 	ListContainerOCRs(ctx context.Context, in *ReqListContainerOCRs, opts ...grpc.CallOption) (*ResListContainerOCRs, error)
+	ListCamSettings(ctx context.Context, in *ReqListCamSettings, opts ...grpc.CallOption) (*ResListCamSettings, error)
+	ListLanes(ctx context.Context, in *ReqListLanes, opts ...grpc.CallOption) (*ResListLanes, error)
 }
 
 type myGRPCClient struct {
@@ -81,6 +83,24 @@ func (c *myGRPCClient) ListContainerOCRs(ctx context.Context, in *ReqListContain
 	return out, nil
 }
 
+func (c *myGRPCClient) ListCamSettings(ctx context.Context, in *ReqListCamSettings, opts ...grpc.CallOption) (*ResListCamSettings, error) {
+	out := new(ResListCamSettings)
+	err := c.cc.Invoke(ctx, "/main.MyGRPC/listCamSettings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *myGRPCClient) ListLanes(ctx context.Context, in *ReqListLanes, opts ...grpc.CallOption) (*ResListLanes, error) {
+	out := new(ResListLanes)
+	err := c.cc.Invoke(ctx, "/main.MyGRPC/listLanes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MyGRPCServer is the server API for MyGRPC service.
 // All implementations must embed UnimplementedMyGRPCServer
 // for forward compatibility
@@ -88,6 +108,8 @@ type MyGRPCServer interface {
 	NewMLResult(context.Context, *ReqMLResult) (*ResEmpty, error)
 	PullMLResult(*ReqPullMLResult, MyGRPC_PullMLResultServer) error
 	ListContainerOCRs(context.Context, *ReqListContainerOCRs) (*ResListContainerOCRs, error)
+	ListCamSettings(context.Context, *ReqListCamSettings) (*ResListCamSettings, error)
+	ListLanes(context.Context, *ReqListLanes) (*ResListLanes, error)
 	mustEmbedUnimplementedMyGRPCServer()
 }
 
@@ -103,6 +125,12 @@ func (UnimplementedMyGRPCServer) PullMLResult(*ReqPullMLResult, MyGRPC_PullMLRes
 }
 func (UnimplementedMyGRPCServer) ListContainerOCRs(context.Context, *ReqListContainerOCRs) (*ResListContainerOCRs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListContainerOCRs not implemented")
+}
+func (UnimplementedMyGRPCServer) ListCamSettings(context.Context, *ReqListCamSettings) (*ResListCamSettings, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCamSettings not implemented")
+}
+func (UnimplementedMyGRPCServer) ListLanes(context.Context, *ReqListLanes) (*ResListLanes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListLanes not implemented")
 }
 func (UnimplementedMyGRPCServer) mustEmbedUnimplementedMyGRPCServer() {}
 
@@ -174,6 +202,42 @@ func _MyGRPC_ListContainerOCRs_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MyGRPC_ListCamSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReqListCamSettings)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyGRPCServer).ListCamSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/main.MyGRPC/listCamSettings",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyGRPCServer).ListCamSettings(ctx, req.(*ReqListCamSettings))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MyGRPC_ListLanes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReqListLanes)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MyGRPCServer).ListLanes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/main.MyGRPC/listLanes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MyGRPCServer).ListLanes(ctx, req.(*ReqListLanes))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MyGRPC_ServiceDesc is the grpc.ServiceDesc for MyGRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -188,6 +252,14 @@ var MyGRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "listContainerOCRs",
 			Handler:    _MyGRPC_ListContainerOCRs_Handler,
+		},
+		{
+			MethodName: "listCamSettings",
+			Handler:    _MyGRPC_ListCamSettings_Handler,
+		},
+		{
+			MethodName: "listLanes",
+			Handler:    _MyGRPC_ListLanes_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

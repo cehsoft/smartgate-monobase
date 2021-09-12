@@ -17,6 +17,7 @@ type CamSetting struct {
 func (CamSetting) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
+		field.String("position").Optional(),
 		field.Int("lane_id").Optional(),
 		field.String("rtsp_url"),
 		field.String("webrtc_url"),

@@ -20,7 +20,7 @@ func init() {
 	camsettingFields := schema.CamSetting{}.Fields()
 	_ = camsettingFields
 	// camsettingDescCreatedAt is the schema descriptor for created_at field.
-	camsettingDescCreatedAt := camsettingFields[4].Descriptor()
+	camsettingDescCreatedAt := camsettingFields[5].Descriptor()
 	// camsetting.DefaultCreatedAt holds the default value on creation for the created_at field.
 	camsetting.DefaultCreatedAt = camsettingDescCreatedAt.Default.(func() time.Time)
 	containertrackingFields := schema.ContainerTracking{}.Fields()

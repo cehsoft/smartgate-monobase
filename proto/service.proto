@@ -2,11 +2,17 @@ syntax = "proto3";
 package main;
 option go_package="./;mygrpc";
 
-
+// grpc basic
 message ResStatus {
     int32 statusCode = 1;
     string errCode = 2;
     string errMessage = 3;
+}
+
+message ReqEmpty {
+    optional RequestPaging paging = 3;
+    optional int32 offset = 1; // deprecated in favor of paging
+    optional int32 limit = 2; // deprecated in favor of paging
 }
 
 message ResEmpty {
@@ -18,12 +24,7 @@ message RequestPaging {
     optional int32 limit = 2;
 }
 
-message ReqEmpty {
-    optional RequestPaging paging = 3;
-    optional int32 offset = 1; // deprecated in favor of paging
-    optional int32 limit = 2; // deprecated in favor of paging
-}
-
+// newMLResult
 message ReqMLResult {
     string ContainerID = 1; // deprecated in favor of Result
     string Result = 5;
@@ -32,15 +33,9 @@ message ReqMLResult {
     float Score = 3;
 }
 
+// pullMLResult
 message ReqPullMLResult {
-    optional RequestPaging paging = 1;    
-    // int32 gateID = 2;
-    int32 laneID = 3;
-}
-
-message ReqListContainerOCRs {
-    optional RequestPaging paging = 1;
-    // int32 gateID = 2;
+    optional RequestPaging paging = 1;        
     int32 laneID = 3;
 }
 
@@ -53,11 +48,7 @@ message ResMLResult {
     float Score = 4;
 }
 
-// message ReqConfirmContainerID {
-//     optional int32 SuggestID = 1;
-//     string ContainerID = 2;
-// }
-
+// listContainerOCRs
 message ContainerOCR {
     int32 ID = 1;
     float Score = 5;
@@ -66,26 +57,15 @@ message ContainerOCR {
     string BIC = 6;
     string Serial = 7;
     string Checksum = 8;
+    string TrackingType = 9;
+    string TrackingSession = 10;
     int32 CreatedAt = 4;
 }
 
-message ContainerTracking {
-    int32 ID = 1;
-    int32 OCRID = 9;
-    float Score = 5;
-    string ContainerID = 2;
-    string ImageURL = 3;
-    string BIC = 6;
-    string Serial = 7;
-    string Checksum = 8;
-    int32 CreatedAt = 4;
+message ReqListContainerOCRs {
+    optional RequestPaging paging = 1;    
+    int32 laneID = 3;
 }
-
-// message ResListContainerTrackings {
-//     ResStatus status = 1;
-//     int32 total = 3;
-//     repeated ContainerTracking trackings = 2;
-// }
 
 message ResListContainerOCRs {
     ResStatus status = 1;
@@ -93,10 +73,44 @@ message ResListContainerOCRs {
     repeated ContainerOCR ocrs = 2;
 }
 
+
+// listCamSettings
+message CamSetting {
+    int32 ID = 1;
+    int32 LaneID = 2;
+    string Name = 3;
+    string Position = 5;
+    string WebRTCURL = 4;
+}
+
+message ReqListCamSettings {    
+    int32 laneID = 1;
+}
+
+message ResListCamSettings {    
+    repeated CamSetting settings = 1;
+}
+
+
+// listLanes
+message Lane {
+    int32 ID = 1;
+    int32 GateID = 2;
+    string Name = 3; 
+    string GateName = 4;   
+}
+
+message ReqListLanes {    
+}
+
+message ResListLanes {    
+    repeated Lane lanes = 1;
+}
+
 service MyGRPC {
     rpc newMLResult(ReqMLResult) returns (ResEmpty);
     rpc pullMLResult(ReqPullMLResult) returns (stream ResMLResult);
     rpc listContainerOCRs(ReqListContainerOCRs) returns (ResListContainerOCRs);
-    // rpc listContainerTrackings(ReqEmpty) returns (ResListContainerTrackings);
-    // rpc confirmContainerID(ReqConfirmContainerID) returns (ResEmpty);
+    rpc listCamSettings(ReqListCamSettings) returns (ResListCamSettings);
+    rpc listLanes(ReqListLanes) returns (ResListLanes);
 }

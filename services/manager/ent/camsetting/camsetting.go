@@ -13,6 +13,8 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldPosition holds the string denoting the position field in the database.
+	FieldPosition = "position"
 	// FieldLaneID holds the string denoting the lane_id field in the database.
 	FieldLaneID = "lane_id"
 	// FieldRtspURL holds the string denoting the rtsp_url field in the database.
@@ -47,6 +49,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldPosition,
 	FieldLaneID,
 	FieldRtspURL,
 	FieldWebrtcURL,

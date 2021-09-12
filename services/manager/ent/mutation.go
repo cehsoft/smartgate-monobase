@@ -42,6 +42,7 @@ type CamSettingMutation struct {
 	typ                string
 	id                 *int
 	name               *string
+	position           *string
 	rtsp_url           *string
 	webrtc_url         *string
 	created_at         *time.Time
@@ -169,6 +170,55 @@ func (m *CamSettingMutation) OldName(ctx context.Context) (v string, err error) 
 // ResetName resets all changes to the "name" field.
 func (m *CamSettingMutation) ResetName() {
 	m.name = nil
+}
+
+// SetPosition sets the "position" field.
+func (m *CamSettingMutation) SetPosition(s string) {
+	m.position = &s
+}
+
+// Position returns the value of the "position" field in the mutation.
+func (m *CamSettingMutation) Position() (r string, exists bool) {
+	v := m.position
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPosition returns the old "position" field's value of the CamSetting entity.
+// If the CamSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CamSettingMutation) OldPosition(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldPosition is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldPosition requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPosition: %w", err)
+	}
+	return oldValue.Position, nil
+}
+
+// ClearPosition clears the value of the "position" field.
+func (m *CamSettingMutation) ClearPosition() {
+	m.position = nil
+	m.clearedFields[camsetting.FieldPosition] = struct{}{}
+}
+
+// PositionCleared returns if the "position" field was cleared in this mutation.
+func (m *CamSettingMutation) PositionCleared() bool {
+	_, ok := m.clearedFields[camsetting.FieldPosition]
+	return ok
+}
+
+// ResetPosition resets all changes to the "position" field.
+func (m *CamSettingMutation) ResetPosition() {
+	m.position = nil
+	delete(m.clearedFields, camsetting.FieldPosition)
 }
 
 // SetLaneID sets the "lane_id" field.
@@ -427,9 +477,12 @@ func (m *CamSettingMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CamSettingMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.name != nil {
 		fields = append(fields, camsetting.FieldName)
+	}
+	if m.position != nil {
+		fields = append(fields, camsetting.FieldPosition)
 	}
 	if m.lane != nil {
 		fields = append(fields, camsetting.FieldLaneID)
@@ -453,6 +506,8 @@ func (m *CamSettingMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case camsetting.FieldName:
 		return m.Name()
+	case camsetting.FieldPosition:
+		return m.Position()
 	case camsetting.FieldLaneID:
 		return m.LaneID()
 	case camsetting.FieldRtspURL:
@@ -472,6 +527,8 @@ func (m *CamSettingMutation) OldField(ctx context.Context, name string) (ent.Val
 	switch name {
 	case camsetting.FieldName:
 		return m.OldName(ctx)
+	case camsetting.FieldPosition:
+		return m.OldPosition(ctx)
 	case camsetting.FieldLaneID:
 		return m.OldLaneID(ctx)
 	case camsetting.FieldRtspURL:
@@ -495,6 +552,13 @@ func (m *CamSettingMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case camsetting.FieldPosition:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPosition(v)
 		return nil
 	case camsetting.FieldLaneID:
 		v, ok := value.(int)
@@ -557,6 +621,9 @@ func (m *CamSettingMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *CamSettingMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(camsetting.FieldPosition) {
+		fields = append(fields, camsetting.FieldPosition)
+	}
 	if m.FieldCleared(camsetting.FieldLaneID) {
 		fields = append(fields, camsetting.FieldLaneID)
 	}
@@ -574,6 +641,9 @@ func (m *CamSettingMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *CamSettingMutation) ClearField(name string) error {
 	switch name {
+	case camsetting.FieldPosition:
+		m.ClearPosition()
+		return nil
 	case camsetting.FieldLaneID:
 		m.ClearLaneID()
 		return nil
@@ -587,6 +657,9 @@ func (m *CamSettingMutation) ResetField(name string) error {
 	switch name {
 	case camsetting.FieldName:
 		m.ResetName()
+		return nil
+	case camsetting.FieldPosition:
+		m.ResetPosition()
 		return nil
 	case camsetting.FieldLaneID:
 		m.ResetLaneID()

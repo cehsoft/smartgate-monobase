@@ -29,6 +29,16 @@ class MyGRPCStub(object):
                 request_serializer=proto_dot_service__pb2.ReqListContainerOCRs.SerializeToString,
                 response_deserializer=proto_dot_service__pb2.ResListContainerOCRs.FromString,
                 )
+        self.listCamSettings = channel.unary_unary(
+                '/main.MyGRPC/listCamSettings',
+                request_serializer=proto_dot_service__pb2.ReqListCamSettings.SerializeToString,
+                response_deserializer=proto_dot_service__pb2.ResListCamSettings.FromString,
+                )
+        self.listLanes = channel.unary_unary(
+                '/main.MyGRPC/listLanes',
+                request_serializer=proto_dot_service__pb2.ReqListLanes.SerializeToString,
+                response_deserializer=proto_dot_service__pb2.ResListLanes.FromString,
+                )
 
 
 class MyGRPCServicer(object):
@@ -47,9 +57,19 @@ class MyGRPCServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def listContainerOCRs(self, request, context):
-        """rpc listContainerTrackings(ReqEmpty) returns (ResListContainerTrackings);
-        rpc confirmContainerID(ReqConfirmContainerID) returns (ResEmpty);
-        """
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def listCamSettings(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def listLanes(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -71,6 +91,16 @@ def add_MyGRPCServicer_to_server(servicer, server):
                     servicer.listContainerOCRs,
                     request_deserializer=proto_dot_service__pb2.ReqListContainerOCRs.FromString,
                     response_serializer=proto_dot_service__pb2.ResListContainerOCRs.SerializeToString,
+            ),
+            'listCamSettings': grpc.unary_unary_rpc_method_handler(
+                    servicer.listCamSettings,
+                    request_deserializer=proto_dot_service__pb2.ReqListCamSettings.FromString,
+                    response_serializer=proto_dot_service__pb2.ResListCamSettings.SerializeToString,
+            ),
+            'listLanes': grpc.unary_unary_rpc_method_handler(
+                    servicer.listLanes,
+                    request_deserializer=proto_dot_service__pb2.ReqListLanes.FromString,
+                    response_serializer=proto_dot_service__pb2.ResListLanes.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -130,5 +160,39 @@ class MyGRPC(object):
         return grpc.experimental.unary_unary(request, target, '/main.MyGRPC/listContainerOCRs',
             proto_dot_service__pb2.ReqListContainerOCRs.SerializeToString,
             proto_dot_service__pb2.ResListContainerOCRs.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def listCamSettings(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/main.MyGRPC/listCamSettings',
+            proto_dot_service__pb2.ReqListCamSettings.SerializeToString,
+            proto_dot_service__pb2.ResListCamSettings.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def listLanes(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/main.MyGRPC/listLanes',
+            proto_dot_service__pb2.ReqListLanes.SerializeToString,
+            proto_dot_service__pb2.ResListLanes.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

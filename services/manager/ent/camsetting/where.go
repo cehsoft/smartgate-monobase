@@ -100,6 +100,13 @@ func Name(v string) predicate.CamSetting {
 	})
 }
 
+// Position applies equality check predicate on the "position" field. It's identical to PositionEQ.
+func Position(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPosition), v))
+	})
+}
+
 // LaneID applies equality check predicate on the "lane_id" field. It's identical to LaneIDEQ.
 func LaneID(v int) predicate.CamSetting {
 	return predicate.CamSetting(func(s *sql.Selector) {
@@ -236,6 +243,131 @@ func NameEqualFold(v string) predicate.CamSetting {
 func NameContainsFold(v string) predicate.CamSetting {
 	return predicate.CamSetting(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldName), v))
+	})
+}
+
+// PositionEQ applies the EQ predicate on the "position" field.
+func PositionEQ(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPosition), v))
+	})
+}
+
+// PositionNEQ applies the NEQ predicate on the "position" field.
+func PositionNEQ(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPosition), v))
+	})
+}
+
+// PositionIn applies the In predicate on the "position" field.
+func PositionIn(vs ...string) predicate.CamSetting {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.CamSetting(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldPosition), v...))
+	})
+}
+
+// PositionNotIn applies the NotIn predicate on the "position" field.
+func PositionNotIn(vs ...string) predicate.CamSetting {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.CamSetting(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldPosition), v...))
+	})
+}
+
+// PositionGT applies the GT predicate on the "position" field.
+func PositionGT(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldPosition), v))
+	})
+}
+
+// PositionGTE applies the GTE predicate on the "position" field.
+func PositionGTE(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldPosition), v))
+	})
+}
+
+// PositionLT applies the LT predicate on the "position" field.
+func PositionLT(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldPosition), v))
+	})
+}
+
+// PositionLTE applies the LTE predicate on the "position" field.
+func PositionLTE(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldPosition), v))
+	})
+}
+
+// PositionContains applies the Contains predicate on the "position" field.
+func PositionContains(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldPosition), v))
+	})
+}
+
+// PositionHasPrefix applies the HasPrefix predicate on the "position" field.
+func PositionHasPrefix(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldPosition), v))
+	})
+}
+
+// PositionHasSuffix applies the HasSuffix predicate on the "position" field.
+func PositionHasSuffix(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldPosition), v))
+	})
+}
+
+// PositionIsNil applies the IsNil predicate on the "position" field.
+func PositionIsNil() predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldPosition)))
+	})
+}
+
+// PositionNotNil applies the NotNil predicate on the "position" field.
+func PositionNotNil() predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldPosition)))
+	})
+}
+
+// PositionEqualFold applies the EqualFold predicate on the "position" field.
+func PositionEqualFold(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldPosition), v))
+	})
+}
+
+// PositionContainsFold applies the ContainsFold predicate on the "position" field.
+func PositionContainsFold(v string) predicate.CamSetting {
+	return predicate.CamSetting(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldPosition), v))
 	})
 }
 

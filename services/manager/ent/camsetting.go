@@ -19,6 +19,8 @@ type CamSetting struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Position holds the value of the "position" field.
+	Position string `json:"position,omitempty"`
 	// LaneID holds the value of the "lane_id" field.
 	LaneID int `json:"lane_id,omitempty"`
 	// RtspURL holds the value of the "rtsp_url" field.
@@ -73,7 +75,7 @@ func (*CamSetting) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case camsetting.FieldID, camsetting.FieldLaneID:
 			values[i] = new(sql.NullInt64)
-		case camsetting.FieldName, camsetting.FieldRtspURL, camsetting.FieldWebrtcURL:
+		case camsetting.FieldName, camsetting.FieldPosition, camsetting.FieldRtspURL, camsetting.FieldWebrtcURL:
 			values[i] = new(sql.NullString)
 		case camsetting.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -103,6 +105,12 @@ func (cs *CamSetting) assignValues(columns []string, values []interface{}) error
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				cs.Name = value.String
+			}
+		case camsetting.FieldPosition:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field position", values[i])
+			} else if value.Valid {
+				cs.Position = value.String
 			}
 		case camsetting.FieldLaneID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -168,6 +176,8 @@ func (cs *CamSetting) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", cs.ID))
 	builder.WriteString(", name=")
 	builder.WriteString(cs.Name)
+	builder.WriteString(", position=")
+	builder.WriteString(cs.Position)
 	builder.WriteString(", lane_id=")
 	builder.WriteString(fmt.Sprintf("%v", cs.LaneID))
 	builder.WriteString(", rtsp_url=")

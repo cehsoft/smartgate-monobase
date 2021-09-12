@@ -30,6 +30,20 @@ func (csc *CamSettingCreate) SetName(s string) *CamSettingCreate {
 	return csc
 }
 
+// SetPosition sets the "position" field.
+func (csc *CamSettingCreate) SetPosition(s string) *CamSettingCreate {
+	csc.mutation.SetPosition(s)
+	return csc
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (csc *CamSettingCreate) SetNillablePosition(s *string) *CamSettingCreate {
+	if s != nil {
+		csc.SetPosition(*s)
+	}
+	return csc
+}
+
 // SetLaneID sets the "lane_id" field.
 func (csc *CamSettingCreate) SetLaneID(i int) *CamSettingCreate {
 	csc.mutation.SetLaneID(i)
@@ -217,6 +231,14 @@ func (csc *CamSettingCreate) createSpec() (*CamSetting, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
+	if value, ok := csc.mutation.Position(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: camsetting.FieldPosition,
+		})
+		_node.Position = value
+	}
 	if value, ok := csc.mutation.RtspURL(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -346,6 +368,24 @@ func (u *CamSettingUpsert) UpdateName() *CamSettingUpsert {
 	return u
 }
 
+// SetPosition sets the "position" field.
+func (u *CamSettingUpsert) SetPosition(v string) *CamSettingUpsert {
+	u.Set(camsetting.FieldPosition, v)
+	return u
+}
+
+// UpdatePosition sets the "position" field to the value that was provided on create.
+func (u *CamSettingUpsert) UpdatePosition() *CamSettingUpsert {
+	u.SetExcluded(camsetting.FieldPosition)
+	return u
+}
+
+// ClearPosition clears the value of the "position" field.
+func (u *CamSettingUpsert) ClearPosition() *CamSettingUpsert {
+	u.SetNull(camsetting.FieldPosition)
+	return u
+}
+
 // SetLaneID sets the "lane_id" field.
 func (u *CamSettingUpsert) SetLaneID(v int) *CamSettingUpsert {
 	u.Set(camsetting.FieldLaneID, v)
@@ -453,6 +493,27 @@ func (u *CamSettingUpsertOne) SetName(v string) *CamSettingUpsertOne {
 func (u *CamSettingUpsertOne) UpdateName() *CamSettingUpsertOne {
 	return u.Update(func(s *CamSettingUpsert) {
 		s.UpdateName()
+	})
+}
+
+// SetPosition sets the "position" field.
+func (u *CamSettingUpsertOne) SetPosition(v string) *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetPosition(v)
+	})
+}
+
+// UpdatePosition sets the "position" field to the value that was provided on create.
+func (u *CamSettingUpsertOne) UpdatePosition() *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdatePosition()
+	})
+}
+
+// ClearPosition clears the value of the "position" field.
+func (u *CamSettingUpsertOne) ClearPosition() *CamSettingUpsertOne {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.ClearPosition()
 	})
 }
 
@@ -734,6 +795,27 @@ func (u *CamSettingUpsertBulk) SetName(v string) *CamSettingUpsertBulk {
 func (u *CamSettingUpsertBulk) UpdateName() *CamSettingUpsertBulk {
 	return u.Update(func(s *CamSettingUpsert) {
 		s.UpdateName()
+	})
+}
+
+// SetPosition sets the "position" field.
+func (u *CamSettingUpsertBulk) SetPosition(v string) *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.SetPosition(v)
+	})
+}
+
+// UpdatePosition sets the "position" field to the value that was provided on create.
+func (u *CamSettingUpsertBulk) UpdatePosition() *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.UpdatePosition()
+	})
+}
+
+// ClearPosition clears the value of the "position" field.
+func (u *CamSettingUpsertBulk) ClearPosition() *CamSettingUpsertBulk {
+	return u.Update(func(s *CamSettingUpsert) {
+		s.ClearPosition()
 	})
 }
 

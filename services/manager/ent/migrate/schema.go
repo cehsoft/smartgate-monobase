@@ -12,6 +12,7 @@ var (
 	CamSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
+		{Name: "position", Type: field.TypeString, Nullable: true},
 		{Name: "rtsp_url", Type: field.TypeString},
 		{Name: "webrtc_url", Type: field.TypeString},
 		{Name: "created_at", Type: field.TypeTime},
@@ -25,7 +26,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "cam_settings_lanes_cams",
-				Columns:    []*schema.Column{CamSettingsColumns[5]},
+				Columns:    []*schema.Column{CamSettingsColumns[6]},
 				RefColumns: []*schema.Column{LanesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
