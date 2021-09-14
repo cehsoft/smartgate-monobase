@@ -63,12 +63,6 @@ func (ctsu *ContainerTrackingSuggestionUpdate) SetNillableResult(s *string) *Con
 	return ctsu
 }
 
-// ClearResult clears the value of the "result" field.
-func (ctsu *ContainerTrackingSuggestionUpdate) ClearResult() *ContainerTrackingSuggestionUpdate {
-	ctsu.mutation.ClearResult()
-	return ctsu
-}
-
 // SetCamID sets the "cam_id" field.
 func (ctsu *ContainerTrackingSuggestionUpdate) SetCamID(i int) *ContainerTrackingSuggestionUpdate {
 	ctsu.mutation.SetCamID(i)
@@ -143,12 +137,6 @@ func (ctsu *ContainerTrackingSuggestionUpdate) SetNillableBic(s *string) *Contai
 	return ctsu
 }
 
-// ClearBic clears the value of the "bic" field.
-func (ctsu *ContainerTrackingSuggestionUpdate) ClearBic() *ContainerTrackingSuggestionUpdate {
-	ctsu.mutation.ClearBic()
-	return ctsu
-}
-
 // SetSerial sets the "serial" field.
 func (ctsu *ContainerTrackingSuggestionUpdate) SetSerial(s string) *ContainerTrackingSuggestionUpdate {
 	ctsu.mutation.SetSerial(s)
@@ -163,12 +151,6 @@ func (ctsu *ContainerTrackingSuggestionUpdate) SetNillableSerial(s *string) *Con
 	return ctsu
 }
 
-// ClearSerial clears the value of the "serial" field.
-func (ctsu *ContainerTrackingSuggestionUpdate) ClearSerial() *ContainerTrackingSuggestionUpdate {
-	ctsu.mutation.ClearSerial()
-	return ctsu
-}
-
 // SetChecksum sets the "checksum" field.
 func (ctsu *ContainerTrackingSuggestionUpdate) SetChecksum(s string) *ContainerTrackingSuggestionUpdate {
 	ctsu.mutation.SetChecksum(s)
@@ -180,12 +162,6 @@ func (ctsu *ContainerTrackingSuggestionUpdate) SetNillableChecksum(s *string) *C
 	if s != nil {
 		ctsu.SetChecksum(*s)
 	}
-	return ctsu
-}
-
-// ClearChecksum clears the value of the "checksum" field.
-func (ctsu *ContainerTrackingSuggestionUpdate) ClearChecksum() *ContainerTrackingSuggestionUpdate {
-	ctsu.mutation.ClearChecksum()
 	return ctsu
 }
 
@@ -355,12 +331,6 @@ func (ctsu *ContainerTrackingSuggestionUpdate) sqlSave(ctx context.Context) (n i
 			Column: containertrackingsuggestion.FieldResult,
 		})
 	}
-	if ctsu.mutation.ResultCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: containertrackingsuggestion.FieldResult,
-		})
-	}
 	if value, ok := ctsu.mutation.TrackingType(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -381,12 +351,6 @@ func (ctsu *ContainerTrackingSuggestionUpdate) sqlSave(ctx context.Context) (n i
 			Column: containertrackingsuggestion.FieldBic,
 		})
 	}
-	if ctsu.mutation.BicCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: containertrackingsuggestion.FieldBic,
-		})
-	}
 	if value, ok := ctsu.mutation.Serial(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -394,22 +358,10 @@ func (ctsu *ContainerTrackingSuggestionUpdate) sqlSave(ctx context.Context) (n i
 			Column: containertrackingsuggestion.FieldSerial,
 		})
 	}
-	if ctsu.mutation.SerialCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: containertrackingsuggestion.FieldSerial,
-		})
-	}
 	if value, ok := ctsu.mutation.Checksum(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: containertrackingsuggestion.FieldChecksum,
-		})
-	}
-	if ctsu.mutation.ChecksumCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
 			Column: containertrackingsuggestion.FieldChecksum,
 		})
 	}
@@ -570,12 +522,6 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableResult(s *string) 
 	return ctsuo
 }
 
-// ClearResult clears the value of the "result" field.
-func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearResult() *ContainerTrackingSuggestionUpdateOne {
-	ctsuo.mutation.ClearResult()
-	return ctsuo
-}
-
 // SetCamID sets the "cam_id" field.
 func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetCamID(i int) *ContainerTrackingSuggestionUpdateOne {
 	ctsuo.mutation.SetCamID(i)
@@ -650,12 +596,6 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableBic(s *string) *Co
 	return ctsuo
 }
 
-// ClearBic clears the value of the "bic" field.
-func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearBic() *ContainerTrackingSuggestionUpdateOne {
-	ctsuo.mutation.ClearBic()
-	return ctsuo
-}
-
 // SetSerial sets the "serial" field.
 func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetSerial(s string) *ContainerTrackingSuggestionUpdateOne {
 	ctsuo.mutation.SetSerial(s)
@@ -670,12 +610,6 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableSerial(s *string) 
 	return ctsuo
 }
 
-// ClearSerial clears the value of the "serial" field.
-func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearSerial() *ContainerTrackingSuggestionUpdateOne {
-	ctsuo.mutation.ClearSerial()
-	return ctsuo
-}
-
 // SetChecksum sets the "checksum" field.
 func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetChecksum(s string) *ContainerTrackingSuggestionUpdateOne {
 	ctsuo.mutation.SetChecksum(s)
@@ -687,12 +621,6 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableChecksum(s *string
 	if s != nil {
 		ctsuo.SetChecksum(*s)
 	}
-	return ctsuo
-}
-
-// ClearChecksum clears the value of the "checksum" field.
-func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearChecksum() *ContainerTrackingSuggestionUpdateOne {
-	ctsuo.mutation.ClearChecksum()
 	return ctsuo
 }
 
@@ -886,12 +814,6 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) sqlSave(ctx context.Context) 
 			Column: containertrackingsuggestion.FieldResult,
 		})
 	}
-	if ctsuo.mutation.ResultCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: containertrackingsuggestion.FieldResult,
-		})
-	}
 	if value, ok := ctsuo.mutation.TrackingType(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -912,12 +834,6 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) sqlSave(ctx context.Context) 
 			Column: containertrackingsuggestion.FieldBic,
 		})
 	}
-	if ctsuo.mutation.BicCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: containertrackingsuggestion.FieldBic,
-		})
-	}
 	if value, ok := ctsuo.mutation.Serial(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -925,22 +841,10 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) sqlSave(ctx context.Context) 
 			Column: containertrackingsuggestion.FieldSerial,
 		})
 	}
-	if ctsuo.mutation.SerialCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: containertrackingsuggestion.FieldSerial,
-		})
-	}
 	if value, ok := ctsuo.mutation.Checksum(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: containertrackingsuggestion.FieldChecksum,
-		})
-	}
-	if ctsuo.mutation.ChecksumCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
 			Column: containertrackingsuggestion.FieldChecksum,
 		})
 	}

@@ -251,6 +251,22 @@ func (ctsc *ContainerTrackingSuggestionCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (ctsc *ContainerTrackingSuggestionCreate) defaults() {
+	if _, ok := ctsc.mutation.Result(); !ok {
+		v := containertrackingsuggestion.DefaultResult
+		ctsc.mutation.SetResult(v)
+	}
+	if _, ok := ctsc.mutation.Bic(); !ok {
+		v := containertrackingsuggestion.DefaultBic
+		ctsc.mutation.SetBic(v)
+	}
+	if _, ok := ctsc.mutation.Serial(); !ok {
+		v := containertrackingsuggestion.DefaultSerial
+		ctsc.mutation.SetSerial(v)
+	}
+	if _, ok := ctsc.mutation.Checksum(); !ok {
+		v := containertrackingsuggestion.DefaultChecksum
+		ctsc.mutation.SetChecksum(v)
+	}
 	if _, ok := ctsc.mutation.CreatedAt(); !ok {
 		v := containertrackingsuggestion.DefaultCreatedAt()
 		ctsc.mutation.SetCreatedAt(v)
@@ -259,6 +275,18 @@ func (ctsc *ContainerTrackingSuggestionCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (ctsc *ContainerTrackingSuggestionCreate) check() error {
+	if _, ok := ctsc.mutation.Result(); !ok {
+		return &ValidationError{Name: "result", err: errors.New(`ent: missing required field "result"`)}
+	}
+	if _, ok := ctsc.mutation.Bic(); !ok {
+		return &ValidationError{Name: "bic", err: errors.New(`ent: missing required field "bic"`)}
+	}
+	if _, ok := ctsc.mutation.Serial(); !ok {
+		return &ValidationError{Name: "serial", err: errors.New(`ent: missing required field "serial"`)}
+	}
+	if _, ok := ctsc.mutation.Checksum(); !ok {
+		return &ValidationError{Name: "checksum", err: errors.New(`ent: missing required field "checksum"`)}
+	}
 	if _, ok := ctsc.mutation.Score(); !ok {
 		return &ValidationError{Name: "score", err: errors.New(`ent: missing required field "score"`)}
 	}
@@ -489,12 +517,6 @@ func (u *ContainerTrackingSuggestionUpsert) UpdateResult() *ContainerTrackingSug
 	return u
 }
 
-// ClearResult clears the value of the "result" field.
-func (u *ContainerTrackingSuggestionUpsert) ClearResult() *ContainerTrackingSuggestionUpsert {
-	u.SetNull(containertrackingsuggestion.FieldResult)
-	return u
-}
-
 // SetCamID sets the "cam_id" field.
 func (u *ContainerTrackingSuggestionUpsert) SetCamID(v int) *ContainerTrackingSuggestionUpsert {
 	u.Set(containertrackingsuggestion.FieldCamID, v)
@@ -561,12 +583,6 @@ func (u *ContainerTrackingSuggestionUpsert) UpdateBic() *ContainerTrackingSugges
 	return u
 }
 
-// ClearBic clears the value of the "bic" field.
-func (u *ContainerTrackingSuggestionUpsert) ClearBic() *ContainerTrackingSuggestionUpsert {
-	u.SetNull(containertrackingsuggestion.FieldBic)
-	return u
-}
-
 // SetSerial sets the "serial" field.
 func (u *ContainerTrackingSuggestionUpsert) SetSerial(v string) *ContainerTrackingSuggestionUpsert {
 	u.Set(containertrackingsuggestion.FieldSerial, v)
@@ -579,12 +595,6 @@ func (u *ContainerTrackingSuggestionUpsert) UpdateSerial() *ContainerTrackingSug
 	return u
 }
 
-// ClearSerial clears the value of the "serial" field.
-func (u *ContainerTrackingSuggestionUpsert) ClearSerial() *ContainerTrackingSuggestionUpsert {
-	u.SetNull(containertrackingsuggestion.FieldSerial)
-	return u
-}
-
 // SetChecksum sets the "checksum" field.
 func (u *ContainerTrackingSuggestionUpsert) SetChecksum(v string) *ContainerTrackingSuggestionUpsert {
 	u.Set(containertrackingsuggestion.FieldChecksum, v)
@@ -594,12 +604,6 @@ func (u *ContainerTrackingSuggestionUpsert) SetChecksum(v string) *ContainerTrac
 // UpdateChecksum sets the "checksum" field to the value that was provided on create.
 func (u *ContainerTrackingSuggestionUpsert) UpdateChecksum() *ContainerTrackingSuggestionUpsert {
 	u.SetExcluded(containertrackingsuggestion.FieldChecksum)
-	return u
-}
-
-// ClearChecksum clears the value of the "checksum" field.
-func (u *ContainerTrackingSuggestionUpsert) ClearChecksum() *ContainerTrackingSuggestionUpsert {
-	u.SetNull(containertrackingsuggestion.FieldChecksum)
 	return u
 }
 
@@ -722,13 +726,6 @@ func (u *ContainerTrackingSuggestionUpsertOne) UpdateResult() *ContainerTracking
 	})
 }
 
-// ClearResult clears the value of the "result" field.
-func (u *ContainerTrackingSuggestionUpsertOne) ClearResult() *ContainerTrackingSuggestionUpsertOne {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearResult()
-	})
-}
-
 // SetCamID sets the "cam_id" field.
 func (u *ContainerTrackingSuggestionUpsertOne) SetCamID(v int) *ContainerTrackingSuggestionUpsertOne {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
@@ -806,13 +803,6 @@ func (u *ContainerTrackingSuggestionUpsertOne) UpdateBic() *ContainerTrackingSug
 	})
 }
 
-// ClearBic clears the value of the "bic" field.
-func (u *ContainerTrackingSuggestionUpsertOne) ClearBic() *ContainerTrackingSuggestionUpsertOne {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearBic()
-	})
-}
-
 // SetSerial sets the "serial" field.
 func (u *ContainerTrackingSuggestionUpsertOne) SetSerial(v string) *ContainerTrackingSuggestionUpsertOne {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
@@ -827,13 +817,6 @@ func (u *ContainerTrackingSuggestionUpsertOne) UpdateSerial() *ContainerTracking
 	})
 }
 
-// ClearSerial clears the value of the "serial" field.
-func (u *ContainerTrackingSuggestionUpsertOne) ClearSerial() *ContainerTrackingSuggestionUpsertOne {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearSerial()
-	})
-}
-
 // SetChecksum sets the "checksum" field.
 func (u *ContainerTrackingSuggestionUpsertOne) SetChecksum(v string) *ContainerTrackingSuggestionUpsertOne {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
@@ -845,13 +828,6 @@ func (u *ContainerTrackingSuggestionUpsertOne) SetChecksum(v string) *ContainerT
 func (u *ContainerTrackingSuggestionUpsertOne) UpdateChecksum() *ContainerTrackingSuggestionUpsertOne {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.UpdateChecksum()
-	})
-}
-
-// ClearChecksum clears the value of the "checksum" field.
-func (u *ContainerTrackingSuggestionUpsertOne) ClearChecksum() *ContainerTrackingSuggestionUpsertOne {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearChecksum()
 	})
 }
 
@@ -1143,13 +1119,6 @@ func (u *ContainerTrackingSuggestionUpsertBulk) UpdateResult() *ContainerTrackin
 	})
 }
 
-// ClearResult clears the value of the "result" field.
-func (u *ContainerTrackingSuggestionUpsertBulk) ClearResult() *ContainerTrackingSuggestionUpsertBulk {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearResult()
-	})
-}
-
 // SetCamID sets the "cam_id" field.
 func (u *ContainerTrackingSuggestionUpsertBulk) SetCamID(v int) *ContainerTrackingSuggestionUpsertBulk {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
@@ -1227,13 +1196,6 @@ func (u *ContainerTrackingSuggestionUpsertBulk) UpdateBic() *ContainerTrackingSu
 	})
 }
 
-// ClearBic clears the value of the "bic" field.
-func (u *ContainerTrackingSuggestionUpsertBulk) ClearBic() *ContainerTrackingSuggestionUpsertBulk {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearBic()
-	})
-}
-
 // SetSerial sets the "serial" field.
 func (u *ContainerTrackingSuggestionUpsertBulk) SetSerial(v string) *ContainerTrackingSuggestionUpsertBulk {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
@@ -1248,13 +1210,6 @@ func (u *ContainerTrackingSuggestionUpsertBulk) UpdateSerial() *ContainerTrackin
 	})
 }
 
-// ClearSerial clears the value of the "serial" field.
-func (u *ContainerTrackingSuggestionUpsertBulk) ClearSerial() *ContainerTrackingSuggestionUpsertBulk {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearSerial()
-	})
-}
-
 // SetChecksum sets the "checksum" field.
 func (u *ContainerTrackingSuggestionUpsertBulk) SetChecksum(v string) *ContainerTrackingSuggestionUpsertBulk {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
@@ -1266,13 +1221,6 @@ func (u *ContainerTrackingSuggestionUpsertBulk) SetChecksum(v string) *Container
 func (u *ContainerTrackingSuggestionUpsertBulk) UpdateChecksum() *ContainerTrackingSuggestionUpsertBulk {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.UpdateChecksum()
-	})
-}
-
-// ClearChecksum clears the value of the "checksum" field.
-func (u *ContainerTrackingSuggestionUpsertBulk) ClearChecksum() *ContainerTrackingSuggestionUpsertBulk {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearChecksum()
 	})
 }
 

@@ -82,6 +82,14 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultResult holds the default value on creation for the "result" field.
+	DefaultResult string
+	// DefaultBic holds the default value on creation for the "bic" field.
+	DefaultBic string
+	// DefaultSerial holds the default value on creation for the "serial" field.
+	DefaultSerial string
+	// DefaultChecksum holds the default value on creation for the "checksum" field.
+	DefaultChecksum string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 )

@@ -31,6 +31,22 @@ func init() {
 	containertracking.DefaultCreatedAt = containertrackingDescCreatedAt.Default.(func() time.Time)
 	containertrackingsuggestionFields := schema.ContainerTrackingSuggestion{}.Fields()
 	_ = containertrackingsuggestionFields
+	// containertrackingsuggestionDescResult is the schema descriptor for result field.
+	containertrackingsuggestionDescResult := containertrackingsuggestionFields[1].Descriptor()
+	// containertrackingsuggestion.DefaultResult holds the default value on creation for the result field.
+	containertrackingsuggestion.DefaultResult = containertrackingsuggestionDescResult.Default.(string)
+	// containertrackingsuggestionDescBic is the schema descriptor for bic field.
+	containertrackingsuggestionDescBic := containertrackingsuggestionFields[5].Descriptor()
+	// containertrackingsuggestion.DefaultBic holds the default value on creation for the bic field.
+	containertrackingsuggestion.DefaultBic = containertrackingsuggestionDescBic.Default.(string)
+	// containertrackingsuggestionDescSerial is the schema descriptor for serial field.
+	containertrackingsuggestionDescSerial := containertrackingsuggestionFields[6].Descriptor()
+	// containertrackingsuggestion.DefaultSerial holds the default value on creation for the serial field.
+	containertrackingsuggestion.DefaultSerial = containertrackingsuggestionDescSerial.Default.(string)
+	// containertrackingsuggestionDescChecksum is the schema descriptor for checksum field.
+	containertrackingsuggestionDescChecksum := containertrackingsuggestionFields[7].Descriptor()
+	// containertrackingsuggestion.DefaultChecksum holds the default value on creation for the checksum field.
+	containertrackingsuggestion.DefaultChecksum = containertrackingsuggestionDescChecksum.Default.(string)
 	// containertrackingsuggestionDescCreatedAt is the schema descriptor for created_at field.
 	containertrackingsuggestionDescCreatedAt := containertrackingsuggestionFields[10].Descriptor()
 	// containertrackingsuggestion.DefaultCreatedAt holds the default value on creation for the created_at field.

@@ -392,20 +392,6 @@ func ResultHasSuffix(v string) predicate.ContainerTrackingSuggestion {
 	})
 }
 
-// ResultIsNil applies the IsNil predicate on the "result" field.
-func ResultIsNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldResult)))
-	})
-}
-
-// ResultNotNil applies the NotNil predicate on the "result" field.
-func ResultNotNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldResult)))
-	})
-}
-
 // ResultEqualFold applies the EqualFold predicate on the "result" field.
 func ResultEqualFold(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
@@ -766,20 +752,6 @@ func BicHasSuffix(v string) predicate.ContainerTrackingSuggestion {
 	})
 }
 
-// BicIsNil applies the IsNil predicate on the "bic" field.
-func BicIsNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldBic)))
-	})
-}
-
-// BicNotNil applies the NotNil predicate on the "bic" field.
-func BicNotNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldBic)))
-	})
-}
-
 // BicEqualFold applies the EqualFold predicate on the "bic" field.
 func BicEqualFold(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
@@ -891,20 +863,6 @@ func SerialHasSuffix(v string) predicate.ContainerTrackingSuggestion {
 	})
 }
 
-// SerialIsNil applies the IsNil predicate on the "serial" field.
-func SerialIsNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldSerial)))
-	})
-}
-
-// SerialNotNil applies the NotNil predicate on the "serial" field.
-func SerialNotNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldSerial)))
-	})
-}
-
 // SerialEqualFold applies the EqualFold predicate on the "serial" field.
 func SerialEqualFold(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
@@ -1013,20 +971,6 @@ func ChecksumHasPrefix(v string) predicate.ContainerTrackingSuggestion {
 func ChecksumHasSuffix(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
 		s.Where(sql.HasSuffix(s.C(FieldChecksum), v))
-	})
-}
-
-// ChecksumIsNil applies the IsNil predicate on the "checksum" field.
-func ChecksumIsNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldChecksum)))
-	})
-}
-
-// ChecksumNotNil applies the NotNil predicate on the "checksum" field.
-func ChecksumNotNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldChecksum)))
 	})
 }
 

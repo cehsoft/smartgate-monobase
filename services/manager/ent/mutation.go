@@ -1498,22 +1498,9 @@ func (m *ContainerTrackingSuggestionMutation) OldResult(ctx context.Context) (v 
 	return oldValue.Result, nil
 }
 
-// ClearResult clears the value of the "result" field.
-func (m *ContainerTrackingSuggestionMutation) ClearResult() {
-	m.result = nil
-	m.clearedFields[containertrackingsuggestion.FieldResult] = struct{}{}
-}
-
-// ResultCleared returns if the "result" field was cleared in this mutation.
-func (m *ContainerTrackingSuggestionMutation) ResultCleared() bool {
-	_, ok := m.clearedFields[containertrackingsuggestion.FieldResult]
-	return ok
-}
-
 // ResetResult resets all changes to the "result" field.
 func (m *ContainerTrackingSuggestionMutation) ResetResult() {
 	m.result = nil
-	delete(m.clearedFields, containertrackingsuggestion.FieldResult)
 }
 
 // SetCamID sets the "cam_id" field.
@@ -1694,22 +1681,9 @@ func (m *ContainerTrackingSuggestionMutation) OldBic(ctx context.Context) (v str
 	return oldValue.Bic, nil
 }
 
-// ClearBic clears the value of the "bic" field.
-func (m *ContainerTrackingSuggestionMutation) ClearBic() {
-	m.bic = nil
-	m.clearedFields[containertrackingsuggestion.FieldBic] = struct{}{}
-}
-
-// BicCleared returns if the "bic" field was cleared in this mutation.
-func (m *ContainerTrackingSuggestionMutation) BicCleared() bool {
-	_, ok := m.clearedFields[containertrackingsuggestion.FieldBic]
-	return ok
-}
-
 // ResetBic resets all changes to the "bic" field.
 func (m *ContainerTrackingSuggestionMutation) ResetBic() {
 	m.bic = nil
-	delete(m.clearedFields, containertrackingsuggestion.FieldBic)
 }
 
 // SetSerial sets the "serial" field.
@@ -1743,22 +1717,9 @@ func (m *ContainerTrackingSuggestionMutation) OldSerial(ctx context.Context) (v 
 	return oldValue.Serial, nil
 }
 
-// ClearSerial clears the value of the "serial" field.
-func (m *ContainerTrackingSuggestionMutation) ClearSerial() {
-	m.serial = nil
-	m.clearedFields[containertrackingsuggestion.FieldSerial] = struct{}{}
-}
-
-// SerialCleared returns if the "serial" field was cleared in this mutation.
-func (m *ContainerTrackingSuggestionMutation) SerialCleared() bool {
-	_, ok := m.clearedFields[containertrackingsuggestion.FieldSerial]
-	return ok
-}
-
 // ResetSerial resets all changes to the "serial" field.
 func (m *ContainerTrackingSuggestionMutation) ResetSerial() {
 	m.serial = nil
-	delete(m.clearedFields, containertrackingsuggestion.FieldSerial)
 }
 
 // SetChecksum sets the "checksum" field.
@@ -1792,22 +1753,9 @@ func (m *ContainerTrackingSuggestionMutation) OldChecksum(ctx context.Context) (
 	return oldValue.Checksum, nil
 }
 
-// ClearChecksum clears the value of the "checksum" field.
-func (m *ContainerTrackingSuggestionMutation) ClearChecksum() {
-	m.checksum = nil
-	m.clearedFields[containertrackingsuggestion.FieldChecksum] = struct{}{}
-}
-
-// ChecksumCleared returns if the "checksum" field was cleared in this mutation.
-func (m *ContainerTrackingSuggestionMutation) ChecksumCleared() bool {
-	_, ok := m.clearedFields[containertrackingsuggestion.FieldChecksum]
-	return ok
-}
-
 // ResetChecksum resets all changes to the "checksum" field.
 func (m *ContainerTrackingSuggestionMutation) ResetChecksum() {
 	m.checksum = nil
-	delete(m.clearedFields, containertrackingsuggestion.FieldChecksum)
 }
 
 // SetImageURL sets the "image_url" field.
@@ -2251,9 +2199,6 @@ func (m *ContainerTrackingSuggestionMutation) ClearedFields() []string {
 	if m.FieldCleared(containertrackingsuggestion.FieldContainerID) {
 		fields = append(fields, containertrackingsuggestion.FieldContainerID)
 	}
-	if m.FieldCleared(containertrackingsuggestion.FieldResult) {
-		fields = append(fields, containertrackingsuggestion.FieldResult)
-	}
 	if m.FieldCleared(containertrackingsuggestion.FieldCamID) {
 		fields = append(fields, containertrackingsuggestion.FieldCamID)
 	}
@@ -2262,15 +2207,6 @@ func (m *ContainerTrackingSuggestionMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(containertrackingsuggestion.FieldTrackingType) {
 		fields = append(fields, containertrackingsuggestion.FieldTrackingType)
-	}
-	if m.FieldCleared(containertrackingsuggestion.FieldBic) {
-		fields = append(fields, containertrackingsuggestion.FieldBic)
-	}
-	if m.FieldCleared(containertrackingsuggestion.FieldSerial) {
-		fields = append(fields, containertrackingsuggestion.FieldSerial)
-	}
-	if m.FieldCleared(containertrackingsuggestion.FieldChecksum) {
-		fields = append(fields, containertrackingsuggestion.FieldChecksum)
 	}
 	if m.FieldCleared(containertrackingsuggestion.FieldImageURL) {
 		fields = append(fields, containertrackingsuggestion.FieldImageURL)
@@ -2292,9 +2228,6 @@ func (m *ContainerTrackingSuggestionMutation) ClearField(name string) error {
 	case containertrackingsuggestion.FieldContainerID:
 		m.ClearContainerID()
 		return nil
-	case containertrackingsuggestion.FieldResult:
-		m.ClearResult()
-		return nil
 	case containertrackingsuggestion.FieldCamID:
 		m.ClearCamID()
 		return nil
@@ -2303,15 +2236,6 @@ func (m *ContainerTrackingSuggestionMutation) ClearField(name string) error {
 		return nil
 	case containertrackingsuggestion.FieldTrackingType:
 		m.ClearTrackingType()
-		return nil
-	case containertrackingsuggestion.FieldBic:
-		m.ClearBic()
-		return nil
-	case containertrackingsuggestion.FieldSerial:
-		m.ClearSerial()
-		return nil
-	case containertrackingsuggestion.FieldChecksum:
-		m.ClearChecksum()
 		return nil
 	case containertrackingsuggestion.FieldImageURL:
 		m.ClearImageURL()
