@@ -138,6 +138,7 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListCon
 			Score:           s.Score,
 			ImageURL:        s.ImageURL,
 			ContainerID:     s.ContainerID,
+			Result:          s.Result,
 			BIC:             s.Bic,
 			Serial:          s.Serial,
 			Checksum:        s.Checksum,

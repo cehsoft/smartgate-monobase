@@ -53,6 +53,7 @@ message ContainerOCR {
     int32 ID = 1;
     float Score = 5;
     string ContainerID = 2;
+    string Result = 11;
     string ImageURL = 3;
     string BIC = 6;
     string Serial = 7;
