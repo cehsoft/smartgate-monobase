@@ -108,7 +108,7 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListCon
 		"container_id", "created_at", "id",
 		"image_url", "result", "score", "serial", "tracking_id", "tracking_type", q.COUNT("*").Over(q.W()).As("full_count")).
 		From(
-			q.Select("*", q.ROW_NUMBER().Over(q.W().PartitionBy("tracking_id").OrderBy(q.I("score").Desc())).As("rank")).
+			q.Select("*", q.ROW_NUMBER().Over(q.W().PartitionBy("tracking_id", "tracking_type").OrderBy(q.I("score").Desc())).As("rank")).
 				From("container_tracking_suggestions")).
 		As("_").
 		Where(q.C("rank").Eq(1), q.C("cam_id").In(camIDs)).
