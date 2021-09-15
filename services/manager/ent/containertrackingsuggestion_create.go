@@ -251,6 +251,10 @@ func (ctsc *ContainerTrackingSuggestionCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (ctsc *ContainerTrackingSuggestionCreate) defaults() {
+	if _, ok := ctsc.mutation.ContainerID(); !ok {
+		v := containertrackingsuggestion.DefaultContainerID
+		ctsc.mutation.SetContainerID(v)
+	}
 	if _, ok := ctsc.mutation.Result(); !ok {
 		v := containertrackingsuggestion.DefaultResult
 		ctsc.mutation.SetResult(v)
@@ -275,6 +279,9 @@ func (ctsc *ContainerTrackingSuggestionCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (ctsc *ContainerTrackingSuggestionCreate) check() error {
+	if _, ok := ctsc.mutation.ContainerID(); !ok {
+		return &ValidationError{Name: "container_id", err: errors.New(`ent: missing required field "container_id"`)}
+	}
 	if _, ok := ctsc.mutation.Result(); !ok {
 		return &ValidationError{Name: "result", err: errors.New(`ent: missing required field "result"`)}
 	}
@@ -499,12 +506,6 @@ func (u *ContainerTrackingSuggestionUpsert) UpdateContainerID() *ContainerTracki
 	return u
 }
 
-// ClearContainerID clears the value of the "container_id" field.
-func (u *ContainerTrackingSuggestionUpsert) ClearContainerID() *ContainerTrackingSuggestionUpsert {
-	u.SetNull(containertrackingsuggestion.FieldContainerID)
-	return u
-}
-
 // SetResult sets the "result" field.
 func (u *ContainerTrackingSuggestionUpsert) SetResult(v string) *ContainerTrackingSuggestionUpsert {
 	u.Set(containertrackingsuggestion.FieldResult, v)
@@ -702,13 +703,6 @@ func (u *ContainerTrackingSuggestionUpsertOne) SetContainerID(v string) *Contain
 func (u *ContainerTrackingSuggestionUpsertOne) UpdateContainerID() *ContainerTrackingSuggestionUpsertOne {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.UpdateContainerID()
-	})
-}
-
-// ClearContainerID clears the value of the "container_id" field.
-func (u *ContainerTrackingSuggestionUpsertOne) ClearContainerID() *ContainerTrackingSuggestionUpsertOne {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearContainerID()
 	})
 }
 
@@ -1095,13 +1089,6 @@ func (u *ContainerTrackingSuggestionUpsertBulk) SetContainerID(v string) *Contai
 func (u *ContainerTrackingSuggestionUpsertBulk) UpdateContainerID() *ContainerTrackingSuggestionUpsertBulk {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.UpdateContainerID()
-	})
-}
-
-// ClearContainerID clears the value of the "container_id" field.
-func (u *ContainerTrackingSuggestionUpsertBulk) ClearContainerID() *ContainerTrackingSuggestionUpsertBulk {
-	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
-		s.ClearContainerID()
 	})
 }
 

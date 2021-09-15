@@ -55,7 +55,7 @@ var (
 	// ContainerTrackingSuggestionsColumns holds the columns for the "container_tracking_suggestions" table.
 	ContainerTrackingSuggestionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "container_id", Type: field.TypeString, Nullable: true},
+		{Name: "container_id", Type: field.TypeString, Default: ""},
 		{Name: "result", Type: field.TypeString, Default: ""},
 		{Name: "tracking_type", Type: field.TypeString, Nullable: true},
 		{Name: "bic", Type: field.TypeString, Default: ""},

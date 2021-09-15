@@ -82,6 +82,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultContainerID holds the default value on creation for the "container_id" field.
+	DefaultContainerID string
 	// DefaultResult holds the default value on creation for the "result" field.
 	DefaultResult string
 	// DefaultBic holds the default value on creation for the "bic" field.

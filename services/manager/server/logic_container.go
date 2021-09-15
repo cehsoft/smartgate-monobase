@@ -16,6 +16,7 @@ import (
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/model"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 )
 
@@ -103,14 +104,9 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListCon
 		return &mygrpc.ResListContainerOCRs{}, nil
 	}
 
-	total, err := svc.db.ContainerTrackingSuggestion.Query().Count(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	query, _, err := q.Select("bic", "cam_id", "checksum",
 		"container_id", "created_at", "id",
-		"image_url", "result", "score", "serial", "tracking_id", "tracking_type").
+		"image_url", "result", "score", "serial", "tracking_id", "tracking_type", q.COUNT("*").Over(q.W()).As("full_count")).
 		From(
 			q.Select("*", q.ROW_NUMBER().Over(q.W().PartitionBy("tracking_id").OrderBy(q.I("score").Desc())).As("rank")).
 				From("container_tracking_suggestions")).
@@ -124,13 +120,15 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListCon
 		return nil, err
 	}
 
-	ocrs := []*ent.ContainerTrackingSuggestion{}
+	// ocrs := []*ent.ContainerTrackingSuggestion{}
+	ocrs := []*model.ContainerTrackingSuggestion{}
 	err = svc.rawdb.Select(&ocrs, query)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
+	total := 0
 	resOCRs := []*mygrpc.ContainerOCR{}
 	for _, s := range ocrs {
 		ocr := &mygrpc.ContainerOCR{
@@ -148,6 +146,7 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListCon
 		}
 
 		resOCRs = append(resOCRs, ocr)
+		total = s.FullCount
 	}
 
 	return &mygrpc.ResListContainerOCRs{

@@ -267,20 +267,6 @@ func ContainerIDHasSuffix(v string) predicate.ContainerTrackingSuggestion {
 	})
 }
 
-// ContainerIDIsNil applies the IsNil predicate on the "container_id" field.
-func ContainerIDIsNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldContainerID)))
-	})
-}
-
-// ContainerIDNotNil applies the NotNil predicate on the "container_id" field.
-func ContainerIDNotNil() predicate.ContainerTrackingSuggestion {
-	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldContainerID)))
-	})
-}
-
 // ContainerIDEqualFold applies the EqualFold predicate on the "container_id" field.
 func ContainerIDEqualFold(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {

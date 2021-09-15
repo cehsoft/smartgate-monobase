@@ -17,7 +17,7 @@ type ContainerTrackingSuggestion struct {
 // Fields of the ContainerTracking.
 func (ContainerTrackingSuggestion) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("container_id").Optional().StructTag(`db:"container_id"`), // deprecated in favor of result
+		field.String("container_id").Default("").StructTag(`db:"container_id"`), // deprecated in favor of result
 		field.String("result").Default(""),
 		field.Int("cam_id").Optional().StructTag(`db:"cam_id"`),
 		field.Int("tracking_id").Optional().StructTag(`db:"tracking_id"`),
