@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'Z\t./;mygrpc',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x13proto/service.proto\x12\x04main\"D\n\tResStatus\x12\x12\n\nstatusCode\x18\x01 \x01(\x05\x12\x0f\n\x07\x65rrCode\x18\x02 \x01(\t\x12\x12\n\nerrMessage\x18\x03 \x01(\t\"}\n\x08ReqEmpty\x12(\n\x06paging\x18\x03 \x01(\x0b\x32\x13.main.RequestPagingH\x00\x88\x01\x01\x12\x13\n\x06offset\x18\x01 \x01(\x05H\x01\x88\x01\x01\x12\x12\n\x05limit\x18\x02 \x01(\x05H\x02\x88\x01\x01\x42\t\n\x07_pagingB\t\n\x07_offsetB\x08\n\x06_limit\"+\n\x08ResEmpty\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\"M\n\rRequestPaging\x12\x13\n\x06offset\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x12\n\x05limit\x18\x02 \x01(\x05H\x01\x88\x01\x01\x42\t\n\x07_offsetB\x08\n\x06_limit\"d\n\x0bReqMLResult\x12\x13\n\x0b\x43ontainerID\x18\x01 \x01(\t\x12\x0e\n\x06Result\x18\x05 \x01(\t\x12\x0f\n\x07\x43\x61mName\x18\x04 \x01(\t\x12\x10\n\x08ImageURL\x18\x02 \x01(\t\x12\r\n\x05Score\x18\x03 \x01(\x02\"V\n\x0fReqPullMLResult\x12(\n\x06paging\x18\x01 \x01(\x0b\x32\x13.main.RequestPagingH\x00\x88\x01\x01\x12\x0e\n\x06laneID\x18\x03 \x01(\x05\x42\t\n\x07_paging\"w\n\x0bResMLResult\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\x11\n\tSuggestID\x18\x05 \x01(\x05\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\r\n\x05Score\x18\x04 \x01(\x02\"\xd1\x01\n\x0c\x43ontainerOCR\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\r\n\x05Score\x18\x05 \x01(\x02\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x0e\n\x06Result\x18\x0b \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\x0b\n\x03\x42IC\x18\x06 \x01(\t\x12\x0e\n\x06Serial\x18\x07 \x01(\t\x12\x10\n\x08\x43hecksum\x18\x08 \x01(\t\x12\x14\n\x0cTrackingType\x18\t \x01(\t\x12\x17\n\x0fTrackingSession\x18\n \x01(\t\x12\x11\n\tCreatedAt\x18\x04 \x01(\x05\"[\n\x14ReqListContainerOCRs\x12(\n\x06paging\x18\x01 \x01(\x0b\x32\x13.main.RequestPagingH\x00\x88\x01\x01\x12\x0e\n\x06laneID\x18\x03 \x01(\x05\x42\t\n\x07_paging\"h\n\x14ResListContainerOCRs\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\r\n\x05total\x18\x03 \x01(\x05\x12 \n\x04ocrs\x18\x02 \x03(\x0b\x32\x12.main.ContainerOCR\"[\n\nCamSetting\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\x0e\n\x06LaneID\x18\x02 \x01(\x05\x12\x0c\n\x04Name\x18\x03 \x01(\t\x12\x10\n\x08Position\x18\x05 \x01(\t\x12\x11\n\tWebRTCURL\x18\x04 \x01(\t\"$\n\x12ReqListCamSettings\x12\x0e\n\x06laneID\x18\x01 \x01(\x05\"8\n\x12ResListCamSettings\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.main.CamSetting\"B\n\x04Lane\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\x0e\n\x06GateID\x18\x02 \x01(\x05\x12\x0c\n\x04Name\x18\x03 \x01(\t\x12\x10\n\x08GateName\x18\x04 \x01(\t\"\x0e\n\x0cReqListLanes\")\n\x0cResListLanes\x12\x19\n\x05lanes\x18\x01 \x03(\x0b\x32\n.main.Lane2\xbf\x02\n\x06MyGRPC\x12\x30\n\x0bnewMLResult\x12\x11.main.ReqMLResult\x1a\x0e.main.ResEmpty\x12:\n\x0cpullMLResult\x12\x15.main.ReqPullMLResult\x1a\x11.main.ResMLResult0\x01\x12K\n\x11listContainerOCRs\x12\x1a.main.ReqListContainerOCRs\x1a\x1a.main.ResListContainerOCRs\x12\x45\n\x0flistCamSettings\x12\x18.main.ReqListCamSettings\x1a\x18.main.ResListCamSettings\x12\x33\n\tlistLanes\x12\x12.main.ReqListLanes\x1a\x12.main.ResListLanesB\x0bZ\t./;mygrpcb\x06proto3'
+  serialized_pb=b'\n\x13proto/service.proto\x12\x04main\"D\n\tResStatus\x12\x12\n\nstatusCode\x18\x01 \x01(\x05\x12\x0f\n\x07\x65rrCode\x18\x02 \x01(\t\x12\x12\n\nerrMessage\x18\x03 \x01(\t\"}\n\x08ReqEmpty\x12(\n\x06paging\x18\x03 \x01(\x0b\x32\x13.main.RequestPagingH\x00\x88\x01\x01\x12\x13\n\x06offset\x18\x01 \x01(\x05H\x01\x88\x01\x01\x12\x12\n\x05limit\x18\x02 \x01(\x05H\x02\x88\x01\x01\x42\t\n\x07_pagingB\t\n\x07_offsetB\x08\n\x06_limit\"+\n\x08ResEmpty\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\"M\n\rRequestPaging\x12\x13\n\x06offset\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x12\n\x05limit\x18\x02 \x01(\x05H\x01\x88\x01\x01\x42\t\n\x07_offsetB\x08\n\x06_limit\"d\n\x0bReqMLResult\x12\x13\n\x0b\x43ontainerID\x18\x01 \x01(\t\x12\x0e\n\x06Result\x18\x05 \x01(\t\x12\x0f\n\x07\x43\x61mName\x18\x04 \x01(\t\x12\x10\n\x08ImageURL\x18\x02 \x01(\t\x12\r\n\x05Score\x18\x03 \x01(\x02\"V\n\x0fReqPullMLResult\x12(\n\x06paging\x18\x01 \x01(\x0b\x32\x13.main.RequestPagingH\x00\x88\x01\x01\x12\x0e\n\x06laneID\x18\x03 \x01(\x05\x42\t\n\x07_paging\"w\n\x0bResMLResult\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\x11\n\tSuggestID\x18\x05 \x01(\x05\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\r\n\x05Score\x18\x04 \x01(\x02\"\xe2\x01\n\x0c\x43ontainerOCR\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\r\n\x05Score\x18\x05 \x01(\x02\x12\x13\n\x0b\x43ontainerID\x18\x02 \x01(\t\x12\x0e\n\x06Result\x18\x0b \x01(\t\x12\x10\n\x08ImageURL\x18\x03 \x01(\t\x12\x0b\n\x03\x42IC\x18\x06 \x01(\t\x12\x0e\n\x06Serial\x18\x07 \x01(\t\x12\x10\n\x08\x43hecksum\x18\x08 \x01(\t\x12\x14\n\x0cTrackingType\x18\t \x01(\t\x12\x17\n\x0fTrackingSession\x18\n \x01(\t\x12\x0f\n\x07IsValid\x18\x0c \x01(\x08\x12\x11\n\tCreatedAt\x18\x04 \x01(\x05\"[\n\x14ReqListContainerOCRs\x12(\n\x06paging\x18\x01 \x01(\x0b\x32\x13.main.RequestPagingH\x00\x88\x01\x01\x12\x0e\n\x06laneID\x18\x03 \x01(\x05\x42\t\n\x07_paging\"h\n\x14ResListContainerOCRs\x12\x1f\n\x06status\x18\x01 \x01(\x0b\x32\x0f.main.ResStatus\x12\r\n\x05total\x18\x03 \x01(\x05\x12 \n\x04ocrs\x18\x02 \x03(\x0b\x32\x12.main.ContainerOCR\"[\n\nCamSetting\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\x0e\n\x06LaneID\x18\x02 \x01(\x05\x12\x0c\n\x04Name\x18\x03 \x01(\t\x12\x10\n\x08Position\x18\x05 \x01(\t\x12\x11\n\tWebRTCURL\x18\x04 \x01(\t\"$\n\x12ReqListCamSettings\x12\x0e\n\x06laneID\x18\x01 \x01(\x05\"8\n\x12ResListCamSettings\x12\"\n\x08settings\x18\x01 \x03(\x0b\x32\x10.main.CamSetting\"B\n\x04Lane\x12\n\n\x02ID\x18\x01 \x01(\x05\x12\x0e\n\x06GateID\x18\x02 \x01(\x05\x12\x0c\n\x04Name\x18\x03 \x01(\t\x12\x10\n\x08GateName\x18\x04 \x01(\t\"\x0e\n\x0cReqListLanes\")\n\x0cResListLanes\x12\x19\n\x05lanes\x18\x01 \x03(\x0b\x32\n.main.Lane\".\n\x0eReqValidateOCR\x12\r\n\x05OCRID\x18\x01 \x01(\x05\x12\r\n\x05valid\x18\x02 \x01(\x08\x32\xf4\x02\n\x06MyGRPC\x12\x30\n\x0bnewMLResult\x12\x11.main.ReqMLResult\x1a\x0e.main.ResEmpty\x12:\n\x0cpullMLResult\x12\x15.main.ReqPullMLResult\x1a\x11.main.ResMLResult0\x01\x12\x33\n\x0bvalidateOCR\x12\x14.main.ReqValidateOCR\x1a\x0e.main.ResEmpty\x12K\n\x11listContainerOCRs\x12\x1a.main.ReqListContainerOCRs\x1a\x1a.main.ResListContainerOCRs\x12\x45\n\x0flistCamSettings\x12\x18.main.ReqListCamSettings\x1a\x18.main.ResListCamSettings\x12\x33\n\tlistLanes\x12\x12.main.ReqListLanes\x1a\x12.main.ResListLanesB\x0bZ\t./;mygrpcb\x06proto3'
 )
 
 
@@ -456,7 +456,14 @@ _CONTAINEROCR = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='CreatedAt', full_name='main.ContainerOCR.CreatedAt', index=10,
+      name='IsValid', full_name='main.ContainerOCR.IsValid', index=10,
+      number=12, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='CreatedAt', full_name='main.ContainerOCR.CreatedAt', index=11,
       number=4, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -475,7 +482,7 @@ _CONTAINEROCR = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=662,
-  serialized_end=871,
+  serialized_end=888,
 )
 
 
@@ -518,8 +525,8 @@ _REQLISTCONTAINEROCRS = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=873,
-  serialized_end=964,
+  serialized_start=890,
+  serialized_end=981,
 )
 
 
@@ -564,8 +571,8 @@ _RESLISTCONTAINEROCRS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=966,
-  serialized_end=1070,
+  serialized_start=983,
+  serialized_end=1087,
 )
 
 
@@ -624,8 +631,8 @@ _CAMSETTING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1072,
-  serialized_end=1163,
+  serialized_start=1089,
+  serialized_end=1180,
 )
 
 
@@ -656,8 +663,8 @@ _REQLISTCAMSETTINGS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1165,
-  serialized_end=1201,
+  serialized_start=1182,
+  serialized_end=1218,
 )
 
 
@@ -688,8 +695,8 @@ _RESLISTCAMSETTINGS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1203,
-  serialized_end=1259,
+  serialized_start=1220,
+  serialized_end=1276,
 )
 
 
@@ -741,8 +748,8 @@ _LANE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1261,
-  serialized_end=1327,
+  serialized_start=1278,
+  serialized_end=1344,
 )
 
 
@@ -766,8 +773,8 @@ _REQLISTLANES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1329,
-  serialized_end=1343,
+  serialized_start=1346,
+  serialized_end=1360,
 )
 
 
@@ -798,8 +805,47 @@ _RESLISTLANES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1345,
-  serialized_end=1386,
+  serialized_start=1362,
+  serialized_end=1403,
+)
+
+
+_REQVALIDATEOCR = _descriptor.Descriptor(
+  name='ReqValidateOCR',
+  full_name='main.ReqValidateOCR',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='OCRID', full_name='main.ReqValidateOCR.OCRID', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='valid', full_name='main.ReqValidateOCR.valid', index=1,
+      number=2, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1405,
+  serialized_end=1451,
 )
 
 _REQEMPTY.fields_by_name['paging'].message_type = _REQUESTPAGING
@@ -848,6 +894,7 @@ DESCRIPTOR.message_types_by_name['ResListCamSettings'] = _RESLISTCAMSETTINGS
 DESCRIPTOR.message_types_by_name['Lane'] = _LANE
 DESCRIPTOR.message_types_by_name['ReqListLanes'] = _REQLISTLANES
 DESCRIPTOR.message_types_by_name['ResListLanes'] = _RESLISTLANES
+DESCRIPTOR.message_types_by_name['ReqValidateOCR'] = _REQVALIDATEOCR
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 ResStatus = _reflection.GeneratedProtocolMessageType('ResStatus', (_message.Message,), {
@@ -962,6 +1009,13 @@ ResListLanes = _reflection.GeneratedProtocolMessageType('ResListLanes', (_messag
   })
 _sym_db.RegisterMessage(ResListLanes)
 
+ReqValidateOCR = _reflection.GeneratedProtocolMessageType('ReqValidateOCR', (_message.Message,), {
+  'DESCRIPTOR' : _REQVALIDATEOCR,
+  '__module__' : 'proto.service_pb2'
+  # @@protoc_insertion_point(class_scope:main.ReqValidateOCR)
+  })
+_sym_db.RegisterMessage(ReqValidateOCR)
+
 
 DESCRIPTOR._options = None
 
@@ -972,8 +1026,8 @@ _MYGRPC = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1389,
-  serialized_end=1708,
+  serialized_start=1454,
+  serialized_end=1826,
   methods=[
   _descriptor.MethodDescriptor(
     name='newMLResult',
@@ -996,9 +1050,19 @@ _MYGRPC = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
+    name='validateOCR',
+    full_name='main.MyGRPC.validateOCR',
+    index=2,
+    containing_service=None,
+    input_type=_REQVALIDATEOCR,
+    output_type=_RESEMPTY,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
     name='listContainerOCRs',
     full_name='main.MyGRPC.listContainerOCRs',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=_REQLISTCONTAINEROCRS,
     output_type=_RESLISTCONTAINEROCRS,
@@ -1008,7 +1072,7 @@ _MYGRPC = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='listCamSettings',
     full_name='main.MyGRPC.listCamSettings',
-    index=3,
+    index=4,
     containing_service=None,
     input_type=_REQLISTCAMSETTINGS,
     output_type=_RESLISTCAMSETTINGS,
@@ -1018,7 +1082,7 @@ _MYGRPC = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='listLanes',
     full_name='main.MyGRPC.listLanes',
-    index=4,
+    index=5,
     containing_service=None,
     input_type=_REQLISTLANES,
     output_type=_RESLISTLANES,

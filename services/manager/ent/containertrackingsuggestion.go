@@ -26,6 +26,8 @@ type ContainerTrackingSuggestion struct {
 	CamID int `json:"cam_id,omitempty" db:"cam_id"`
 	// TrackingID holds the value of the "tracking_id" field.
 	TrackingID int `json:"tracking_id,omitempty" db:"tracking_id"`
+	// IsValid holds the value of the "is_valid" field.
+	IsValid bool `json:"is_valid,omitempty" db:"is_valid"`
 	// TrackingType holds the value of the "tracking_type" field.
 	TrackingType string `json:"tracking_type,omitempty" db:"tracking_type"`
 	// Bic holds the value of the "bic" field.
@@ -89,6 +91,8 @@ func (*ContainerTrackingSuggestion) scanValues(columns []string) ([]interface{},
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case containertrackingsuggestion.FieldIsValid:
+			values[i] = new(sql.NullBool)
 		case containertrackingsuggestion.FieldScore:
 			values[i] = new(sql.NullFloat64)
 		case containertrackingsuggestion.FieldID, containertrackingsuggestion.FieldCamID, containertrackingsuggestion.FieldTrackingID:
@@ -141,6 +145,12 @@ func (cts *ContainerTrackingSuggestion) assignValues(columns []string, values []
 				return fmt.Errorf("unexpected type %T for field tracking_id", values[i])
 			} else if value.Valid {
 				cts.TrackingID = int(value.Int64)
+			}
+		case containertrackingsuggestion.FieldIsValid:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_valid", values[i])
+			} else if value.Valid {
+				cts.IsValid = value.Bool
 			}
 		case containertrackingsuggestion.FieldTrackingType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -230,6 +240,8 @@ func (cts *ContainerTrackingSuggestion) String() string {
 	builder.WriteString(fmt.Sprintf("%v", cts.CamID))
 	builder.WriteString(", tracking_id=")
 	builder.WriteString(fmt.Sprintf("%v", cts.TrackingID))
+	builder.WriteString(", is_valid=")
+	builder.WriteString(fmt.Sprintf("%v", cts.IsValid))
 	builder.WriteString(", tracking_type=")
 	builder.WriteString(cts.TrackingType)
 	builder.WriteString(", bic=")

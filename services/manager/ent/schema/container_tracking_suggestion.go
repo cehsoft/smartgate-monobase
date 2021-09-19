@@ -21,6 +21,7 @@ func (ContainerTrackingSuggestion) Fields() []ent.Field {
 		field.String("result").Default(""),
 		field.Int("cam_id").Optional().StructTag(`db:"cam_id"`),
 		field.Int("tracking_id").Optional().StructTag(`db:"tracking_id"`),
+		field.Bool("is_valid").Default(false).StructTag(`db:"is_valid"`),
 		field.String("tracking_type").Optional().StructTag(`db:"tracking_type"`),
 		field.String("bic").Default(""),
 		field.String("serial").Default(""),

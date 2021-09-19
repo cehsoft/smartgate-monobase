@@ -39,20 +39,24 @@ func init() {
 	containertrackingsuggestionDescResult := containertrackingsuggestionFields[1].Descriptor()
 	// containertrackingsuggestion.DefaultResult holds the default value on creation for the result field.
 	containertrackingsuggestion.DefaultResult = containertrackingsuggestionDescResult.Default.(string)
+	// containertrackingsuggestionDescIsValid is the schema descriptor for is_valid field.
+	containertrackingsuggestionDescIsValid := containertrackingsuggestionFields[4].Descriptor()
+	// containertrackingsuggestion.DefaultIsValid holds the default value on creation for the is_valid field.
+	containertrackingsuggestion.DefaultIsValid = containertrackingsuggestionDescIsValid.Default.(bool)
 	// containertrackingsuggestionDescBic is the schema descriptor for bic field.
-	containertrackingsuggestionDescBic := containertrackingsuggestionFields[5].Descriptor()
+	containertrackingsuggestionDescBic := containertrackingsuggestionFields[6].Descriptor()
 	// containertrackingsuggestion.DefaultBic holds the default value on creation for the bic field.
 	containertrackingsuggestion.DefaultBic = containertrackingsuggestionDescBic.Default.(string)
 	// containertrackingsuggestionDescSerial is the schema descriptor for serial field.
-	containertrackingsuggestionDescSerial := containertrackingsuggestionFields[6].Descriptor()
+	containertrackingsuggestionDescSerial := containertrackingsuggestionFields[7].Descriptor()
 	// containertrackingsuggestion.DefaultSerial holds the default value on creation for the serial field.
 	containertrackingsuggestion.DefaultSerial = containertrackingsuggestionDescSerial.Default.(string)
 	// containertrackingsuggestionDescChecksum is the schema descriptor for checksum field.
-	containertrackingsuggestionDescChecksum := containertrackingsuggestionFields[7].Descriptor()
+	containertrackingsuggestionDescChecksum := containertrackingsuggestionFields[8].Descriptor()
 	// containertrackingsuggestion.DefaultChecksum holds the default value on creation for the checksum field.
 	containertrackingsuggestion.DefaultChecksum = containertrackingsuggestionDescChecksum.Default.(string)
 	// containertrackingsuggestionDescCreatedAt is the schema descriptor for created_at field.
-	containertrackingsuggestionDescCreatedAt := containertrackingsuggestionFields[10].Descriptor()
+	containertrackingsuggestionDescCreatedAt := containertrackingsuggestionFields[11].Descriptor()
 	// containertrackingsuggestion.DefaultCreatedAt holds the default value on creation for the created_at field.
 	containertrackingsuggestion.DefaultCreatedAt = containertrackingsuggestionDescCreatedAt.Default.(func() time.Time)
 	gateFields := schema.Gate{}.Fields()

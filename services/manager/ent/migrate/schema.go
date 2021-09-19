@@ -57,6 +57,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "container_id", Type: field.TypeString, Default: ""},
 		{Name: "result", Type: field.TypeString, Default: ""},
+		{Name: "is_valid", Type: field.TypeBool, Default: false},
 		{Name: "tracking_type", Type: field.TypeString, Nullable: true},
 		{Name: "bic", Type: field.TypeString, Default: ""},
 		{Name: "serial", Type: field.TypeString, Default: ""},
@@ -75,13 +76,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "container_tracking_suggestions_cam_settings_suggestions",
-				Columns:    []*schema.Column{ContainerTrackingSuggestionsColumns[10]},
+				Columns:    []*schema.Column{ContainerTrackingSuggestionsColumns[11]},
 				RefColumns: []*schema.Column{CamSettingsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "container_tracking_suggestions_container_trackings_suggestions",
-				Columns:    []*schema.Column{ContainerTrackingSuggestionsColumns[11]},
+				Columns:    []*schema.Column{ContainerTrackingSuggestionsColumns[12]},
 				RefColumns: []*schema.Column{ContainerTrackingsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

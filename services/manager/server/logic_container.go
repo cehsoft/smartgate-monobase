@@ -106,10 +106,14 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListCon
 
 	query, _, err := q.Select("bic", "cam_id", "checksum",
 		"container_id", "created_at", "id",
-		"image_url", "result", "score", "serial", "tracking_id", "tracking_type", q.COUNT("*").Over(q.W()).As("full_count")).
+		"image_url", "result", "score", "serial", "tracking_id", "tracking_type", "is_valid",
+		q.COUNT("*").Over(q.W()).As("full_count"),
+	).
 		From(
-			q.Select("*", q.ROW_NUMBER().Over(q.W().PartitionBy("tracking_id", "tracking_type").OrderBy(q.I("score").Desc())).As("rank")).
-				From("container_tracking_suggestions")).
+			q.Select("*", q.ROW_NUMBER().Over(q.W().PartitionBy("tracking_id", "tracking_type").
+				OrderBy(q.I("score").Desc())).As("rank")).
+				From("container_tracking_suggestions"),
+		).
 		As("_").
 		Where(q.C("rank").Eq(1), q.C("cam_id").In(camIDs)).
 		Order(q.I("created_at").Desc()).
@@ -141,6 +145,7 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListCon
 			Serial:          s.Serial,
 			Checksum:        s.Checksum,
 			TrackingType:    s.TrackingType,
+			IsValid:         s.IsValid,
 			TrackingSession: fmt.Sprintf("%d", s.TrackingID),
 			CreatedAt:       int32(s.CreatedAt.Unix()),
 		}
@@ -193,4 +198,15 @@ func (svc *Server) PullMLResult(req *mygrpc.ReqPullMLResult, resp mygrpc.MyGRPC_
 	}
 
 	return nil
+}
+
+func (svc *Server) ValidateOCR(ctx context.Context, req *mygrpc.ReqValidateOCR) (*mygrpc.ResEmpty, error) {
+	_, err := svc.db.ContainerTrackingSuggestion.UpdateOneID(int(req.OCRID)).
+		SetIsValid(req.Valid).Save(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &mygrpc.ResEmpty{}, nil
 }

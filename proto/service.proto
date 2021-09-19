@@ -60,6 +60,7 @@ message ContainerOCR {
     string Checksum = 8;
     string TrackingType = 9;
     string TrackingSession = 10;
+    bool IsValid = 12;
     int32 CreatedAt = 4;
 }
 
@@ -108,9 +109,17 @@ message ResListLanes {
     repeated Lane lanes = 1;
 }
 
+
+// validate OCR record
+message ReqValidateOCR {    
+    int32 OCRID = 1;
+    bool valid = 2;
+}
+
 service MyGRPC {
     rpc newMLResult(ReqMLResult) returns (ResEmpty);
     rpc pullMLResult(ReqPullMLResult) returns (stream ResMLResult);
+    rpc validateOCR(ReqValidateOCR) returns (ResEmpty);
     rpc listContainerOCRs(ReqListContainerOCRs) returns (ResListContainerOCRs);
     rpc listCamSettings(ReqListCamSettings) returns (ResListCamSettings);
     rpc listLanes(ReqListLanes) returns (ResListLanes);

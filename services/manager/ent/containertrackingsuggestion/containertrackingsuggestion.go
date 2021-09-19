@@ -19,6 +19,8 @@ const (
 	FieldCamID = "cam_id"
 	// FieldTrackingID holds the string denoting the tracking_id field in the database.
 	FieldTrackingID = "tracking_id"
+	// FieldIsValid holds the string denoting the is_valid field in the database.
+	FieldIsValid = "is_valid"
 	// FieldTrackingType holds the string denoting the tracking_type field in the database.
 	FieldTrackingType = "tracking_type"
 	// FieldBic holds the string denoting the bic field in the database.
@@ -62,6 +64,7 @@ var Columns = []string{
 	FieldResult,
 	FieldCamID,
 	FieldTrackingID,
+	FieldIsValid,
 	FieldTrackingType,
 	FieldBic,
 	FieldSerial,
@@ -86,6 +89,8 @@ var (
 	DefaultContainerID string
 	// DefaultResult holds the default value on creation for the "result" field.
 	DefaultResult string
+	// DefaultIsValid holds the default value on creation for the "is_valid" field.
+	DefaultIsValid bool
 	// DefaultBic holds the default value on creation for the "bic" field.
 	DefaultBic string
 	// DefaultSerial holds the default value on creation for the "serial" field.

@@ -97,6 +97,20 @@ func (ctsu *ContainerTrackingSuggestionUpdate) ClearTrackingID() *ContainerTrack
 	return ctsu
 }
 
+// SetIsValid sets the "is_valid" field.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetIsValid(b bool) *ContainerTrackingSuggestionUpdate {
+	ctsu.mutation.SetIsValid(b)
+	return ctsu
+}
+
+// SetNillableIsValid sets the "is_valid" field if the given value is not nil.
+func (ctsu *ContainerTrackingSuggestionUpdate) SetNillableIsValid(b *bool) *ContainerTrackingSuggestionUpdate {
+	if b != nil {
+		ctsu.SetIsValid(*b)
+	}
+	return ctsu
+}
+
 // SetTrackingType sets the "tracking_type" field.
 func (ctsu *ContainerTrackingSuggestionUpdate) SetTrackingType(s string) *ContainerTrackingSuggestionUpdate {
 	ctsu.mutation.SetTrackingType(s)
@@ -317,6 +331,13 @@ func (ctsu *ContainerTrackingSuggestionUpdate) sqlSave(ctx context.Context) (n i
 			Type:   field.TypeString,
 			Value:  value,
 			Column: containertrackingsuggestion.FieldResult,
+		})
+	}
+	if value, ok := ctsu.mutation.IsValid(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldIsValid,
 		})
 	}
 	if value, ok := ctsu.mutation.TrackingType(); ok {
@@ -541,6 +562,20 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableTrackingID(i *int)
 // ClearTrackingID clears the value of the "tracking_id" field.
 func (ctsuo *ContainerTrackingSuggestionUpdateOne) ClearTrackingID() *ContainerTrackingSuggestionUpdateOne {
 	ctsuo.mutation.ClearTrackingID()
+	return ctsuo
+}
+
+// SetIsValid sets the "is_valid" field.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetIsValid(b bool) *ContainerTrackingSuggestionUpdateOne {
+	ctsuo.mutation.SetIsValid(b)
+	return ctsuo
+}
+
+// SetNillableIsValid sets the "is_valid" field if the given value is not nil.
+func (ctsuo *ContainerTrackingSuggestionUpdateOne) SetNillableIsValid(b *bool) *ContainerTrackingSuggestionUpdateOne {
+	if b != nil {
+		ctsuo.SetIsValid(*b)
+	}
 	return ctsuo
 }
 
@@ -788,6 +823,13 @@ func (ctsuo *ContainerTrackingSuggestionUpdateOne) sqlSave(ctx context.Context) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: containertrackingsuggestion.FieldResult,
+		})
+	}
+	if value, ok := ctsuo.mutation.IsValid(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldIsValid,
 		})
 	}
 	if value, ok := ctsuo.mutation.TrackingType(); ok {

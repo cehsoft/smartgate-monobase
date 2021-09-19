@@ -121,6 +121,13 @@ func TrackingID(v int) predicate.ContainerTrackingSuggestion {
 	})
 }
 
+// IsValid applies equality check predicate on the "is_valid" field. It's identical to IsValidEQ.
+func IsValid(v bool) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIsValid), v))
+	})
+}
+
 // TrackingType applies equality check predicate on the "tracking_type" field. It's identical to TrackingTypeEQ.
 func TrackingType(v string) predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
@@ -513,6 +520,20 @@ func TrackingIDIsNil() predicate.ContainerTrackingSuggestion {
 func TrackingIDNotNil() predicate.ContainerTrackingSuggestion {
 	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldTrackingID)))
+	})
+}
+
+// IsValidEQ applies the EQ predicate on the "is_valid" field.
+func IsValidEQ(v bool) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIsValid), v))
+	})
+}
+
+// IsValidNEQ applies the NEQ predicate on the "is_valid" field.
+func IsValidNEQ(v bool) predicate.ContainerTrackingSuggestion {
+	return predicate.ContainerTrackingSuggestion(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldIsValid), v))
 	})
 }
 

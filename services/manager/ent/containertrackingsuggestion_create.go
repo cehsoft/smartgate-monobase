@@ -80,6 +80,20 @@ func (ctsc *ContainerTrackingSuggestionCreate) SetNillableTrackingID(i *int) *Co
 	return ctsc
 }
 
+// SetIsValid sets the "is_valid" field.
+func (ctsc *ContainerTrackingSuggestionCreate) SetIsValid(b bool) *ContainerTrackingSuggestionCreate {
+	ctsc.mutation.SetIsValid(b)
+	return ctsc
+}
+
+// SetNillableIsValid sets the "is_valid" field if the given value is not nil.
+func (ctsc *ContainerTrackingSuggestionCreate) SetNillableIsValid(b *bool) *ContainerTrackingSuggestionCreate {
+	if b != nil {
+		ctsc.SetIsValid(*b)
+	}
+	return ctsc
+}
+
 // SetTrackingType sets the "tracking_type" field.
 func (ctsc *ContainerTrackingSuggestionCreate) SetTrackingType(s string) *ContainerTrackingSuggestionCreate {
 	ctsc.mutation.SetTrackingType(s)
@@ -259,6 +273,10 @@ func (ctsc *ContainerTrackingSuggestionCreate) defaults() {
 		v := containertrackingsuggestion.DefaultResult
 		ctsc.mutation.SetResult(v)
 	}
+	if _, ok := ctsc.mutation.IsValid(); !ok {
+		v := containertrackingsuggestion.DefaultIsValid
+		ctsc.mutation.SetIsValid(v)
+	}
 	if _, ok := ctsc.mutation.Bic(); !ok {
 		v := containertrackingsuggestion.DefaultBic
 		ctsc.mutation.SetBic(v)
@@ -284,6 +302,9 @@ func (ctsc *ContainerTrackingSuggestionCreate) check() error {
 	}
 	if _, ok := ctsc.mutation.Result(); !ok {
 		return &ValidationError{Name: "result", err: errors.New(`ent: missing required field "result"`)}
+	}
+	if _, ok := ctsc.mutation.IsValid(); !ok {
+		return &ValidationError{Name: "is_valid", err: errors.New(`ent: missing required field "is_valid"`)}
 	}
 	if _, ok := ctsc.mutation.Bic(); !ok {
 		return &ValidationError{Name: "bic", err: errors.New(`ent: missing required field "bic"`)}
@@ -343,6 +364,14 @@ func (ctsc *ContainerTrackingSuggestionCreate) createSpec() (*ContainerTrackingS
 			Column: containertrackingsuggestion.FieldResult,
 		})
 		_node.Result = value
+	}
+	if value, ok := ctsc.mutation.IsValid(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: containertrackingsuggestion.FieldIsValid,
+		})
+		_node.IsValid = value
 	}
 	if value, ok := ctsc.mutation.TrackingType(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -554,6 +583,18 @@ func (u *ContainerTrackingSuggestionUpsert) ClearTrackingID() *ContainerTracking
 	return u
 }
 
+// SetIsValid sets the "is_valid" field.
+func (u *ContainerTrackingSuggestionUpsert) SetIsValid(v bool) *ContainerTrackingSuggestionUpsert {
+	u.Set(containertrackingsuggestion.FieldIsValid, v)
+	return u
+}
+
+// UpdateIsValid sets the "is_valid" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsert) UpdateIsValid() *ContainerTrackingSuggestionUpsert {
+	u.SetExcluded(containertrackingsuggestion.FieldIsValid)
+	return u
+}
+
 // SetTrackingType sets the "tracking_type" field.
 func (u *ContainerTrackingSuggestionUpsert) SetTrackingType(v string) *ContainerTrackingSuggestionUpsert {
 	u.Set(containertrackingsuggestion.FieldTrackingType, v)
@@ -759,6 +800,20 @@ func (u *ContainerTrackingSuggestionUpsertOne) UpdateTrackingID() *ContainerTrac
 func (u *ContainerTrackingSuggestionUpsertOne) ClearTrackingID() *ContainerTrackingSuggestionUpsertOne {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.ClearTrackingID()
+	})
+}
+
+// SetIsValid sets the "is_valid" field.
+func (u *ContainerTrackingSuggestionUpsertOne) SetIsValid(v bool) *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetIsValid(v)
+	})
+}
+
+// UpdateIsValid sets the "is_valid" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertOne) UpdateIsValid() *ContainerTrackingSuggestionUpsertOne {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateIsValid()
 	})
 }
 
@@ -1145,6 +1200,20 @@ func (u *ContainerTrackingSuggestionUpsertBulk) UpdateTrackingID() *ContainerTra
 func (u *ContainerTrackingSuggestionUpsertBulk) ClearTrackingID() *ContainerTrackingSuggestionUpsertBulk {
 	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
 		s.ClearTrackingID()
+	})
+}
+
+// SetIsValid sets the "is_valid" field.
+func (u *ContainerTrackingSuggestionUpsertBulk) SetIsValid(v bool) *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.SetIsValid(v)
+	})
+}
+
+// UpdateIsValid sets the "is_valid" field to the value that was provided on create.
+func (u *ContainerTrackingSuggestionUpsertBulk) UpdateIsValid() *ContainerTrackingSuggestionUpsertBulk {
+	return u.Update(func(s *ContainerTrackingSuggestionUpsert) {
+		s.UpdateIsValid()
 	})
 }
 

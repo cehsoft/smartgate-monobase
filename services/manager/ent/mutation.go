@@ -1321,6 +1321,7 @@ type ContainerTrackingSuggestionMutation struct {
 	id              *int
 	container_id    *string
 	result          *string
+	is_valid        *bool
 	tracking_type   *string
 	bic             *string
 	serial          *string
@@ -1586,6 +1587,42 @@ func (m *ContainerTrackingSuggestionMutation) TrackingIDCleared() bool {
 func (m *ContainerTrackingSuggestionMutation) ResetTrackingID() {
 	m.tracking = nil
 	delete(m.clearedFields, containertrackingsuggestion.FieldTrackingID)
+}
+
+// SetIsValid sets the "is_valid" field.
+func (m *ContainerTrackingSuggestionMutation) SetIsValid(b bool) {
+	m.is_valid = &b
+}
+
+// IsValid returns the value of the "is_valid" field in the mutation.
+func (m *ContainerTrackingSuggestionMutation) IsValid() (r bool, exists bool) {
+	v := m.is_valid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsValid returns the old "is_valid" field's value of the ContainerTrackingSuggestion entity.
+// If the ContainerTrackingSuggestion object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ContainerTrackingSuggestionMutation) OldIsValid(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldIsValid is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldIsValid requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsValid: %w", err)
+	}
+	return oldValue.IsValid, nil
+}
+
+// ResetIsValid resets all changes to the "is_valid" field.
+func (m *ContainerTrackingSuggestionMutation) ResetIsValid() {
+	m.is_valid = nil
 }
 
 // SetTrackingType sets the "tracking_type" field.
@@ -1957,7 +1994,7 @@ func (m *ContainerTrackingSuggestionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ContainerTrackingSuggestionMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.container_id != nil {
 		fields = append(fields, containertrackingsuggestion.FieldContainerID)
 	}
@@ -1969,6 +2006,9 @@ func (m *ContainerTrackingSuggestionMutation) Fields() []string {
 	}
 	if m.tracking != nil {
 		fields = append(fields, containertrackingsuggestion.FieldTrackingID)
+	}
+	if m.is_valid != nil {
+		fields = append(fields, containertrackingsuggestion.FieldIsValid)
 	}
 	if m.tracking_type != nil {
 		fields = append(fields, containertrackingsuggestion.FieldTrackingType)
@@ -2007,6 +2047,8 @@ func (m *ContainerTrackingSuggestionMutation) Field(name string) (ent.Value, boo
 		return m.CamID()
 	case containertrackingsuggestion.FieldTrackingID:
 		return m.TrackingID()
+	case containertrackingsuggestion.FieldIsValid:
+		return m.IsValid()
 	case containertrackingsuggestion.FieldTrackingType:
 		return m.TrackingType()
 	case containertrackingsuggestion.FieldBic:
@@ -2038,6 +2080,8 @@ func (m *ContainerTrackingSuggestionMutation) OldField(ctx context.Context, name
 		return m.OldCamID(ctx)
 	case containertrackingsuggestion.FieldTrackingID:
 		return m.OldTrackingID(ctx)
+	case containertrackingsuggestion.FieldIsValid:
+		return m.OldIsValid(ctx)
 	case containertrackingsuggestion.FieldTrackingType:
 		return m.OldTrackingType(ctx)
 	case containertrackingsuggestion.FieldBic:
@@ -2088,6 +2132,13 @@ func (m *ContainerTrackingSuggestionMutation) SetField(name string, value ent.Va
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTrackingID(v)
+		return nil
+	case containertrackingsuggestion.FieldIsValid:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsValid(v)
 		return nil
 	case containertrackingsuggestion.FieldTrackingType:
 		v, ok := value.(string)
@@ -2240,6 +2291,9 @@ func (m *ContainerTrackingSuggestionMutation) ResetField(name string) error {
 		return nil
 	case containertrackingsuggestion.FieldTrackingID:
 		m.ResetTrackingID()
+		return nil
+	case containertrackingsuggestion.FieldIsValid:
+		m.ResetIsValid()
 		return nil
 	case containertrackingsuggestion.FieldTrackingType:
 		m.ResetTrackingType()
