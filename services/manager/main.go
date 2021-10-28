@@ -36,6 +36,7 @@ type grpcMultiplexer struct {
 type Config struct {
 	DB       string `env:"DB,required"`
 	TLS      bool   `env:"TLS,default=false"`
+	Migrate  bool   `env:"MIGRATE,default=false"`
 	HTTP     string `env:"HTTP_PORT,default=:3000"`
 	GRPC     string `env:"GRPC_PORT,default=:9990"`
 	CertPath string `env:"CERT_PATH,default=cert/"`
@@ -107,6 +108,13 @@ func main() {
 
 	server := server.CreateServer(client, db)
 	mygrpc.RegisterMyGRPCServer(apiserver, server)
+
+	if config.Migrate {
+		err = server.MigrateVirtualSessionsForOCRs(context.Background())
+		if err != nil {
+			log.Fatal("migrate: ", err)
+		}
+	}
 
 	go func() {
 		log.Fatal(apiserver.Serve(lis))

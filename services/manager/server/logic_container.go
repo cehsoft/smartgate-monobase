@@ -16,6 +16,8 @@ import (
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/camsetting"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertracking"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/containertrackingsuggestion"
+	"github.com/init-tech-solution/service-spitc-stream/services/manager/ent/predicate"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/model"
 	"github.com/init-tech-solution/service-spitc-stream/services/manager/mygrpc"
 )
@@ -90,6 +92,82 @@ func (svc *Server) NewMLResult(ctx context.Context, req *mygrpc.ReqMLResult) (*m
 	return &mygrpc.ResEmpty{}, nil
 }
 
+func (svc *Server) MigrateVirtualSessionsForOCRs(ctx context.Context) error {
+	ocrs, err := svc.db.ContainerTrackingSuggestion.Query().
+		Where(containertrackingsuggestion.CreatedAtGT(time.Date(2021, time.October, 20, 0, 0, 0, 0, time.UTC))).
+		Order(ent.Asc(containertrackingsuggestion.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		return err
+	}
+
+	virtuals, err := createVirtualSessions(ocrs)
+	if err != nil {
+		return err
+	}
+
+	vss := []string{}
+	for vssUUID, _ := range virtuals {
+		vss = append(vss, vssUUID)
+	}
+
+	tx, err := svc.db.Tx(ctx)
+	if err != nil {
+		return err
+	}
+
+	creatingVss := make([]*ent.ContainerTrackingCreate, len(vss))
+	fmt.Println("migrate: total creating virtual sessions:", len(creatingVss))
+	for i, name := range vss {
+		creatingVss[i] = tx.ContainerTracking.Create().SetSessionID(name)
+	}
+
+	createdVss, err := tx.ContainerTracking.CreateBulk(creatingVss...).Save(ctx)
+	if err != nil {
+		return rollback(tx, err)
+	}
+
+	// j, _ := json.Marshal(virtuals)
+	// jj := bytes.NewBuffer(nil)
+	// json.Indent(jj, j, "", "\t")
+	// fmt.Println(jj.String())
+
+	for _, createdVs := range createdVss {
+		sugests := []*ent.ContainerTrackingSuggestion{}
+
+		sugests = append(sugests, virtuals[createdVs.SessionID]["contID"]...)
+		sugests = append(sugests, virtuals[createdVs.SessionID]["vehicleID"]...)
+		sugests = append(sugests, virtuals[createdVs.SessionID]["romoocID"]...)
+
+		sugestIDs := []predicate.ContainerTrackingSuggestion{}
+		for _, s := range sugests {
+			sugestIDs = append(sugestIDs, containertrackingsuggestion.ID(s.ID))
+		}
+		fmt.Printf("migrate: bind %d results to session %s\n", len(sugests), createdVs.SessionID)
+
+		_, err := tx.ContainerTrackingSuggestion.Update().Where(containertrackingsuggestion.Or(
+			sugestIDs...,
+		)).SetTrackingID(createdVs.ID).Save(ctx)
+		if err != nil {
+			return rollback(tx, err)
+		}
+	}
+
+	_, err = tx.ContainerTracking.Delete().Where(containertracking.Not(containertracking.HasSuggestions())).Exec(ctx)
+	if err != nil {
+		return rollback(tx, err)
+	}
+
+	return tx.Commit()
+}
+
+func rollback(tx *ent.Tx, err error) error {
+	if rerr := tx.Rollback(); rerr != nil {
+		err = fmt.Errorf("%w: %v", err, rerr)
+	}
+	return err
+}
+
 func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListContainerOCRs) (*mygrpc.ResListContainerOCRs, error) {
 	offset, limit := paging(req.Paging)
 
@@ -115,7 +193,8 @@ func (svc *Server) ListContainerOCRs(ctx context.Context, req *mygrpc.ReqListCon
 				From("container_tracking_suggestions"),
 		).
 		As("_").
-		Where(q.C("rank").Eq(1), q.C("cam_id").In(camIDs)).
+		Where(q.C("cam_id").In(camIDs)).
+		// Where(q.C("rank").Eq(1), q.C("cam_id").In(camIDs)).
 		Order(q.I("created_at").Desc()).
 		Offset(uint(offset)).
 		Limit(uint(limit)).
